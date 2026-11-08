@@ -1,8 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AdminPortal } from './AdminPortal';
 import { api, ApiClientError, getServerNowMs } from './api';
 import { POLL_INTERVAL_MS, STUDENT_ID_STORAGE_KEY } from './config';
 import { STRINGS } from './strings';
-import { HoldItem, HoldStatus, SchoolClass } from './types';
+import {
+  ClassFeeBreakdown,
+  HoldItem,
+  HoldStatus,
+  PaymentRecord,
+  SaveStudentProfilePayload,
+  SchoolClass,
+  StudentProfile,
+  WaitlistEntry,
+} from './types';
 
 export function isValidStudentId(value: string): boolean {
   return /^[0-9]{17}$/.test(value.trim());
@@ -38,7 +48,42 @@ function formatStatusLabel(status: HoldStatus): string {
   }
 }
 
+type ProfileSectionTab = 'student' | 'guardians' | 'finance' | 'documents';
+
 export function App() {
+  // --- URL Routing: /admin -> AdminPortal, / -> ParentPortal ---
+  const [pathname, setPathname] = useState<string>(() =>
+    typeof window !== 'undefined' ? window.location.pathname : '/',
+  );
+
+  useEffect(() => {
+    const onPopState = () => setPathname(window.location.pathname);
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  const navigateTo = useCallback((nextPath: string) => {
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', nextPath);
+      setPathname(nextPath);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
+  const isAdminRoute = pathname === '/admin' || pathname.startsWith('/admin/');
+
+  if (isAdminRoute) {
+    return <AdminPortal onNavigateToParent={() => navigateTo('/')} />;
+  }
+
+  return <ParentPortal onNavigateToAdmin={() => navigateTo('/admin')} />;
+}
+
+interface ParentPortalProps {
+  onNavigateToAdmin: () => void;
+}
+
+function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
   // --- Persisted Student ID ---
   const [savedStudentId, setSavedStudentId] = useState<string>(() => {
     try {
@@ -52,20 +97,64 @@ export function App() {
   const [isEditingStudentId, setIsEditingStudentId] = useState<boolean>(!savedStudentId);
   const [studentIdError, setStudentIdError] = useState<string | null>(null);
 
-  // --- Data State ---
+  // --- Core Seat & Hold Data ---
   const [classes, setClasses] = useState<SchoolClass[]>([]);
   const [myHolds, setMyHolds] = useState<HoldItem[]>([]);
   const [selectedHoldId, setSelectedHoldId] = useState<string | null>(null);
 
-  // --- Create Class Form State ---
-  const [newClassName, setNewClassName] = useState('');
-  const [newClassSeats, setNewClassSeats] = useState('120');
-  const [isCreatingClass, setIsCreatingClass] = useState(false);
+  // --- Extended Parent Data (Child Profile, Fee Breakdown, Receipts, Waitlist) ---
+  const [profile, setProfile] = useState<StudentProfile | null>(null);
+  const [profileForm, setProfileForm] = useState<SaveStudentProfilePayload>({
+    fullNameEn: '',
+    fullNameBn: '',
+    dob: '',
+    gender: '',
+    nationality: 'Bangladeshi',
+    religion: '',
+    bloodGroup: '',
+    presentAddress: '',
+    permanentAddress: '',
+    previousSchool: '',
+    lastClassPassed: '',
+    lastResult: '',
+    healthNotes: '',
+    hasSibling: false,
+    siblingName: '',
+    siblingClass: '',
+    siblingStudentId: '',
+    fatherName: '',
+    fatherNid: '',
+    fatherOccupation: '',
+    fatherEmployer: '',
+    fatherPhone: '',
+    fatherEmail: '',
+    motherName: '',
+    motherNid: '',
+    motherOccupation: '',
+    motherEmployer: '',
+    motherPhone: '',
+    motherEmail: '',
+    guardianName: '',
+    guardianRelation: 'Father',
+    guardianPhone: '',
+    emergencyContact: '',
+    monthlyIncome: 0,
+    incomeBracket: '25,000 - 50,000 BDT',
+    incomeSource: 'Salaried Employment',
+    dependents: 2,
+    concessionRequested: false,
+  });
+  const [activeProfileTab, setActiveProfileTab] = useState<ProfileSectionTab>('student');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [payments, setPayments] = useState<PaymentRecord[]>([]);
+  const [waitlistEntries, setWaitlistEntries] = useState<WaitlistEntry[]>([]);
+  const [focusedFeeBreakdown, setFocusedFeeBreakdown] = useState<ClassFeeBreakdown | null>(null);
 
   // --- In-flight Action States ---
   const [applyingClassId, setApplyingClassId] = useState<string | null>(null);
   const [confirmingHoldId, setConfirmingHoldId] = useState<string | null>(null);
   const [cancellingHoldId, setCancellingHoldId] = useState<string | null>(null);
+  const [joiningWaitlistClassId, setJoiningWaitlistClassId] = useState<string | null>(null);
 
   // --- Messages / Feedback ---
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -86,7 +175,7 @@ export function App() {
     }
   }, []);
 
-  // --- Data Fetching ---
+  // --- Core Data Fetching ---
   const refreshData = useCallback(
     async (silent = false) => {
       try {
@@ -103,15 +192,93 @@ export function App() {
         if (!silent) {
           showError(err);
         } else {
-          // Even during background polling, surface network errors if we have no data loaded yet
           setErrorMessage((prev) =>
-            prev ?? (err instanceof ApiClientError ? err.friendlyMessage : STRINGS.errors.NETWORK_ERROR),
+            prev ??
+            (err instanceof ApiClientError ? err.friendlyMessage : STRINGS.errors.NETWORK_ERROR),
           );
+        }
+      }
+
+      if (savedStudentId && isValidStudentId(savedStudentId)) {
+        try {
+          const [pays, waits] = await Promise.all([
+            api.getStudentPayments(savedStudentId),
+            api.getStudentWaitlist(savedStudentId),
+          ]);
+          if (Array.isArray(pays)) setPayments(pays);
+          if (Array.isArray(waits)) setWaitlistEntries(waits);
+        } catch {
+          // Optional extended endpoints; ignore in minimal mock environments
         }
       }
     },
     [savedStudentId, showError],
   );
+
+  // Load Student Profile when Student ID changes
+  useEffect(() => {
+    if (!savedStudentId || !isValidStudentId(savedStudentId)) {
+      setProfile(null);
+      setPayments([]);
+      setWaitlistEntries([]);
+      return;
+    }
+
+    let cancelled = false;
+    void (async () => {
+      try {
+        const loaded = await api.getStudentProfile(savedStudentId);
+        if (cancelled || !loaded || typeof loaded.studentId !== 'string') return;
+        setProfile(loaded);
+        setProfileForm({
+          fullNameEn: loaded.fullNameEn || '',
+          fullNameBn: loaded.fullNameBn || '',
+          dob: loaded.dob || '',
+          gender: loaded.gender || '',
+          nationality: loaded.nationality || 'Bangladeshi',
+          religion: loaded.religion || '',
+          bloodGroup: loaded.bloodGroup || '',
+          presentAddress: loaded.presentAddress || '',
+          permanentAddress: loaded.permanentAddress || '',
+          previousSchool: loaded.previousSchool || '',
+          lastClassPassed: loaded.lastClassPassed || '',
+          lastResult: loaded.lastResult || '',
+          healthNotes: loaded.healthNotes || '',
+          hasSibling: Boolean(loaded.hasSibling),
+          siblingName: loaded.siblingName || '',
+          siblingClass: loaded.siblingClass || '',
+          siblingStudentId: loaded.siblingStudentId || '',
+          fatherName: loaded.fatherName || '',
+          fatherNid: loaded.fatherNid || '',
+          fatherOccupation: loaded.fatherOccupation || '',
+          fatherEmployer: loaded.fatherEmployer || '',
+          fatherPhone: loaded.fatherPhone || '',
+          fatherEmail: loaded.fatherEmail || '',
+          motherName: loaded.motherName || '',
+          motherNid: loaded.motherNid || '',
+          motherOccupation: loaded.motherOccupation || '',
+          motherEmployer: loaded.motherEmployer || '',
+          motherPhone: loaded.motherPhone || '',
+          motherEmail: loaded.motherEmail || '',
+          guardianName: loaded.guardianName || '',
+          guardianRelation: loaded.guardianRelation || 'Father',
+          guardianPhone: loaded.guardianPhone || '',
+          emergencyContact: loaded.emergencyContact || '',
+          monthlyIncome: loaded.monthlyIncome || 0,
+          incomeBracket: loaded.incomeBracket || '25,000 - 50,000 BDT',
+          incomeSource: loaded.incomeSource || 'Salaried Employment',
+          dependents: loaded.dependents || 2,
+          concessionRequested: Boolean(loaded.concessionRequested),
+        });
+      } catch {
+        // Ignore in minimal mock test environments
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [savedStudentId]);
 
   // Initial fetch + polling every POLL_INTERVAL_MS
   useEffect(() => {
@@ -131,7 +298,7 @@ export function App() {
     return () => window.clearInterval(tickTimer);
   }, []);
 
-  // Whenever any HELD application crosses its expiry timestamp locally, trigger an immediate re-fetch once
+  // Immediate re-fetch when a HELD hold crosses expiry
   useEffect(() => {
     let shouldRefetch = false;
     for (const h of myHolds) {
@@ -148,6 +315,37 @@ export function App() {
       void refreshData(true);
     }
   }, [myHolds, nowMs, refreshData]);
+
+  // Focused application for the "Application View" panel
+  const focusedHold = useMemo(() => {
+    if (selectedHoldId) {
+      const found = myHolds.find((h) => h.holdId === selectedHoldId);
+      if (found) return found;
+    }
+    return myHolds[0] || null;
+  }, [myHolds, selectedHoldId]);
+
+  // Load fee breakdown for focused hold's class
+  useEffect(() => {
+    if (!focusedHold?.classId) {
+      setFocusedFeeBreakdown(null);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const fees = await api.getClassFeeBreakdown(focusedHold.classId, savedStudentId);
+        if (!cancelled && fees && Array.isArray(fees.heads)) {
+          setFocusedFeeBreakdown(fees);
+        }
+      } catch {
+        // Ignore if not mocked
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [focusedHold?.classId, savedStudentId, profile?.hasSibling]);
 
   // --- Student ID Handlers ---
   const handleSaveStudentId = (e: React.FormEvent) => {
@@ -179,6 +377,7 @@ export function App() {
     setStudentIdInput('');
     setMyHolds([]);
     setSelectedHoldId(null);
+    setProfile(null);
     setStudentIdError(null);
     setIsEditingStudentId(true);
     try {
@@ -188,38 +387,50 @@ export function App() {
     }
   };
 
-  // --- Admin Create Class Handler ---
-  const handleCreateClass = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // --- Child Information / Profile Handlers ---
+  const handleSaveProfile = async (submitForReview: boolean) => {
+    if (!isValidStudentId(savedStudentId)) {
+      setErrorMessage(STRINGS.studentIdValidationError);
+      setIsEditingStudentId(true);
+      return;
+    }
     setErrorMessage(null);
     setSuccessMessage(null);
-
-    const trimmedName = newClassName.trim();
-    if (!trimmedName) {
-      setErrorMessage(STRINGS.createClassNameError);
-      return;
-    }
-    const parsedSeats = Number(newClassSeats);
-    if (!Number.isInteger(parsedSeats) || parsedSeats <= 0) {
-      setErrorMessage(STRINGS.createClassSeatsError);
-      return;
-    }
-
-    setIsCreatingClass(true);
+    setIsSavingProfile(true);
     try {
-      const created = await api.createClass(trimmedName, parsedSeats);
-      setNewClassName('');
-      setNewClassSeats('120');
-      setSuccessMessage(STRINGS.createClassSuccess(created.name, created.totalSeats));
-      await refreshData(false);
+      const updated = await api.saveStudentProfile(savedStudentId, {
+        ...profileForm,
+        submitForReview,
+      });
+      setProfile(updated);
+      setSuccessMessage(
+        submitForReview ? STRINGS.profileSubmittedSuccess : STRINGS.profileSavedSuccess,
+      );
     } catch (err) {
       showError(err);
     } finally {
-      setIsCreatingClass(false);
+      setIsSavingProfile(false);
     }
   };
 
-  // --- Student Actions ---
+  const handleUploadDocument = async (type: string, label: string, file: File | null) => {
+    if (!isValidStudentId(savedStudentId)) {
+      setErrorMessage(STRINGS.studentIdValidationError);
+      return;
+    }
+    const fileName = file ? file.name : `${type.toLowerCase()}_${savedStudentId.slice(-4)}.pdf`;
+    const fileSize = file ? file.size : 142_000;
+    setErrorMessage(null);
+    try {
+      const updated = await api.uploadDocument(savedStudentId, type, label, fileName, fileSize);
+      setProfile(updated);
+      setSuccessMessage(STRINGS.documentUploadedSuccess(label));
+    } catch (err) {
+      showError(err);
+    }
+  };
+
+  // --- Student Seat Actions ---
   const handleApply = async (cls: SchoolClass) => {
     setErrorMessage(null);
     setSuccessMessage(null);
@@ -246,6 +457,24 @@ export function App() {
       await refreshData(true);
     } finally {
       setApplyingClassId(null);
+    }
+  };
+
+  const handleJoinWaitlist = async (cls: SchoolClass) => {
+    if (!isValidStudentId(savedStudentId)) {
+      setErrorMessage(STRINGS.studentIdValidationError);
+      return;
+    }
+    setErrorMessage(null);
+    setJoiningWaitlistClassId(cls.id);
+    try {
+      const entry = await api.joinWaitlist(cls.id, savedStudentId);
+      setWaitlistEntries((prev) => [entry, ...prev.filter((w) => w.classId !== cls.id)]);
+      setSuccessMessage(STRINGS.waitlistJoinedSuccess(cls.name, entry.position));
+    } catch (err) {
+      showError(err);
+    } finally {
+      setJoiningWaitlistClassId(null);
     }
   };
 
@@ -316,15 +545,6 @@ export function App() {
     return map;
   }, [myHolds, nowMs]);
 
-  // Focused application for the "Application View" panel
-  const focusedHold = useMemo(() => {
-    if (selectedHoldId) {
-      const found = myHolds.find((h) => h.holdId === selectedHoldId);
-      if (found) return found;
-    }
-    return myHolds[0] || null;
-  }, [myHolds, selectedHoldId]);
-
   const classNamesById = useMemo(() => {
     const map = new Map<string, string>();
     for (const c of classes) {
@@ -334,10 +554,20 @@ export function App() {
   }, [classes]);
 
   return (
-    <div className="container">
-      <header className="header">
-        <h1>{STRINGS.appTitle}</h1>
-        <p className="subtitle">{STRINGS.appSubtitle}</p>
+    <div className="container" data-testid="parent-portal-view">
+      <header className="header header-row">
+        <div>
+          <h1>{STRINGS.appTitle}</h1>
+          <p className="subtitle">{STRINGS.appSubtitle}</p>
+        </div>
+        <button
+          type="button"
+          className="btn btn-outline"
+          data-testid="go-to-admin-btn"
+          onClick={onNavigateToAdmin}
+        >
+          {STRINGS.navGoToAdmin}
+        </button>
       </header>
 
       {/* --- Top Student ID Bar --- */}
@@ -349,6 +579,14 @@ export function App() {
               <strong data-testid="active-student-id" className="mono">
                 {savedStudentId}
               </strong>
+              {profile?.fullNameEn && (
+                <span className="student-name-pill"> — {profile.fullNameEn}</span>
+              )}
+              {profile?.applicationStatus && (
+                <span className="status-badge" style={{ marginLeft: '0.5rem' }}>
+                  Dossier: {profile.applicationStatus}
+                </span>
+              )}
             </div>
             <div className="button-group">
               <button
@@ -438,53 +676,547 @@ export function App() {
         </div>
       )}
 
-      {/* --- School Admin: Create Class --- */}
-      <section className="card" data-testid="create-class-section">
-        <h2>{STRINGS.adminSectionTitle}</h2>
-        <form onSubmit={handleCreateClass} className="create-class-form" noValidate>
-          <div className="form-field">
-            <label htmlFor="class-name-input" className="form-label">
-              {STRINGS.classNameLabel}
-            </label>
-            <input
-              id="class-name-input"
-              data-testid="class-name-input"
-              type="text"
-              className="input"
-              placeholder={STRINGS.classNamePlaceholder}
-              value={newClassName}
-              onChange={(e) => setNewClassName(e.target.value)}
-              disabled={isCreatingClass}
-            />
+      {/* --- Enrollment Welcome Banner (if Enrolled by Admin) --- */}
+      {profile?.applicationStatus === 'ENROLLED' && (
+        <section className="card highlight-card" data-testid="enrollment-letter-card">
+          <h2>Congratulations! Admission Approved & Enrolled</h2>
+          <p>
+            <strong>Student Name:</strong> {profile.fullNameEn} ({profile.studentId}) |{' '}
+            <strong>Assigned Section:</strong> {profile.assignedSection || 'Section A'} |{' '}
+            <strong>Student Roll No:</strong>{' '}
+            <span className="mono">{profile.enrolledStudentNo}</span>
+          </p>
+          {profile.reviewerNote && <p className="hint-text">Note: {profile.reviewerNote}</p>}
+        </section>
+      )}
+
+      {/* --- Officer Correction Request Alert --- */}
+      {profile?.applicationStatus === 'NEEDS_CORRECTION' && (
+        <div className="alert alert-error" role="alert">
+          <span>
+            <strong>Correction Requested by Admission Officer:</strong>{' '}
+            {profile.reviewerNote ||
+              'Please review and update your child profile or documents below and click Submit.'}
+          </span>
+        </div>
+      )}
+
+      {/* --- Child Information, Guardians, Financial & Documents Form --- */}
+      <section className="card" data-testid="child-profile-section">
+        <div className="section-header">
+          <div>
+            <h2>{STRINGS.childInfoTitle}</h2>
+            <p className="hint-text">{STRINGS.childInfoSubtitle}</p>
           </div>
-          <div className="form-field seats-field">
-            <label htmlFor="total-seats-input" className="form-label">
-              {STRINGS.totalSeatsLabel}
-            </label>
-            <input
-              id="total-seats-input"
-              data-testid="total-seats-input"
-              type="number"
-              min={1}
-              step={1}
-              className="input"
-              placeholder={STRINGS.totalSeatsPlaceholder}
-              value={newClassSeats}
-              onChange={(e) => setNewClassSeats(e.target.value)}
-              disabled={isCreatingClass}
-            />
-          </div>
-          <div className="form-actions">
-            <button
-              type="submit"
-              className="btn btn-primary"
-              data-testid="create-class-btn"
-              disabled={isCreatingClass}
-            >
-              {isCreatingClass ? STRINGS.creatingClassButton : STRINGS.createClassButton}
-            </button>
-          </div>
-        </form>
+          {savedStudentId && (
+            <div className="completeness-box">
+              <span className="hint-text">
+                {STRINGS.profileCompletenessLabel}:{' '}
+                <strong>{profile?.completenessPercent ?? 0}%</strong>
+              </span>
+              <div className="progress-track">
+                <div
+                  className="progress-fill"
+                  style={{ width: `${profile?.completenessPercent ?? 0}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {!savedStudentId ? (
+          <p className="empty-state">{STRINGS.studentIdRequiredHint}</p>
+        ) : (
+          <>
+            <div className="portal-tabs" style={{ marginBottom: '1rem' }}>
+              <button
+                type="button"
+                className={`tab-btn ${activeProfileTab === 'student' ? 'active' : ''}`}
+                onClick={() => setActiveProfileTab('student')}
+              >
+                1. Student Profile
+              </button>
+              <button
+                type="button"
+                className={`tab-btn ${activeProfileTab === 'guardians' ? 'active' : ''}`}
+                onClick={() => setActiveProfileTab('guardians')}
+              >
+                2. Father, Mother & Guardian
+              </button>
+              <button
+                type="button"
+                className={`tab-btn ${activeProfileTab === 'finance' ? 'active' : ''}`}
+                onClick={() => setActiveProfileTab('finance')}
+              >
+                3. Income & Concession
+              </button>
+              <button
+                type="button"
+                className={`tab-btn ${activeProfileTab === 'documents' ? 'active' : ''}`}
+                onClick={() => setActiveProfileTab('documents')}
+              >
+                4. Document Upload
+              </button>
+            </div>
+
+            {activeProfileTab === 'student' && (
+              <div className="form-grid-3">
+                <div className="form-field">
+                  <label className="form-label" htmlFor="child-name-en">
+                    Child Full Name (English) *
+                  </label>
+                  <input
+                    id="child-name-en"
+                    data-testid="child-name-en-input"
+                    type="text"
+                    className="input"
+                    placeholder="e.g. Aarav Rahman"
+                    value={profileForm.fullNameEn || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, fullNameEn: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label" htmlFor="child-name-bn">
+                    Child Full Name (Bangla)
+                  </label>
+                  <input
+                    id="child-name-bn"
+                    data-testid="child-name-bn-input"
+                    type="text"
+                    className="input"
+                    placeholder="যেমন: আরভ রহমান"
+                    value={profileForm.fullNameBn || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, fullNameBn: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label" htmlFor="child-dob">
+                    Date of Birth *
+                  </label>
+                  <input
+                    id="child-dob"
+                    data-testid="child-dob-input"
+                    type="date"
+                    className="input"
+                    value={profileForm.dob || ''}
+                    onChange={(e) => setProfileForm({ ...profileForm, dob: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Gender</label>
+                  <select
+                    className="input"
+                    value={profileForm.gender || ''}
+                    onChange={(e) => setProfileForm({ ...profileForm, gender: e.target.value })}
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Blood Group</label>
+                  <select
+                    className="input"
+                    value={profileForm.bloodGroup || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, bloodGroup: e.target.value })
+                    }
+                  >
+                    <option value="">Select Blood Group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                  </select>
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Religion (Optional)</label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="e.g. Islam / Hinduism / Christianity / Buddhism"
+                    value={profileForm.religion || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, religion: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label" htmlFor="child-present-address">
+                    Present Address *
+                  </label>
+                  <input
+                    id="child-present-address"
+                    data-testid="child-address-input"
+                    type="text"
+                    className="input"
+                    placeholder="House, Road, Area, City"
+                    value={profileForm.presentAddress || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, presentAddress: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Permanent Address</label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Village / Post / District"
+                    value={profileForm.permanentAddress || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, permanentAddress: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Previous School (Class 2+)</label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Previous school name"
+                    value={profileForm.previousSchool || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, previousSchool: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Last Class Passed & Result</label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="e.g. Class 5 — GPA 5.00"
+                    value={profileForm.lastResult || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, lastResult: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Health Notes / Allergies / Special Needs</label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="None, or specify medical notes"
+                    value={profileForm.healthNotes || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, healthNotes: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">
+                    <input
+                      type="checkbox"
+                      data-testid="sibling-checkbox"
+                      checked={Boolean(profileForm.hasSibling)}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, hasSibling: e.target.checked })
+                      }
+                    />{' '}
+                    Sibling Currently Studying Here (10% Admission Fee Discount)
+                  </label>
+                  {profileForm.hasSibling && (
+                    <input
+                      type="text"
+                      className="input"
+                      placeholder="Sibling Name, Class & Roll No"
+                      value={profileForm.siblingName || ''}
+                      onChange={(e) =>
+                        setProfileForm({ ...profileForm, siblingName: e.target.value })
+                      }
+                    />
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeProfileTab === 'guardians' && (
+              <div className="form-grid-3">
+                <div className="form-field">
+                  <label className="form-label">Father’s Full Name *</label>
+                  <input
+                    type="text"
+                    data-testid="father-name-input"
+                    className="input"
+                    placeholder="Father's full name"
+                    value={profileForm.fatherName || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, fatherName: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Father’s NID Number</label>
+                  <input
+                    type="text"
+                    className="input mono"
+                    placeholder="10 or 17 digit NID"
+                    value={profileForm.fatherNid || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, fatherNid: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Father’s Mobile Number *</label>
+                  <input
+                    type="text"
+                    data-testid="father-phone-input"
+                    className="input mono"
+                    placeholder="017XXXXXXXX"
+                    value={profileForm.fatherPhone || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, fatherPhone: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Father’s Occupation & Employer</label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Occupation / Organization"
+                    value={profileForm.fatherOccupation || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, fatherOccupation: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Mother’s Full Name *</label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Mother's full name"
+                    value={profileForm.motherName || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, motherName: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Mother’s NID Number</label>
+                  <input
+                    type="text"
+                    className="input mono"
+                    placeholder="10 or 17 digit NID"
+                    value={profileForm.motherNid || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, motherNid: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Mother’s Mobile Number</label>
+                  <input
+                    type="text"
+                    className="input mono"
+                    placeholder="018XXXXXXXX"
+                    value={profileForm.motherPhone || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, motherPhone: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Mother’s Occupation</label>
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Occupation"
+                    value={profileForm.motherOccupation || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, motherOccupation: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Emergency Contact Phone</label>
+                  <input
+                    type="text"
+                    className="input mono"
+                    placeholder="Emergency contact number"
+                    value={profileForm.emergencyContact || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, emergencyContact: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+            )}
+
+            {activeProfileTab === 'finance' && (
+              <div className="form-grid-3">
+                <div className="form-field">
+                  <label className="form-label">Monthly Household Income (BDT)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    className="input"
+                    value={profileForm.monthlyIncome ?? 0}
+                    onChange={(e) =>
+                      setProfileForm({
+                        ...profileForm,
+                        monthlyIncome: Number(e.target.value) || 0,
+                      })
+                    }
+                  />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Income Bracket</label>
+                  <select
+                    className="input"
+                    value={profileForm.incomeBracket || ''}
+                    onChange={(e) =>
+                      setProfileForm({ ...profileForm, incomeBracket: e.target.value })
+                    }
+                  >
+                    <option value="Below 25,000 BDT">Below 25,000 BDT</option>
+                    <option value="25,000 - 50,000 BDT">25,000 - 50,000 BDT</option>
+                    <option value="50,000 - 100,000 BDT">50,000 - 100,000 BDT</option>
+                    <option value="Above 100,000 BDT">Above 100,000 BDT</option>
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Number of Household Dependents</label>
+                  <input
+                    type="number"
+                    min={1}
+                    className="input"
+                    value={profileForm.dependents ?? 2}
+                    onChange={(e) =>
+                      setProfileForm({
+                        ...profileForm,
+                        dependents: Number(e.target.value) || 1,
+                      })
+                    }
+                  />
+                </div>
+                <div className="form-field" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(profileForm.concessionRequested)}
+                      onChange={(e) =>
+                        setProfileForm({
+                          ...profileForm,
+                          concessionRequested: e.target.checked,
+                        })
+                      }
+                    />{' '}
+                    Apply for Need-Based Monthly Tuition Scholarship / Concession (Reviewed after
+                    seat confirmation; never delays first-come, first-served seat booking)
+                  </label>
+                  {profile?.concessionRequested && (
+                    <p className="hint-text">
+                      Concession Review Status: <strong>{profile.concessionStatus}</strong>
+                      {profile.concessionPercent > 0 &&
+                        ` (${profile.concessionPercent}% approved off monthly tuition)`}
+                      {profile.concessionNote && ` — ${profile.concessionNote}`}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeProfileTab === 'documents' && (
+              <div className="table-wrapper">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Required Document</th>
+                      <th>Uploaded File</th>
+                      <th>Verification Status</th>
+                      <th>Upload / Attach</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(profile?.documents || []).map((doc) => (
+                      <tr key={doc.type}>
+                        <td>
+                          <strong>{doc.label}</strong>
+                          {doc.reviewerComment && (
+                            <div className="field-error">{doc.reviewerComment}</div>
+                          )}
+                        </td>
+                        <td className="mono">{doc.fileName || 'Not uploaded'}</td>
+                        <td>
+                          <span className="status-badge">{doc.status}</span>
+                        </td>
+                        <td>
+                          <div className="button-group">
+                            <input
+                              type="file"
+                              aria-label={`Upload ${doc.label}`}
+                              onChange={(e) =>
+                                void handleUploadDocument(
+                                  doc.type,
+                                  doc.label,
+                                  e.target.files?.[0] || null,
+                                )
+                              }
+                            />
+                            <button
+                              type="button"
+                              className="btn btn-secondary btn-sm"
+                              onClick={() => void handleUploadDocument(doc.type, doc.label, null)}
+                            >
+                              Quick Attach
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <div className="button-group" style={{ marginTop: '1rem' }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                data-testid="save-profile-btn"
+                disabled={isSavingProfile}
+                onClick={() => void handleSaveProfile(false)}
+              >
+                {isSavingProfile ? STRINGS.savingDraftButton : STRINGS.saveDraftButton}
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                data-testid="submit-profile-btn"
+                disabled={isSavingProfile}
+                onClick={() => void handleSaveProfile(true)}
+              >
+                {STRINGS.submitForReviewButton}
+              </button>
+            </div>
+          </>
+        )}
       </section>
 
       {/* --- Class List --- */}
@@ -517,6 +1249,7 @@ export function App() {
                   const noStudent = !isValidStudentId(savedStudentId);
                   const noSeats = cls.availableSeats <= 0;
                   const existingActive = activeHoldByClassId.get(cls.id);
+                  const alreadyWaitlisted = waitlistEntries.find((w) => w.classId === cls.id);
 
                   let disabledReason: string | null = null;
                   if (noStudent) {
@@ -548,15 +1281,32 @@ export function App() {
                       </td>
                       <td>
                         <div className="action-cell">
-                          <button
-                            type="button"
-                            className="btn btn-primary"
-                            data-testid={`apply-btn-${cls.id}`}
-                            disabled={isDisabled}
-                            onClick={() => void handleApply(cls)}
-                          >
-                            {isApplyingThis ? STRINGS.applyingButton : STRINGS.applyButton}
-                          </button>
+                          <div className="button-group">
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              data-testid={`apply-btn-${cls.id}`}
+                              disabled={isDisabled}
+                              onClick={() => void handleApply(cls)}
+                            >
+                              {isApplyingThis ? STRINGS.applyingButton : STRINGS.applyButton}
+                            </button>
+                            {noSeats && !noStudent && !existingActive && (
+                              <button
+                                type="button"
+                                className="btn btn-outline btn-sm"
+                                data-testid={`waitlist-btn-${cls.id}`}
+                                disabled={
+                                  joiningWaitlistClassId === cls.id || Boolean(alreadyWaitlisted)
+                                }
+                                onClick={() => void handleJoinWaitlist(cls)}
+                              >
+                                {alreadyWaitlisted
+                                  ? `Waitlisted (#${alreadyWaitlisted.position})`
+                                  : STRINGS.joinWaitlistButton}
+                              </button>
+                            )}
+                          </div>
                           {disabledReason && (
                             <span
                               className="disabled-reason"
@@ -576,7 +1326,7 @@ export function App() {
         )}
       </section>
 
-      {/* --- Active / Focused Application View --- */}
+      {/* --- Active / Focused Application View + Fee Breakdown --- */}
       {savedStudentId && focusedHold && (
         <section className="card highlight-card" data-testid="active-application-section">
           <h2>{STRINGS.activeApplicationTitle}</h2>
@@ -636,6 +1386,33 @@ export function App() {
                   </div>
                 </div>
 
+                {/* Itemized Fee Breakdown Table */}
+                {focusedFeeBreakdown && (
+                  <div className="fee-breakdown-box" data-testid="fee-breakdown-section">
+                    <h4>Admission Fee Breakdown (BDT)</h4>
+                    <div className="fee-summary-row">
+                      <span>Gross Payable at Confirmation:</span>
+                      <strong className="mono">
+                        ৳{focusedFeeBreakdown.grossPayableAtAdmission.toLocaleString()}
+                      </strong>
+                    </div>
+                    {focusedFeeBreakdown.siblingDiscountAmount > 0 && (
+                      <div className="fee-summary-row fee-discount">
+                        <span>{focusedFeeBreakdown.discountReason}:</span>
+                        <strong className="mono">
+                          -৳{focusedFeeBreakdown.siblingDiscountAmount.toLocaleString()}
+                        </strong>
+                      </div>
+                    )}
+                    <div className="fee-summary-row fee-net">
+                      <span>Total Payable Now to Confirm Seat:</span>
+                      <strong className="mono">
+                        ৳{focusedFeeBreakdown.netPayableAtAdmission.toLocaleString()} BDT
+                      </strong>
+                    </div>
+                  </div>
+                )}
+
                 {effectiveStatus === 'EXPIRED' && (
                   <p className="status-note expired-note" data-testid="focused-expired-notice">
                     {STRINGS.expiredNotice}
@@ -678,7 +1455,7 @@ export function App() {
         </section>
       )}
 
-      {/* --- My Applications List --- */}
+      {/* --- My Applications & Payment Receipts List --- */}
       <section className="card" data-testid="my-applications-section">
         <h2>{STRINGS.myApplicationsTitle}</h2>
         {!savedStudentId ? (
@@ -779,8 +1556,48 @@ export function App() {
             </table>
           </div>
         )}
+
+        {/* Official Payment Receipts */}
+        {payments.length > 0 && (
+          <div style={{ marginTop: '1.25rem' }}>
+            <h3>Official Payment Receipts</h3>
+            <div className="table-wrapper">
+              <table className="table" data-testid="parent-receipts-table">
+                <thead>
+                  <tr>
+                    <th>Receipt No</th>
+                    <th>Class</th>
+                    <th>Gross Fee</th>
+                    <th>Concession Discount</th>
+                    <th>Net Paid (BDT)</th>
+                    <th>Status</th>
+                    <th>Paid At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {payments.map((p) => (
+                    <tr key={p.id}>
+                      <td className="mono">
+                        <strong>{p.receiptNo}</strong>
+                      </td>
+                      <td>{p.className}</td>
+                      <td className="mono">৳{p.grossAmount.toLocaleString()}</td>
+                      <td className="mono">৳{p.discountAmount.toLocaleString()}</td>
+                      <td className="mono">
+                        <strong>৳{p.netAmount.toLocaleString()}</strong>
+                      </td>
+                      <td>
+                        <span className="status-badge">{p.status}</span>
+                      </td>
+                      <td className="mono">{p.paidAt}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );
 }
-

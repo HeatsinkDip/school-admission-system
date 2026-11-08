@@ -17,6 +17,7 @@ function jsonResponse(body: unknown, status = 200): Response {
 describe('School Admission Frontend', () => {
   beforeEach(() => {
     localStorage.clear();
+    window.history.pushState({}, '', '/');
     resetServerTimeOffsetForTests();
     vi.restoreAllMocks();
   });
@@ -207,6 +208,119 @@ describe('School Admission Frontend', () => {
 
     expect(screen.getByTestId('class-held-c_10')).toHaveTextContent('18');
     expect(screen.getByTestId('class-available-c_10')).toHaveTextContent('72');
+  });
+
+  it('secures /admin with password login and opens Admin Console after authentication', async () => {
+    window.history.pushState({}, '', '/admin');
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith('/auth/admin/login') && init?.method === 'POST') {
+        const body = JSON.parse(String(init.body || '{}')) as { password?: string };
+        if (body.password === 'admin123') {
+          return jsonResponse({
+            token: 'tok_admin_123',
+            username: 'admin',
+            role: 'SUPER_ADMIN',
+            fullName: 'Principal / Super Admin',
+            expiresAt: '2027-01-01T00:00:00Z',
+          });
+        }
+        return jsonResponse(
+          { code: 'INVALID_CREDENTIALS', message: 'Invalid admin username or password.' },
+          401,
+        );
+      }
+      if (url.endsWith('/admin/dashboard')) {
+        return jsonResponse({
+          classes: [],
+          totalSeats: 120,
+          totalHeld: 2,
+          totalConfirmed: 10,
+          totalAvailable: 108,
+          totalApplications: 12,
+          pendingReviews: 1,
+          pendingConcessions: 0,
+          totalWaitlisted: 0,
+          totalRevenueBdt: 440000,
+          totalRefundedBdt: 0,
+          settings: {
+            academicYear: '2027',
+            admissionOpensAt: '2026-01-01T00:00:00Z',
+            admissionClosesAt: '2027-12-31T23:59:59Z',
+            holdDurationSeconds: 600,
+            paperworkDeadlineDays: 7,
+            waitlistEnabled: true,
+            siblingDiscountPercent: 10,
+          },
+        });
+      }
+      return jsonResponse([]);
+    });
+
+    render(<App />);
+
+    // Should render the Admin Password Login screen at /admin
+    expect(screen.getByTestId('admin-login-screen')).toBeInTheDocument();
+
+    const passInput = screen.getByTestId('admin-password-input');
+    const loginBtn = screen.getByTestId('admin-login-btn');
+
+    // Wrong password shows error
+    fireEvent.change(passInput, { target: { value: 'wrongpass' } });
+    fireEvent.click(loginBtn);
+    expect(await screen.findByTestId('error-banner')).toHaveTextContent(
+      STRINGS.errors.INVALID_CREDENTIALS,
+    );
+
+    // Correct password opens Admin Console
+    fireEvent.change(passInput, { target: { value: 'admin123' } });
+    fireEvent.click(loginBtn);
+
+    expect(await screen.findByTestId('admin-console-view')).toBeInTheDocument();
+  });
+
+  it('allows parents on main URL (/) to fill out and save their child information', async () => {
+    localStorage.setItem(STUDENT_ID_STORAGE_KEY, VALID_STUDENT_ID);
+
+    let savedPayload: Record<string, unknown> | null = null;
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith('/parent/profile') && init?.method === 'PUT') {
+        savedPayload = JSON.parse(String(init.body || '{}')) as Record<string, unknown>;
+        return jsonResponse({
+          studentId: VALID_STUDENT_ID,
+          fullNameEn: savedPayload.fullNameEn,
+          dob: savedPayload.dob,
+          presentAddress: savedPayload.presentAddress,
+          documents: [],
+          applicationStatus: 'DRAFT',
+          completenessPercent: 60,
+        });
+      }
+      if (url.endsWith('/classes') || url.endsWith('/me/holds')) {
+        return jsonResponse([]);
+      }
+      return jsonResponse({});
+    });
+
+    render(<App />);
+
+    const nameInput = await screen.findByTestId('child-name-en-input');
+    fireEvent.change(nameInput, { target: { value: 'Aarav Rahman' } });
+
+    const addressInput = screen.getByTestId('child-address-input');
+    fireEvent.change(addressInput, { target: { value: 'Dhanmondi, Dhaka' } });
+
+    fireEvent.click(screen.getByTestId('save-profile-btn'));
+
+    expect(await screen.findByTestId('success-banner')).toHaveTextContent(
+      STRINGS.profileSavedSuccess,
+    );
+    expect(savedPayload).toMatchObject({
+      fullNameEn: 'Aarav Rahman',
+      presentAddress: 'Dhanmondi, Dhaka',
+    });
   });
 });
 

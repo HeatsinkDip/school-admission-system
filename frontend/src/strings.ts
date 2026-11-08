@@ -3,17 +3,36 @@
  */
 export const STRINGS = {
   appTitle: 'Online School Admission System',
-  appSubtitle: 'First-come, first-served online seat reservation and confirmation',
+  appSubtitle: 'Parent Portal — Child Profile, Fast-Lane Seat Reservation & Fee Confirmation',
+  adminPortalTitle: 'School Admission Admin Console',
+  adminPortalSubtitle: 'Staff & Principal Portal — Class Setup, Live Seat Monitoring, Application Verification & Finance',
+
+  // Navigation
+  navGoToAdmin: 'Admin Console (/admin)',
+  navBackToParent: '← Parent Portal (/)',
 
   // Student ID bar
-  studentIdLabel: 'Student Birth Registration Number (17 digits)',
+  studentIdLabel: 'Child Birth Registration Number (17 digits)',
   studentIdPlaceholder: 'e.g. 20152691234567890',
   studentIdSaveButton: 'Set Student ID',
   studentIdChangeButton: 'Change',
   studentIdClearButton: 'Clear',
   applyingAsPrefix: 'Applying as:',
-  studentIdRequiredHint: 'Enter your 17-digit Birth Registration Number above to apply for a class or view your applications.',
+  studentIdRequiredHint: 'Enter your child’s 17-digit Birth Registration Number above to fill out child information, apply for a seat, or track admission status.',
   studentIdValidationError: 'Registration number must be exactly 17 digits (0–9 only).',
+
+  // Parent Portal: Child Information Form
+  childInfoTitle: 'Child Information, Guardians, Income & Documents',
+  childInfoSubtitle: 'Pre-fill or complete your child’s admission dossier. Fast-lane seat booking only requires the 17-digit Birth Registration Number.',
+  profileCompletenessLabel: 'Dossier Completeness',
+  saveDraftButton: 'Save Child Information (Draft)',
+  savingDraftButton: 'Saving...',
+  submitForReviewButton: 'Submit Complete Dossier for Verification',
+  profileSavedSuccess: 'Child profile and guardian details saved.',
+  profileSubmittedSuccess: 'Child admission dossier submitted for officer verification.',
+  documentUploadedSuccess: (label: string) => `Uploaded "${label}" for verification.`,
+  waitlistJoinedSuccess: (className: string, pos: number) =>
+    `Added to waitlist for "${className}" (Queue Position #${pos}).`,
 
   // Create Class (School Admin)
   adminSectionTitle: 'Create Class / Shift (School Admin)',
@@ -29,9 +48,9 @@ export const STRINGS = {
     `Created "${name}" with ${totalSeats} seats.`,
 
   // Class List
-  classesSectionTitle: 'Available Classes & Shifts',
+  classesSectionTitle: 'Available Classes & Shifts (Fast-Lane Seat Booking)',
   classesAutoRefreshNote: 'Seat counts update automatically every few seconds.',
-  noClassesYet: 'No classes have been created yet. Use the form above to add a class.',
+  noClassesYet: 'No classes have been published yet. Please check back when the admission window opens.',
   colClassName: 'Class / Shift',
   colTotalSeats: 'Total',
   colHeldSeats: 'Held',
@@ -40,17 +59,19 @@ export const STRINGS = {
   colAction: 'Action',
   applyButton: 'Apply',
   applyingButton: 'Applying...',
+  joinWaitlistButton: 'Join Waitlist',
   applyDisabledNoStudent: 'Enter 17-digit Student ID above to apply',
   applyDisabledFull: 'No seats available',
   applyDisabledAlreadyActive: 'Already applied in this class',
 
   // Active Application / Hold Details
-  activeApplicationTitle: 'Current Application Status',
-  myApplicationsTitle: 'My Applications',
+  activeApplicationTitle: 'Current Application & Fee Payment',
+  myApplicationsTitle: 'My Applications & Receipts',
   noApplicationsYet: 'You have no applications for this Student ID yet.',
   holdIdLabel: 'Application ID',
   classLabel: 'Class / Shift',
-  statusLabel: 'Status',
+  statusLabel: 'Seat Status',
+  reviewStatusLabel: 'Verification Status',
   timeRemainingLabel: 'Time Remaining',
   payFeeButton: 'Pay admission fee',
   payingFeeButton: 'Processing...',
@@ -60,19 +81,19 @@ export const STRINGS = {
 
   // Status labels
   statusHeld: 'HELD (Seat Reserved)',
-  statusConfirmed: 'CONFIRMED (Admission Complete)',
+  statusConfirmed: 'CONFIRMED (Admission Fee Paid)',
   statusExpired: 'EXPIRED (Seat Released)',
   statusCancelled: 'CANCELLED',
 
   // Countdown messages
   expiredNotice: 'Hold time has expired. The seat has been released automatically.',
-  confirmedNotice: 'Admission fee paid! Your seat is confirmed.',
+  confirmedNotice: 'Admission fee paid! Your seat is confirmed. Please complete the Child Information & Documents dossier for final enrollment verification.',
   cancelledNotice: 'This application was cancelled.',
 
   // Feedback banners
   holdCreatedSuccess: (className: string) =>
     `Seat temporarily held in "${className}". Pay the admission fee before the timer runs out to confirm your admission.`,
-  holdConfirmedSuccess: 'Admission fee received! Your admission is now CONFIRMED.',
+  holdConfirmedSuccess: 'Admission fee received! Your seat is now CONFIRMED and your official payment receipt has been generated.',
   holdCancelledSuccess: 'Your application has been cancelled and the seat was released.',
 
   // Error boundary
@@ -82,11 +103,15 @@ export const STRINGS = {
 
   // Friendly error messages mapped from backend error codes
   errors: {
-    SEATS_FULL: 'All seats in this class are currently taken or held. If an unpaid hold expires, the seat will open automatically.',
+    SEATS_FULL: 'All seats in this class are currently taken or held. If an unpaid hold expires, the seat will open automatically, or you may join the waitlist.',
     ALREADY_APPLIED: 'You already have an active hold or a confirmed admission in this class.',
     HOLD_EXPIRED: 'The hold time for this application has expired and the seat was released. Please apply again if seats are available.',
     HOLD_CANCELLED: 'This application has already been cancelled and cannot be confirmed.',
-    ALREADY_CONFIRMED: 'This admission is already confirmed and cannot be cancelled online.',
+    ALREADY_CONFIRMED: 'This admission is already confirmed and cannot be cancelled online (contact the school office for refunds).',
+    CLASS_CLOSED: 'Admissions for this class-shift are currently closed by the school administration.',
+    SEAT_REDUCTION_CONFLICT: 'Cannot reduce total seats below the number of seats already held or confirmed.',
+    UNAUTHORIZED: 'Please sign in with your Admin password to access the Admin Console.',
+    INVALID_CREDENTIALS: 'Invalid admin username or password. Please try again.',
     NOT_OWNER: 'This application belongs to a different Student ID. Please check the 17-digit Student ID at the top of the page.',
     NOT_FOUND: 'The requested class or application could not be found.',
     VALIDATION_ERROR: 'Please check your input and try again (Student ID must be 17 digits and seat count must be positive).',
@@ -105,4 +130,3 @@ export function mapApiErrorToFriendlyMessage(code?: string, fallbackMessage?: st
   }
   return STRINGS.errors.UNKNOWN_ERROR;
 }
-
