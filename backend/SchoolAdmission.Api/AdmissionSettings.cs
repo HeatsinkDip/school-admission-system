@@ -1,3 +1,5 @@
+using Npgsql;
+
 namespace SchoolAdmission.Api;
 
 /// <summary>
@@ -8,9 +10,10 @@ public sealed class AdmissionSettings
 {
     public const int DefaultHoldDurationSeconds = 600;
     public const int DefaultSweepIntervalSeconds = 5;
+    public const int DefaultMaxPoolSize = 35;
 
     public const string LocalDevConnectionString =
-        "Host=localhost;Port=5433;Database=school_admission;Username=school;Password=school";
+        "Host=localhost;Port=5432;Database=school_admission;Username=school_admin;Password=school_pass";
 
     public required string ConnectionString { get; init; }
     public int HoldDurationSeconds { get; init; } = DefaultHoldDurationSeconds;
@@ -18,16 +21,30 @@ public sealed class AdmissionSettings
 
     public static AdmissionSettings FromConfiguration(IConfiguration config, ILogger? logger = null)
     {
-        var cs = config["DB_CONNECTION_STRING"];
-        if (string.IsNullOrWhiteSpace(cs))
+        var rawCs = config["DB_CONNECTION_STRING"];
+        if (string.IsNullOrWhiteSpace(rawCs))
         {
             logger?.LogWarning("DB_CONNECTION_STRING is not set, falling back to the local development database.");
-            cs = LocalDevConnectionString;
+            rawCs = LocalDevConnectionString;
+        }
+
+        // Cap the default pool size per process at 35 (unless explicitly overridden in the connection
+        // string) so two backend processes sharing one PostgreSQL instance (default max_connections=100)
+        // never exhaust server connections under a 200+ request burst; excess requests queue in Npgsql's pool.
+        var csb = new NpgsqlConnectionStringBuilder(rawCs);
+        if (!rawCs.Contains("Maximum Pool Size", StringComparison.OrdinalIgnoreCase) &&
+            !rawCs.Contains("MaxPoolSize", StringComparison.OrdinalIgnoreCase))
+        {
+            csb.MaxPoolSize = DefaultMaxPoolSize;
+        }
+        if (!rawCs.Contains("Timeout", StringComparison.OrdinalIgnoreCase))
+        {
+            csb.Timeout = 30;
         }
 
         return new AdmissionSettings
         {
-            ConnectionString = cs,
+            ConnectionString = csb.ConnectionString,
             HoldDurationSeconds = ReadPositiveInt(config, "HOLD_DURATION_SECONDS", DefaultHoldDurationSeconds, logger),
             SweepIntervalSeconds = ReadPositiveInt(config, "SWEEP_INTERVAL_SECONDS", DefaultSweepIntervalSeconds, logger),
         };

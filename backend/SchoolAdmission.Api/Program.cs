@@ -51,3 +51,4 @@ app.Run();
 
 // Exposed for WebApplicationFactory in the integration tests.
 public partial class Program;
+
