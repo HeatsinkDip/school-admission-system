@@ -52,15 +52,20 @@ public sealed class HoldService(NpgsqlDataSource dataSource, AdmissionSettings s
         // a) Lock the class row. Every applicant for this class queues here, across all processes.
         string className;
         int totalSeats;
+        string classStatus;
         await using (var cmd = new NpgsqlCommand(
-                         "SELECT name, total_seats FROM classes WHERE id = @id FOR UPDATE", conn, tx))
+                         "SELECT name, total_seats, status FROM classes WHERE id = @id FOR UPDATE", conn, tx))
         {
             cmd.Parameters.AddWithValue("id", classId);
             await using var r = await cmd.ExecuteReaderAsync(ct);
             if (!await r.ReadAsync(ct)) throw ApiException.NotFound("Class not found.");
             className = r.GetString(0);
             totalSeats = r.GetInt32(1);
+            classStatus = r.GetString(2);
         }
+
+        if (!string.Equals(classStatus, "OPEN", StringComparison.OrdinalIgnoreCase))
+            throw ApiException.Conflict(ErrorCodes.ClassClosed, "Admissions for this class-shift are currently closed.");
 
         // b) Materialise expiries for this class (uses the DB clock, after the lock was acquired).
         await using (var cmd = new NpgsqlCommand("""
@@ -122,6 +127,13 @@ public sealed class HoldService(NpgsqlDataSource dataSource, AdmissionSettings s
                 "This student already has an active or confirmed application for this class.");
         }
 
+        await using (var profileCmd = new NpgsqlCommand(
+                         "INSERT INTO student_profiles (student_id) VALUES (@sid) ON CONFLICT (student_id) DO NOTHING", conn, tx))
+        {
+            profileCmd.Parameters.AddWithValue("sid", studentId);
+            await profileCmd.ExecuteNonQueryAsync(ct);
+        }
+
         await tx.CommitAsync(ct);
 
         return new CreateHoldResponse(Ids.Hold(holdId), Ids.Class(classId), studentId, HoldStatus.Held,
@@ -143,6 +155,7 @@ public sealed class HoldService(NpgsqlDataSource dataSource, AdmissionSettings s
         {
             case HoldStatus.Confirmed:
                 // Idempotent: nothing changes, confirmedSeats was already incremented once.
+                await EnsurePaymentRecordAsync(conn, tx, hold.Id, hold.ClassId, hold.StudentId, ct);
                 await tx.CommitAsync(ct);
                 return ToConfirmResponse(hold, hold.ConfirmedAt, hold.Now);
             case HoldStatus.Cancelled:
@@ -169,8 +182,43 @@ public sealed class HoldService(NpgsqlDataSource dataSource, AdmissionSettings s
             cmd.Parameters.AddWithValue("id", holdId);
             confirmedAt = (DateTime)(await cmd.ExecuteScalarAsync(ct))!;
         }
+
+        await EnsurePaymentRecordAsync(conn, tx, holdId, hold.ClassId, hold.StudentId, ct);
         await tx.CommitAsync(ct);
         return ToConfirmResponse(hold, confirmedAt, confirmedAt);
+    }
+
+    private static async Task EnsurePaymentRecordAsync(
+        NpgsqlConnection conn, NpgsqlTransaction tx, long holdId, long classId, string studentId, CancellationToken ct)
+    {
+        await using var cmd = new NpgsqlCommand("""
+            INSERT INTO payments (
+                hold_id, class_id, student_id, receipt_no,
+                gross_amount, discount_amount, discount_reason, net_amount,
+                gateway, status, paid_at
+            )
+            SELECT
+                @hid,
+                c.id,
+                @sid,
+                'RCP-' || c.academic_year || '-' || lpad(@hid::text, 5, '0'),
+                (c.admission_fee + c.session_charge + c.development_fee + c.security_deposit + c.first_month_tuition) AS gross,
+                CASE WHEN COALESCE(sp.has_sibling, FALSE) THEN ROUND(c.admission_fee * 0.10, 2) ELSE 0 END AS disc,
+                CASE WHEN COALESCE(sp.has_sibling, FALSE) THEN 'Automatic Sibling Concession (10% on Admission Fee)' ELSE '' END AS reason,
+                (c.admission_fee + c.session_charge + c.development_fee + c.security_deposit + c.first_month_tuition)
+                    - CASE WHEN COALESCE(sp.has_sibling, FALSE) THEN ROUND(c.admission_fee * 0.10, 2) ELSE 0 END AS net,
+                'MOCK_GATEWAY',
+                'SUCCESS',
+                clock_timestamp()
+            FROM classes c
+            LEFT JOIN student_profiles sp ON sp.student_id = @sid
+            WHERE c.id = @cid
+            ON CONFLICT (hold_id) DO NOTHING
+            """, conn, tx);
+        cmd.Parameters.AddWithValue("hid", holdId);
+        cmd.Parameters.AddWithValue("cid", classId);
+        cmd.Parameters.AddWithValue("sid", studentId);
+        await cmd.ExecuteNonQueryAsync(ct);
     }
 
     // ---------------------------------------------------------------- cancel (DELETE /holds/{id})
