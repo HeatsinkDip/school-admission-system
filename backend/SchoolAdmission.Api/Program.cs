@@ -16,6 +16,7 @@ builder.Services.AddSingleton(sp =>
 builder.Services.AddSingleton<DbMigrator>();
 builder.Services.AddSingleton<ClassService>();
 builder.Services.AddSingleton<HoldService>();
+builder.Services.AddHostedService<HoldExpirySweeper>();
 
 // CORS: CORS_ALLOWED_ORIGINS is a comma separated list, or "*" (default) for any origin.
 // The Date header is exposed so the UI could also derive the server clock from it.
