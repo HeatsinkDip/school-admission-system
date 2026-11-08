@@ -18,10 +18,20 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { AdminPortal } from './AdminPortal';
-import { api, ApiClientError, getServerNowMs } from './api';
-import { POLL_INTERVAL_MS, STUDENT_ID_STORAGE_KEY } from './config';
-import { STRINGS } from './strings';
 import {
+  api,
+  ApiClientError,
+  fetchNotifications,
+  getServerNowMs,
+  markAllNotificationsRead,
+  markNotificationRead,
+} from './api';
+import { POLL_INTERVAL_MS, STUDENT_ID_STORAGE_KEY } from './config';
+import { NotificationCenter } from './NotificationCenter';
+import { STRINGS } from './strings';
+import { notifyToast, ToastContainer } from './ToastContainer';
+import {
+  AppNotification,
   ClassFeeBreakdown,
   HoldItem,
   HoldStatus,
@@ -173,6 +183,25 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
   const [waitlistEntries, setWaitlistEntries] = useState<WaitlistEntry[]>([]);
   const [focusedFeeBreakdown, setFocusedFeeBreakdown] = useState<ClassFeeBreakdown | null>(null);
 
+  // --- Live Notifications & Alerts ---
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [unreadNotifCount, setUnreadNotifCount] = useState<number>(0);
+
+  const handleMarkNotificationRead = async (id: number) => {
+    await markNotificationRead(id, savedStudentId ? savedStudentId : undefined);
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
+    );
+    setUnreadNotifCount((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleMarkAllNotificationsRead = async () => {
+    await markAllNotificationsRead(savedStudentId ? savedStudentId : undefined);
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    setUnreadNotifCount(0);
+    notifyToast('Notifications', 'All notifications marked as read', 'info');
+  };
+
   // --- In-flight Action States ---
   const [applyingClassId, setApplyingClassId] = useState<string | null>(null);
   const [confirmingHoldId, setConfirmingHoldId] = useState<string | null>(null);
@@ -234,6 +263,16 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
           // Optional in mock testing
         }
       }
+
+      // Fetch alerts & notifications
+      fetchNotifications(savedStudentId ? savedStudentId : undefined)
+        .then((summary) => {
+          if (summary && Array.isArray(summary.notifications)) {
+            setNotifications(summary.notifications);
+            setUnreadNotifCount(summary.unreadCount);
+          }
+        })
+        .catch(() => {});
     },
     [savedStudentId, showError],
   );
@@ -348,6 +387,12 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
     return myHolds[0] || null;
   }, [myHolds, selectedHoldId]);
 
+  const focusedRemainingSeconds = useMemo(() => {
+    if (!focusedHold || focusedHold.status !== 'HELD') return 0;
+    const expiresMs = Date.parse(focusedHold.expiresAt);
+    return Number.isNaN(expiresMs) ? 0 : Math.max(0, (expiresMs - nowMs) / 1000);
+  }, [focusedHold, nowMs]);
+
   // Load fee breakdown for focused hold's class
   useEffect(() => {
     if (!focusedHold?.classId) {
@@ -429,6 +474,11 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
       setSuccessMessage(
         submitForReview ? STRINGS.profileSubmittedSuccess : STRINGS.profileSavedSuccess,
       );
+      notifyToast(
+        submitForReview ? 'Application Submitted' : 'Profile Dossier Saved',
+        submitForReview ? 'Your application has been submitted for admission review.' : 'Child profile and guardian details saved.',
+        'success',
+      );
     } catch (err) {
       showError(err);
     } finally {
@@ -448,6 +498,7 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
       const updated = await api.uploadDocument(savedStudentId, type, label, fileName, fileSize);
       setProfile(updated);
       setSuccessMessage(STRINGS.documentUploadedSuccess(label));
+      notifyToast('Document Uploaded', `Document '${label}' submitted for verification.`, 'info');
     } catch (err) {
       showError(err);
     }
@@ -475,6 +526,7 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
       setSelectedHoldId(enriched.holdId);
       setActiveTab('active_hold');
       setSuccessMessage(STRINGS.holdCreatedSuccess(cls.name));
+      notifyToast('Seat Hold Secured!', `Temporary hold placed for ${cls.name}. 10-minute countdown active.`, 'success');
       await refreshData(true);
     } catch (err) {
       showError(err);
@@ -495,6 +547,7 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
       const entry = await api.joinWaitlist(cls.id, savedStudentId);
       setWaitlistEntries((prev) => [entry, ...prev.filter((w) => w.classId !== cls.id)]);
       setSuccessMessage(STRINGS.waitlistJoinedSuccess(cls.name, entry.position));
+      notifyToast('Waitlist Joined', `Added to waitlist for ${cls.name} at position #${entry.position}.`, 'info');
     } catch (err) {
       showError(err);
     } finally {
@@ -521,6 +574,7 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
       );
       setSelectedHoldId(hold.holdId);
       setSuccessMessage(STRINGS.holdConfirmedSuccess);
+      notifyToast('Admission Confirmed! 🎉', `Payment received and seat confirmed for ${hold.className || 'Class'}! Receipt generated.`, 'success');
       await refreshData(true);
     } catch (err) {
       showError(err);
@@ -548,6 +602,7 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
         ),
       );
       setSuccessMessage(STRINGS.holdCancelledSuccess);
+      notifyToast('Seat Hold Released', 'The temporary seat hold has been cancelled and reopened for others.', 'warning');
       await refreshData(true);
     } catch (err) {
       showError(err);
@@ -767,6 +822,15 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
               <RefreshCw size={17} />
             </button>
 
+            <NotificationCenter
+              unreadCount={unreadNotifCount}
+              notifications={notifications}
+              onMarkRead={handleMarkNotificationRead}
+              onMarkAllRead={handleMarkAllNotificationsRead}
+              onRefresh={() => void refreshData(true)}
+              titleLabel="Parent Alerts & Notices"
+            />
+
             {savedStudentId && (
               <div className="student-top-pill">
                 <span className="student-pill-label">Student ID:</span>
@@ -775,6 +839,67 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
             )}
           </div>
         </header>
+
+        {/* Dynamic Live Alert Banners */}
+        {focusedHold && focusedHold.status === 'HELD' && focusedRemainingSeconds > 0 && (
+          <div className="alert-banner alert-banner-warning mb-3" data-testid="live-hold-alert">
+            <div className="alert-banner-icon-box">
+              <Clock size={20} className="text-amber-600 animate-pulse" />
+            </div>
+            <div className="alert-banner-text">
+              <strong className="alert-banner-title">Action Required: Temporary Seat Hold Active!</strong>
+              <span className="alert-banner-desc">
+                You have <span className="font-mono font-bold text-amber-800">{formatRemainingSeconds(focusedRemainingSeconds)}</span> left to pay the admission fee and secure your seat in <strong>{focusedHold.className}</strong>.
+              </span>
+            </div>
+            <button
+              type="button"
+              className="btn btn-sm btn-primary"
+              onClick={() => setActiveTab('active_hold')}
+            >
+              Pay Admission Fee
+            </button>
+          </div>
+        )}
+
+        {profile && profile.documents.some((d) => d.status === 'CORRECTION_NEEDED') && (
+          <div className="alert-banner alert-banner-danger mb-3" data-testid="live-doc-correction-alert">
+            <div className="alert-banner-icon-box">
+              <AlertTriangle size={20} className="text-rose-600" />
+            </div>
+            <div className="alert-banner-text">
+              <strong className="alert-banner-title">Action Required: Document Correction Requested!</strong>
+              <span className="alert-banner-desc">
+                The Admission Officer requested revisions on your documents. Please review the officer notes and upload corrected files.
+              </span>
+            </div>
+            <button
+              type="button"
+              className="btn btn-sm btn-danger"
+              onClick={() => {
+                setActiveTab('child_dossier');
+                setActiveProfileStep('documents');
+              }}
+            >
+              Review Documents
+            </button>
+          </div>
+        )}
+
+        {profile && (profile.applicationStatus === 'APPROVED' || profile.applicationStatus === 'ENROLLED') && (
+          <div className="alert-banner alert-banner-success mb-3" data-testid="live-enrolled-alert">
+            <div className="alert-banner-icon-box">
+              <CheckCircle2 size={20} className="text-emerald-600" />
+            </div>
+            <div className="alert-banner-text">
+              <strong className="alert-banner-title">Admission Confirmed & Enrolled! 🎉</strong>
+              <span className="alert-banner-desc">
+                Congratulations! Assigned Section: <strong>{profile.assignedSection || 'Section A'}</strong>
+                {profile.enrolledStudentNo ? ` | Student Roll No: ${profile.enrolledStudentNo}` : ''}. Welcome to the school!
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Global Feedback Banners */}
         {errorMessage && (
@@ -1944,6 +2069,7 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
             </div>
           )}
         </div>
+        <ToastContainer />
       </main>
     </div>
   );

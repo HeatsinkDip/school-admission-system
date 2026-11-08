@@ -302,3 +302,28 @@ public sealed record AuditLogDto(
     string Details,
     string CreatedAt);
 
+public sealed record NotificationDto(
+    long Id,
+    string RecipientType,
+    string? RecipientId,
+    string Category,
+    string Severity,
+    string Title,
+    string Message,
+    string Actor,
+    bool IsRead,
+    string CreatedAt);
+
+public sealed record NotificationSummaryDto(
+    int UnreadCount,
+    IReadOnlyList<NotificationDto> Notifications);
+
+public sealed record BroadcastNotificationRequest(
+    string Title,
+    string Message,
+    string? Category,
+    string? Severity,
+    string? RecipientType,
+    string? RecipientId);
+
+

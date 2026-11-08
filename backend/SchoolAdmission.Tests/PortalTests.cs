@@ -133,5 +133,60 @@ public sealed class PortalTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal("ENROLLED", reviewed.GetProperty("profile").GetProperty("applicationStatus").GetString());
         Assert.Equal("Section A", reviewed.GetProperty("profile").GetProperty("assignedSection").GetString());
     }
+
+    [Fact]
+    public async Task NotificationWorkflow_ParentAndAdminAlerts()
+    {
+        var studentId = "2015269" + Random.Shared.Next(10000000, 99999999).ToString("D8") + "12";
+
+        // Login as admin
+        var loginRes = await _client.PostAsJsonAsync("/auth/admin/login", new { username = "admin", password = "admin123" });
+        Assert.Equal(HttpStatusCode.OK, loginRes.StatusCode);
+        var token = (await Api.Json(loginRes)).GetProperty("token").GetString()!;
+
+        // 1. Create a class
+        var classRes = await _client.PostAsJsonAsync("/classes", new { name = "Notification Class", totalSeats = 5 });
+        var classId = (await Api.Json(classRes)).GetProperty("id").GetString()!;
+
+        // 2. Parent places a hold
+        using var holdReq = new HttpRequestMessage(HttpMethod.Post, $"/classes/{classId}/holds");
+        holdReq.Headers.Add("X-Student-Id", studentId);
+        var holdRes = await _client.SendAsync(holdReq);
+        Assert.Equal(HttpStatusCode.Created, holdRes.StatusCode);
+
+        // 3. Parent checks notifications
+        using var notifReq = new HttpRequestMessage(HttpMethod.Get, "/notifications");
+        notifReq.Headers.Add("X-Student-Id", studentId);
+        var notifRes = await _client.SendAsync(notifReq);
+        Assert.Equal(HttpStatusCode.OK, notifRes.StatusCode);
+        var notifs = await Api.Json(notifRes);
+        Assert.True(notifs.GetProperty("unreadCount").GetInt32() > 0);
+        var list = notifs.GetProperty("notifications");
+        Assert.True(list.GetArrayLength() > 0);
+
+        // 4. Admin checks admin notifications
+        using var adminNotifReq = new HttpRequestMessage(HttpMethod.Get, "/admin/notifications");
+        adminNotifReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var adminNotifRes = await _client.SendAsync(adminNotifReq);
+        Assert.Equal(HttpStatusCode.OK, adminNotifRes.StatusCode);
+        var adminNotifs = await Api.Json(adminNotifRes);
+        Assert.True(adminNotifs.GetProperty("unreadCount").GetInt32() > 0);
+
+        // 5. Admin broadcasts an alert
+        using var bcastReq = new HttpRequestMessage(HttpMethod.Post, "/admin/notifications/broadcast")
+        {
+            Content = JsonContent.Create(new
+            {
+                title = "Emergency Notice",
+                message = "Admissions closing soon",
+                severity = "WARNING",
+                category = "SYSTEM",
+                recipientType = "ALL"
+            })
+        };
+        bcastReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var bcastRes = await _client.SendAsync(bcastReq);
+        Assert.Equal(HttpStatusCode.Created, bcastRes.StatusCode);
+    }
 }
 

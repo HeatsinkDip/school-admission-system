@@ -134,6 +134,23 @@ public sealed class HoldService(NpgsqlDataSource dataSource, AdmissionSettings s
             await profileCmd.ExecuteNonQueryAsync(ct);
         }
 
+        await using (var notifCmd = new NpgsqlCommand("""
+            INSERT INTO notifications (recipient_type, recipient_id, category, severity, title, message, actor, created_at)
+            VALUES ('PARENT', @sid, 'SEAT_HOLD', 'SUCCESS', 'Seat Hold Secured',
+                    'Temporary hold secured for ' || @cname || '. Complete your admission fee payment within 10 minutes to confirm your seat.',
+                    @actor, clock_timestamp()),
+                   ('ALL_ADMINS', NULL, 'SEAT_HOLD', 'INFO', 'New Seat Hold Placed',
+                    'Student ' || @sid || ' placed a hold for ' || @cname || ' (Hold ID: h_' || @hid || ').',
+                    @actor, clock_timestamp())
+            """, conn, tx))
+        {
+            notifCmd.Parameters.AddWithValue("sid", studentId);
+            notifCmd.Parameters.AddWithValue("cname", className);
+            notifCmd.Parameters.AddWithValue("hid", holdId);
+            notifCmd.Parameters.AddWithValue("actor", "Student " + studentId);
+            await notifCmd.ExecuteNonQueryAsync(ct);
+        }
+
         await tx.CommitAsync(ct);
 
         return new CreateHoldResponse(Ids.Hold(holdId), Ids.Class(classId), studentId, HoldStatus.Held,
@@ -184,6 +201,23 @@ public sealed class HoldService(NpgsqlDataSource dataSource, AdmissionSettings s
         }
 
         await EnsurePaymentRecordAsync(conn, tx, holdId, hold.ClassId, hold.StudentId, ct);
+
+        await using (var notifCmd = new NpgsqlCommand("""
+            INSERT INTO notifications (recipient_type, recipient_id, category, severity, title, message, actor, created_at)
+            VALUES ('PARENT', @sid, 'PAYMENT', 'SUCCESS', 'Admission Confirmed & Fee Paid',
+                    'Admission fee received and seat confirmed for ' || @cname || '! Receipt generated.',
+                    'Finance Office', clock_timestamp()),
+                   ('ALL_ADMINS', NULL, 'PAYMENT', 'SUCCESS', 'Admission Fee Paid',
+                    'Student ' || @sid || ' paid admission fee for ' || @cname || '. Receipt generated.',
+                    @actor, clock_timestamp())
+            """, conn, tx))
+        {
+            notifCmd.Parameters.AddWithValue("sid", hold.StudentId);
+            notifCmd.Parameters.AddWithValue("cname", hold.ClassName);
+            notifCmd.Parameters.AddWithValue("actor", "Student " + hold.StudentId);
+            await notifCmd.ExecuteNonQueryAsync(ct);
+        }
+
         await tx.CommitAsync(ct);
         return ToConfirmResponse(hold, confirmedAt, confirmedAt);
     }
@@ -257,6 +291,24 @@ public sealed class HoldService(NpgsqlDataSource dataSource, AdmissionSettings s
             cmd.Parameters.AddWithValue("id", holdId);
             await cmd.ExecuteNonQueryAsync(ct);
         }
+
+        await using (var notifCmd = new NpgsqlCommand("""
+            INSERT INTO notifications (recipient_type, recipient_id, category, severity, title, message, actor, created_at)
+            VALUES ('PARENT', @sid, 'SEAT_HOLD', 'WARNING', 'Seat Hold Cancelled',
+                    'Your hold for ' || @cname || ' was cancelled and the seat returned to the pool.',
+                    @actor, clock_timestamp()),
+                   ('ALL_ADMINS', NULL, 'SEAT_HOLD', 'INFO', 'Seat Hold Released',
+                    'Student ' || @sid || ' cancelled hold h_' || @hid || ' for ' || @cname || '. 1 seat reopened.',
+                    @actor, clock_timestamp())
+            """, conn, tx))
+        {
+            notifCmd.Parameters.AddWithValue("sid", hold.StudentId);
+            notifCmd.Parameters.AddWithValue("cname", hold.ClassName);
+            notifCmd.Parameters.AddWithValue("hid", hold.Id);
+            notifCmd.Parameters.AddWithValue("actor", "Student " + hold.StudentId);
+            await notifCmd.ExecuteNonQueryAsync(ct);
+        }
+
         await tx.CommitAsync(ct);
     }
 
@@ -286,24 +338,26 @@ public sealed class HoldService(NpgsqlDataSource dataSource, AdmissionSettings s
     // ---------------------------------------------------------------- helpers
 
     private sealed record LockedHold(
-        long Id, long ClassId, string StudentId, string Status, DateTime ExpiresAt,
+        long Id, long ClassId, string ClassName, string StudentId, string Status, DateTime ExpiresAt,
         DateTime? ConfirmedAt, bool IsPastExpiry, DateTime Now);
 
     private static async Task<LockedHold> LockHoldAsync(NpgsqlConnection conn, NpgsqlTransaction tx, long holdId, CancellationToken ct)
     {
         // FOR UPDATE serialises concurrent confirm/cancel calls on the same hold (makes confirm idempotent).
         await using var cmd = new NpgsqlCommand("""
-            SELECT id, class_id, student_id, status, expires_at, confirmed_at,
-                   expires_at <= clock_timestamp() AS past_expiry, clock_timestamp() AS now
-            FROM holds WHERE id = @id
-            FOR UPDATE
+            SELECT h.id, h.class_id, c.name, h.student_id, h.status, h.expires_at, h.confirmed_at,
+                   h.expires_at <= clock_timestamp() AS past_expiry, clock_timestamp() AS now
+            FROM holds h
+            JOIN classes c ON c.id = h.class_id
+            WHERE h.id = @id
+            FOR UPDATE OF h
             """, conn, tx);
         cmd.Parameters.AddWithValue("id", holdId);
         await using var r = await cmd.ExecuteReaderAsync(ct);
         if (!await r.ReadAsync(ct)) throw ApiException.NotFound("Application (hold) not found.");
         return new LockedHold(
-            r.GetInt64(0), r.GetInt64(1), r.GetString(2).Trim(), r.GetString(3), r.GetDateTime(4),
-            r.IsDBNull(5) ? null : r.GetDateTime(5), r.GetBoolean(6), r.GetDateTime(7));
+            r.GetInt64(0), r.GetInt64(1), r.GetString(2), r.GetString(3).Trim(), r.GetString(4), r.GetDateTime(5),
+            r.IsDBNull(6) ? null : r.GetDateTime(6), r.GetBoolean(7), r.GetDateTime(8));
     }
 
     private static async Task MarkExpiredAsync(NpgsqlConnection conn, NpgsqlTransaction tx, long holdId, CancellationToken ct)

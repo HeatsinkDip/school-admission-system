@@ -73,6 +73,32 @@ public static class PortalEndpoints
             return Results.Ok(await svc.ListStudentWaitlistAsync(studentId, ct));
         });
 
+        app.MapGet("/notifications", async (HttpRequest request, PortalService svc, CancellationToken ct) =>
+        {
+            string? studentId = null;
+            if (request.Headers.TryGetValue(StudentIds.HeaderName, out var vals) && vals.Count > 0)
+                studentId = vals[0]?.Trim();
+            return Results.Ok(await svc.ListNotificationsAsync(studentId, ct));
+        });
+
+        app.MapPost("/notifications/{id:long}/read", async (long id, HttpRequest request, PortalService svc, CancellationToken ct) =>
+        {
+            string? studentId = null;
+            if (request.Headers.TryGetValue(StudentIds.HeaderName, out var vals) && vals.Count > 0)
+                studentId = vals[0]?.Trim();
+            await svc.MarkNotificationReadAsync(id, studentId, ct);
+            return Results.NoContent();
+        });
+
+        app.MapPost("/notifications/mark-all-read", async (HttpRequest request, PortalService svc, CancellationToken ct) =>
+        {
+            string? studentId = null;
+            if (request.Headers.TryGetValue(StudentIds.HeaderName, out var vals) && vals.Count > 0)
+                studentId = vals[0]?.Trim();
+            await svc.MarkAllNotificationsReadAsync(studentId, ct);
+            return Results.NoContent();
+        });
+
         // =====================================================================
         // Admin Console (/admin/*) — requires Admin Bearer / X-Admin-Token
         // =====================================================================
@@ -181,6 +207,33 @@ public static class PortalEndpoints
         {
             await svc.RequireAdminAsync(request, ct);
             return Results.Ok(await svc.ListAuditLogsAsync(ct));
+        });
+
+        app.MapGet("/admin/notifications", async (HttpRequest request, string? category, bool? unreadOnly, PortalService svc, CancellationToken ct) =>
+        {
+            await svc.RequireAdminAsync(request, ct);
+            return Results.Ok(await svc.ListAdminNotificationsAsync(category, unreadOnly ?? false, ct));
+        });
+
+        app.MapPost("/admin/notifications/{id:long}/read", async (long id, HttpRequest request, PortalService svc, CancellationToken ct) =>
+        {
+            await svc.RequireAdminAsync(request, ct);
+            await svc.MarkAdminNotificationReadAsync(id, ct);
+            return Results.NoContent();
+        });
+
+        app.MapPost("/admin/notifications/mark-all-read", async (HttpRequest request, PortalService svc, CancellationToken ct) =>
+        {
+            await svc.RequireAdminAsync(request, ct);
+            await svc.MarkAllAdminNotificationsReadAsync(ct);
+            return Results.NoContent();
+        });
+
+        app.MapPost("/admin/notifications/broadcast", async (HttpRequest request, BroadcastNotificationRequest body, PortalService svc, CancellationToken ct) =>
+        {
+            var admin = await svc.RequireAdminAsync(request, ct);
+            var created = await svc.BroadcastNotificationAsync(admin, body, ct);
+            return Results.Created($"/notifications/{created.Id}", created);
         });
     }
 }

@@ -196,6 +196,26 @@ public sealed class DbMigrator(NpgsqlDataSource dataSource, ILogger<DbMigrator> 
                 created_at TIMESTAMPTZ  NOT NULL DEFAULT now()
             );
             """),
+
+        (3, "notifications_schema", """
+            CREATE TABLE IF NOT EXISTS notifications (
+                id             BIGSERIAL    PRIMARY KEY,
+                recipient_type VARCHAR(50)  NOT NULL DEFAULT 'ALL',
+                recipient_id   VARCHAR(100) NULL,
+                category       VARCHAR(50)  NOT NULL DEFAULT 'SYSTEM',
+                severity       VARCHAR(20)  NOT NULL DEFAULT 'INFO',
+                title          VARCHAR(200) NOT NULL,
+                message        TEXT         NOT NULL,
+                actor          VARCHAR(100) NOT NULL DEFAULT 'System',
+                is_read        BOOLEAN      NOT NULL DEFAULT FALSE,
+                created_at     TIMESTAMPTZ  NOT NULL DEFAULT now()
+            );
+
+            CREATE INDEX IF NOT EXISTS ix_notifications_recipient 
+                ON notifications (recipient_type, recipient_id, is_read, created_at DESC);
+            CREATE INDEX IF NOT EXISTS ix_notifications_created 
+                ON notifications (created_at DESC);
+            """),
     ];
 
     public async Task MigrateWithRetryAsync(CancellationToken ct)

@@ -7,11 +7,13 @@ import {
   AdminDashboard,
   AdminSession,
   ApiErrorBody,
+  AppNotification,
   AuditLogEntry,
   ClassFeeBreakdown,
   ConfirmHoldResponse,
   CreateClassResponse,
   HoldItem,
+  NotificationSummary,
   PaymentRecord,
   SaveStudentProfilePayload,
   SchoolClass,
@@ -427,4 +429,82 @@ export const api = {
   listAuditLogs(adminToken: string): Promise<AuditLogEntry[]> {
     return request<AuditLogEntry[]>('/admin/audit-logs', { method: 'GET' }, undefined, adminToken);
   },
+
+  getNotifications(studentId?: string): Promise<NotificationSummary> {
+    return fetchNotifications(studentId);
+  },
+
+  getAdminNotifications(
+    adminToken: string,
+    category?: string,
+    unreadOnly?: boolean,
+  ): Promise<NotificationSummary> {
+    return fetchAdminNotifications(adminToken, category, unreadOnly);
+  },
 };
+
+export async function fetchNotifications(studentId?: string): Promise<NotificationSummary> {
+  try {
+    return await request<NotificationSummary>('/notifications', { method: 'GET' }, studentId);
+  } catch {
+    return { unreadCount: 0, notifications: [] };
+  }
+}
+
+export async function markNotificationRead(id: number, studentId?: string): Promise<void> {
+  try {
+    await request<void>(`/notifications/${id}/read`, { method: 'POST' }, studentId);
+  } catch {
+    // Non-blocking
+  }
+}
+
+export async function markAllNotificationsRead(studentId?: string): Promise<void> {
+  try {
+    await request<void>('/notifications/mark-all-read', { method: 'POST' }, studentId);
+  } catch {
+    // Non-blocking
+  }
+}
+
+export async function fetchAdminNotifications(
+  adminToken: string,
+  category?: string,
+  unreadOnly?: boolean,
+): Promise<NotificationSummary> {
+  try {
+    const params = new URLSearchParams();
+    if (category) params.set('category', category);
+    if (unreadOnly) params.set('unreadOnly', 'true');
+    const query = params.toString() ? `?${params.toString()}` : '';
+    return await request<NotificationSummary>(`/admin/notifications${query}`, { method: 'GET' }, undefined, adminToken);
+  } catch {
+    return { unreadCount: 0, notifications: [] };
+  }
+}
+
+export async function markAdminNotificationRead(id: number, adminToken: string): Promise<void> {
+  try {
+    await request<void>(`/admin/notifications/${id}/read`, { method: 'POST' }, undefined, adminToken);
+  } catch {
+    // Non-blocking
+  }
+}
+
+export async function markAllAdminNotificationsRead(adminToken: string): Promise<void> {
+  try {
+    await request<void>('/admin/notifications/mark-all-read', { method: 'POST' }, undefined, adminToken);
+  } catch {
+    // Non-blocking
+  }
+}
+
+export async function broadcastAdminNotification(
+  adminToken: string,
+  payload: { title: string; message: string; category?: string; severity?: string; recipientType?: string; recipientId?: string },
+): Promise<AppNotification> {
+  return await request<AppNotification>('/admin/notifications/broadcast', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }, undefined, adminToken);
+}

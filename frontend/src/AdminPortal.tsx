@@ -26,21 +26,36 @@ import {
   BadgeCheck,
   Menu,
   ChevronRight,
+  Bell,
+  Radio,
+  Megaphone,
+  Send,
+  CheckCheck,
 } from 'lucide-react';
-import { api, ApiClientError } from './api';
+import {
+  api,
+  ApiClientError,
+  broadcastAdminNotification,
+  fetchAdminNotifications,
+  markAdminNotificationRead,
+  markAllAdminNotificationsRead,
+} from './api';
 import {
   ADMIN_TOKEN_STORAGE_KEY,
   ADMIN_USER_STORAGE_KEY,
   POLL_INTERVAL_MS,
 } from './config';
 import { DocumentViewerModal } from './DocumentViewerModal';
+import { NotificationCenter } from './NotificationCenter';
 import { STRINGS } from './strings';
+import { notifyToast, ToastContainer } from './ToastContainer';
 import {
   AdminApplicationDetail,
   AdminApplicationSummary,
   AdminClassDetail,
   AdminDashboard,
   AdminSession,
+  AppNotification,
   AuditLogEntry,
   DocumentItem,
   PaymentRecord,
@@ -59,6 +74,7 @@ type AdminView =
   | 'finance'
   | 'refunds'
   | 'waitlist'
+  | 'alerts'
   | 'settings'
   | 'audit';
 
@@ -140,6 +156,66 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
   const [deadlineDaysInput, setDeadlineDaysInput] = useState('7');
   const [siblingDiscountInput, setSiblingDiscountInput] = useState('10');
 
+  // --- Live Notifications & Alerts State ---
+  const [notifications, setNotifications] = useState<AppNotification[]>([]);
+  const [unreadNotifCount, setUnreadNotifCount] = useState<number>(0);
+  const [alertFilterCategory, setAlertFilterCategory] = useState<string>('ALL');
+
+  // --- Broadcast Announcement Form State ---
+  const [broadcastTitle, setBroadcastTitle] = useState('');
+  const [broadcastMessage, setBroadcastMessage] = useState('');
+  const [broadcastSeverity, setBroadcastSeverity] = useState<'INFO' | 'WARNING' | 'DANGER' | 'SUCCESS'>('INFO');
+  const [broadcastCategory, setBroadcastCategory] = useState('SYSTEM');
+  const [broadcastRecipientType, setBroadcastRecipientType] = useState('ALL');
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
+
+  const handleMarkAdminNotificationRead = async (id: number) => {
+    if (!session) return;
+    await markAdminNotificationRead(id, session.token);
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
+    );
+    setUnreadNotifCount((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleMarkAllAdminNotificationsRead = async () => {
+    if (!session) return;
+    await markAllAdminNotificationsRead(session.token);
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    setUnreadNotifCount(0);
+    notifyToast('Alerts Cleared', 'All admin alerts marked as read', 'info');
+  };
+
+  const handleBroadcastAlert = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!session) return;
+    if (!broadcastTitle.trim() || !broadcastMessage.trim()) {
+      setErrorMessage('Please enter both an alert title and message.');
+      return;
+    }
+    setIsBroadcasting(true);
+    setErrorMessage(null);
+    try {
+      const created = await broadcastAdminNotification(session.token, {
+        title: broadcastTitle.trim(),
+        message: broadcastMessage.trim(),
+        severity: broadcastSeverity,
+        category: broadcastCategory,
+        recipientType: broadcastRecipientType,
+      });
+      setNotifications((prev) => [created, ...prev]);
+      setBroadcastTitle('');
+      setBroadcastMessage('');
+      setSuccessMessage('Alert announcement broadcasted across the school portal!');
+      notifyToast('Alert Broadcasted', `Sent alert: "${created.title}"`, 'success');
+      await refreshAdminData(true);
+    } catch (err) {
+      showError(err);
+    } finally {
+      setIsBroadcasting(false);
+    }
+  };
+
   // --- Role Helpers ---
   const currentRole = session?.role || 'SUPER_ADMIN';
   const isSuperAdmin = currentRole === 'SUPER_ADMIN';
@@ -170,7 +246,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
     async (silent = false) => {
       if (!session?.token) return;
       try {
-        const [dash, apps, pays, waits, logs] = await Promise.all([
+        const [dash, apps, pays, waits, logs, notifs] = await Promise.all([
           api.getAdminDashboard(session.token),
           api.listAdminApplications(session.token, {
             classId: filterClassId || undefined,
@@ -181,12 +257,17 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
           api.listAdminPayments(session.token),
           api.listAdminWaitlist(session.token),
           api.listAuditLogs(session.token),
+          fetchAdminNotifications(session.token),
         ]);
         setDashboard(dash);
         setApplications(apps);
         setPayments(pays);
         setWaitlist(waits);
         setAuditLogs(logs);
+        if (notifs && Array.isArray(notifs.notifications)) {
+          setNotifications(notifs.notifications);
+          setUnreadNotifCount(notifs.unreadCount);
+        }
 
         if (!silent) {
           setAcademicYearInput(dash.settings.academicYear);
@@ -353,10 +434,12 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
         setSuccessMessage(
           `Updated "${updated.name}" (${updated.totalSeats} seats, status: ${updated.status}).`,
         );
+        notifyToast('Class Updated', `Updated "${updated.name}" with ${updated.totalSeats} seats.`, 'info');
         setEditingClass(null);
       } else {
         const created = await api.createAdminClass(session.token, payload);
         setSuccessMessage(STRINGS.createClassSuccess(created.name, created.totalSeats));
+        notifyToast('Class Created', `Created "${created.name}" with ${created.totalSeats} seats.`, 'success');
       }
 
       setNewClassName('');
@@ -401,6 +484,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
       });
       setSelectedDetail(updated);
       setSuccessMessage(`Application status updated to ${updated.profile.applicationStatus}.`);
+      notifyToast('Application Decision', `Student ${selectedStudentId} marked as ${updated.profile.applicationStatus}.`, 'success');
       await refreshAdminData(true);
     } catch (err) {
       showError(err);
@@ -427,6 +511,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
       });
       setSelectedDetail((prev) => (prev ? { ...prev, profile: updatedProfile } : null));
       setSuccessMessage(`Document ${type} marked as ${status}.`);
+      notifyToast('Document Verified', `Document ${type} marked as ${status}.`, 'info');
       await refreshAdminData(true);
     } catch (err) {
       showError(err);
@@ -443,6 +528,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
       });
       setSelectedDetail((prev) => (prev ? { ...prev, profile: updatedProfile } : null));
       setSuccessMessage(`Concession request marked as ${status}.`);
+      notifyToast('Concession Reviewed', `Concession marked as ${status}.`, 'info');
       await refreshAdminData(true);
     } catch (err) {
       showError(err);
@@ -459,6 +545,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
         'Refund approved by Finance Office',
       );
       setSuccessMessage(`Issued refund for receipt ${payment.receiptNo}.`);
+      notifyToast('Refund Issued', `Refund for receipt ${payment.receiptNo} completed.`, 'warning');
       await refreshAdminData(true);
     } catch (err) {
       showError(err);
@@ -477,6 +564,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
         siblingDiscountPercent: Number(siblingDiscountInput) || 10,
       });
       setSuccessMessage('Academic window and admission settings saved.');
+      notifyToast('Settings Saved', 'Academic admission window saved.', 'success');
       await refreshAdminData(false);
     } catch (err) {
       showError(err);
@@ -710,6 +798,20 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             {!isSidebarCollapsed && <span>Live Seats & Stats</span>}
           </button>
 
+          <button
+            type="button"
+            className={`nav-item ${activeView === 'alerts' ? 'active' : ''}`}
+            data-testid="admin-tab-alerts"
+            onClick={() => setActiveView('alerts')}
+            title="Real-Time Alerts & User Activity Stream"
+          >
+            <Bell size={19} />
+            {!isSidebarCollapsed && <span>Alerts & Live Feed</span>}
+            {!isSidebarCollapsed && unreadNotifCount > 0 && (
+              <span className="nav-badge-alert">{unreadNotifCount}</span>
+            )}
+          </button>
+
           {/* Admission Officer / Super Admin sections */}
           {(isSuperAdmin || isAdmissionOfficer) && (
             <>
@@ -897,6 +999,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
               <ChevronRight size={14} className="crumb-sep" />
               <strong className="crumb-current">
                 {activeView === 'overview' && 'Live Seats & Performance'}
+                {activeView === 'alerts' && 'Live Activity & Urgent Alert Center'}
                 {activeView === 'applications' && 'Admission Applications Queue'}
                 {activeView === 'doc_verification' && 'Document Verification Desk'}
                 {activeView === 'classes' && 'Class-Shifts & Fee Structures'}
@@ -923,6 +1026,15 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             >
               <RefreshCw size={17} />
             </button>
+
+            <NotificationCenter
+              unreadCount={unreadNotifCount}
+              notifications={notifications}
+              onMarkRead={handleMarkAdminNotificationRead}
+              onMarkAllRead={handleMarkAllAdminNotificationsRead}
+              onRefresh={() => void refreshAdminData(true)}
+              titleLabel="School System & Officer Alerts"
+            />
 
             <div className="topbar-user-pill">
               <span className="user-role-tag">{session.role}</span>
@@ -1890,6 +2002,214 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
           )}
 
           {/* ================================================================= */}
+          {/* VIEW: ALERTS & LIVE ACTIVITY FEED                                 */}
+          {/* ================================================================= */}
+          {activeView === 'alerts' && (
+            <div className="view-section" data-testid="admin-alerts-feed-view">
+              {/* Broadcast Urgent Notice Tool */}
+              <div className="panel-card mb-4 highlight-border">
+                <div className="panel-header">
+                  <div>
+                    <h3 className="panel-title flex items-center gap-2">
+                      <Radio className="text-rose-500 animate-pulse" size={20} />
+                      Live Activity Stream & Urgent Alert Dispatch
+                    </h3>
+                    <p className="panel-subtitle">
+                      Broadcast urgent announcements across the platform or stream real-time events triggered by parents and staff.
+                    </p>
+                  </div>
+                  <div className="panel-actions">
+                    {unreadNotifCount > 0 && (
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={handleMarkAllAdminNotificationsRead}
+                      >
+                        <CheckCheck size={16} /> Mark All Read
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <form className="broadcast-box mt-3" onSubmit={handleBroadcastAlert}>
+                  <div className="broadcast-header">
+                    <Megaphone size={16} className="text-amber-500" />
+                    <span className="font-semibold text-sm">Dispatch School Notice / Alert Broadcast</span>
+                  </div>
+                  <div className="broadcast-inputs grid grid-cols-1 md:grid-cols-5 gap-3 mt-2">
+                    <input
+                      type="text"
+                      className="form-input col-span-2"
+                      placeholder="Notice Title (e.g. Admission Morning Shift 95% Filled)"
+                      value={broadcastTitle}
+                      onChange={(e) => setBroadcastTitle(e.target.value)}
+                      required
+                    />
+                    <select
+                      className="form-select"
+                      value={broadcastCategory}
+                      onChange={(e) => setBroadcastCategory(e.target.value)}
+                    >
+                      <option value="SYSTEM">System Announcement</option>
+                      <option value="SEAT_HOLD">Seat Hold Alert</option>
+                      <option value="PAYMENT">Payment Alert</option>
+                      <option value="DOCUMENT">Document Verification</option>
+                      <option value="REVIEW">Admission Review</option>
+                      <option value="REFUND">Refund Notice</option>
+                    </select>
+                    <select
+                      className="form-select"
+                      value={broadcastSeverity}
+                      onChange={(e) => setBroadcastSeverity(e.target.value as any)}
+                    >
+                      <option value="INFO">Information (Blue)</option>
+                      <option value="SUCCESS">Success Notice (Green)</option>
+                      <option value="WARNING">Important Warning (Amber)</option>
+                      <option value="DANGER">Urgent Alert (Red)</option>
+                    </select>
+                    <select
+                      className="form-select"
+                      value={broadcastRecipientType}
+                      onChange={(e) => setBroadcastRecipientType(e.target.value)}
+                    >
+                      <option value="ALL">All Users (Parents + Staff)</option>
+                      <option value="ALL_ADMINS">Staff Only</option>
+                    </select>
+                  </div>
+                  <div className="flex gap-2 mt-2">
+                    <input
+                      type="text"
+                      className="form-input flex-1"
+                      placeholder="Detailed alert announcement or instructions..."
+                      value={broadcastMessage}
+                      onChange={(e) => setBroadcastMessage(e.target.value)}
+                      required
+                    />
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-sm flex items-center gap-1.5"
+                      disabled={isBroadcasting}
+                    >
+                      <Send size={14} />
+                      {isBroadcasting ? 'Sending...' : 'Broadcast Alert'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              {/* Activity Stream Feed */}
+              <div className="panel-card">
+                <div className="panel-header border-b pb-3 mb-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3 w-full">
+                    <div className="notif-filter-bar mb-0">
+                      {['ALL', 'SEAT_HOLD', 'PAYMENT', 'DOCUMENT', 'REVIEW', 'REFUND', 'SYSTEM'].map((cat) => (
+                        <button
+                          key={cat}
+                          type="button"
+                          className={`notif-filter-btn ${alertFilterCategory === cat ? 'active' : ''}`}
+                          onClick={() => setAlertFilterCategory(cat)}
+                        >
+                          {cat === 'ALL' ? 'All Activity' : cat.replace('_', ' ')}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="relative">
+                      <input
+                        type="text"
+                        className="form-input text-xs py-1.5 pl-8"
+                        placeholder="Search alerts or Student ID..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                      <Search size={14} className="absolute left-2.5 top-2.5 text-slate-400" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Notifications List */}
+                {notifications.filter((n) => {
+                  if (alertFilterCategory !== 'ALL' && n.category !== alertFilterCategory) return false;
+                  if (searchQuery.trim()) {
+                    const q = searchQuery.toLowerCase();
+                    const matchTitle = n.title?.toLowerCase().includes(q);
+                    const matchMsg = n.message?.toLowerCase().includes(q);
+                    const matchActor = n.actor?.toLowerCase().includes(q);
+                    const matchStudent = n.recipientId?.toLowerCase().includes(q);
+                    if (!matchTitle && !matchMsg && !matchActor && !matchStudent) return false;
+                  }
+                  return true;
+                }).length === 0 ? (
+                  <div className="notif-empty-state py-8">
+                    <Bell size={36} className="text-slate-300 mb-2" />
+                    <p className="font-semibold text-slate-700">No activity matching filter</p>
+                    <span className="text-xs text-slate-500">Live events will stream here automatically as actions occur.</span>
+                  </div>
+                ) : (
+                  <div className="activity-timeline">
+                    {notifications.filter((n) => {
+                      if (alertFilterCategory !== 'ALL' && n.category !== alertFilterCategory) return false;
+                      if (searchQuery.trim()) {
+                        const q = searchQuery.toLowerCase();
+                        const matchTitle = n.title?.toLowerCase().includes(q);
+                        const matchMsg = n.message?.toLowerCase().includes(q);
+                        const matchActor = n.actor?.toLowerCase().includes(q);
+                        const matchStudent = n.recipientId?.toLowerCase().includes(q);
+                        if (!matchTitle && !matchMsg && !matchActor && !matchStudent) return false;
+                      }
+                      return true;
+                    }).map((notif) => (
+                      <div
+                        key={notif.id}
+                        className={`timeline-item ${notif.isRead ? 'read' : 'unread'}`}
+                        onClick={() => {
+                          if (!notif.isRead) void handleMarkAdminNotificationRead(notif.id);
+                        }}
+                      >
+                        <div className="timeline-marker">
+                          <span className={`marker-dot severity-${notif.severity?.toLowerCase()}`} />
+                        </div>
+                        <div className="timeline-card">
+                          <div className="timeline-header">
+                            <div className="flex items-center gap-2">
+                              <span className={`status-pill status-${notif.severity?.toLowerCase()}`}>
+                                {notif.category?.replace('_', ' ')}
+                              </span>
+                              <strong className="timeline-title">{notif.title}</strong>
+                            </div>
+                            <span className="timeline-time mono text-xs text-slate-400">
+                              {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                            </span>
+                          </div>
+                          <p className="timeline-msg">{notif.message}</p>
+                          <div className="timeline-footer">
+                            <span className="text-xs text-slate-500">Actor: <strong>{notif.actor}</strong></span>
+                            {notif.recipientId && (
+                              <span className="text-xs text-indigo-600 font-mono">Student: {notif.recipientId}</span>
+                            )}
+                            {!notif.isRead && (
+                              <button
+                                type="button"
+                                className="btn btn-outline btn-xs ml-auto"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  void handleMarkAdminNotificationRead(notif.id);
+                                }}
+                              >
+                                Mark Read
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ================================================================= */}
           {/* VIEW: IMMUTABLE AUDIT TRAIL                                       */}
           {/* ================================================================= */}
           {activeView === 'audit' && isSuperAdmin && (
@@ -1942,6 +2262,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             </div>
           )}
         </div>
+        <ToastContainer />
       </main>
 
       {/* --- Interactive Document Verification Modal --- */}

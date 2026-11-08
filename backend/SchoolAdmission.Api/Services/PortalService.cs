@@ -254,6 +254,12 @@ public sealed class PortalService(
         }
 
         var updated = await ReadProfileAsync(conn, tx, studentId, ct);
+
+        await AddNotificationAsync(conn, tx, "PARENT", studentId, "DOCUMENT", "INFO", "Profile Dossier Saved",
+            "Child profile and guardian details were successfully saved.", "Guardian", ct);
+        await AddNotificationAsync(conn, tx, "ALL_ADMINS", null, "DOCUMENT", "INFO", "Profile Dossier Updated",
+            $"Parent updated dossier details for student {studentId}.", $"Parent ({studentId})", ct);
+
         await tx.CommitAsync(ct);
         return updated;
     }
@@ -292,6 +298,12 @@ public sealed class PortalService(
 
         await SaveDocumentsJsonAsync(conn, tx, studentId, updatedDocs, ct);
         var result = await ReadProfileAsync(conn, tx, studentId, ct);
+
+        await AddNotificationAsync(conn, tx, "PARENT", studentId, "DOCUMENT", "SUCCESS", "Document Uploaded",
+            $"Document '{label}' was uploaded and is pending officer verification.", "Guardian", ct);
+        await AddNotificationAsync(conn, tx, "ALL_ADMINS", null, "DOCUMENT", "INFO", "Document Uploaded",
+            $"Student {studentId} uploaded document {label} ({type}).", $"Parent ({studentId})", ct);
+
         await tx.CommitAsync(ct);
         return result;
     }
@@ -416,7 +428,7 @@ public sealed class PortalService(
         await using var r = await posCmd.ExecuteReaderAsync(ct);
         await r.ReadAsync(ct);
 
-        return new WaitlistEntryDto(
+        var entry = new WaitlistEntryDto(
             r.GetInt64(0),
             Ids.Class(classId),
             className,
@@ -424,6 +436,13 @@ public sealed class PortalService(
             r.GetString(2),
             (int)r.GetInt64(3),
             Iso.Format(r.GetDateTime(1)));
+
+        await AddNotificationAsync(conn, null, "PARENT", studentId, "WAITLIST", "INFO", "Joined Waitlist",
+            $"You joined the waitlist for {className} at queue position #{entry.Position}.", "Admission Office", ct);
+        await AddNotificationAsync(conn, null, "ALL_ADMINS", null, "WAITLIST", "INFO", "New Waitlist Entry",
+            $"Student {studentId} joined waitlist for {className} (Position #{entry.Position}).", $"Parent ({studentId})", ct);
+
+        return entry;
     }
 
     public async Task<IReadOnlyList<WaitlistEntryDto>> ListStudentWaitlistAsync(string studentId, CancellationToken ct)
@@ -554,6 +573,9 @@ public sealed class PortalService(
         await WriteAuditAsync(conn, null, admin.Username, admin.Role, "CREATE_CLASS", "classes", Ids.Class(id),
             $"Created class '{name}' ({shift}) with {req.TotalSeats} seats [{status}].", ct);
 
+        await AddNotificationAsync(conn, null, "ALL", null, "SYSTEM", "INFO", "New Admission Shift Opened",
+            $"Class '{name}' ({shift}) opened for admission with {req.TotalSeats} seats.", admin.FullName, ct);
+
         var classes = await ListAdminClassesInternalAsync(conn, ct);
         return classes.First(c => c.Id == Ids.Class(id));
     }
@@ -638,6 +660,9 @@ public sealed class PortalService(
 
         await WriteAuditAsync(conn, tx, admin.Username, admin.Role, "UPDATE_CLASS", "classes", Ids.Class(classId),
             $"Updated class '{name}' ({shift}): seats={req.TotalSeats}, status={status}.", ct);
+
+        await AddNotificationAsync(conn, tx, "ALL_ADMINS", null, "SYSTEM", "INFO", "Class Updated",
+            $"Class '{name}' ({shift}) was updated by {admin.FullName}.", admin.FullName, ct);
 
         await tx.CommitAsync(ct);
 
@@ -868,6 +893,28 @@ public sealed class PortalService(
         await WriteAuditAsync(conn, tx, admin.Username, admin.Role, $"APPLICATION_{action}", "student_profiles", studentId,
             $"Set application status to {nextStatus}. Note: {req.Note}", ct);
 
+        if (nextStatus == "APPROVED")
+        {
+            await AddNotificationAsync(conn, tx, "PARENT", studentId, "REVIEW", "SUCCESS", "Admission Approved! 🎉",
+                $"Congratulations! Admission has been approved. Assigned Section: {section ?? "Section A"}, Roll: {studentNo ?? "1"}.", admin.FullName, ct);
+            await AddNotificationAsync(conn, tx, "ALL_ADMINS", null, "REVIEW", "SUCCESS", "Admission Approved",
+                $"Student {studentId} approved by {admin.FullName}. Section: {section}, Roll: {studentNo}.", admin.FullName, ct);
+        }
+        else if (nextStatus == "CORRECTIONS_REQUESTED")
+        {
+            await AddNotificationAsync(conn, tx, "PARENT", studentId, "REVIEW", "WARNING", "Corrections Requested",
+                $"The admission office requested updates: {req.Note}.", admin.FullName, ct);
+            await AddNotificationAsync(conn, tx, "ALL_ADMINS", null, "REVIEW", "WARNING", "Corrections Requested",
+                $"Officer requested updates for student {studentId}: {req.Note}.", admin.FullName, ct);
+        }
+        else if (nextStatus == "REJECTED")
+        {
+            await AddNotificationAsync(conn, tx, "PARENT", studentId, "REVIEW", "DANGER", "Application Decision Update",
+                $"Application review concluded: Not Admitted ({req.Note}). Full fee refund has been queued.", admin.FullName, ct);
+            await AddNotificationAsync(conn, tx, "ALL_ADMINS", null, "REVIEW", "DANGER", "Application Rejected",
+                $"Student {studentId} rejected by {admin.FullName}. Seat released and refund queued.", admin.FullName, ct);
+        }
+
         await tx.CommitAsync(ct);
         return await GetAdminApplicationDetailAsync(studentId, ct);
     }
@@ -900,6 +947,22 @@ public sealed class PortalService(
             $"Document {type} marked as {status}. Comment: {req.Comment}", ct);
 
         var updated = await ReadProfileAsync(conn, tx, studentId, ct);
+
+        if (status == "APPROVED")
+        {
+            await AddNotificationAsync(conn, tx, "PARENT", studentId, "DOCUMENT", "SUCCESS", $"Document Approved: {type}",
+                $"Your {type} document was verified and approved by the Admission Officer.", admin.FullName, ct);
+            await AddNotificationAsync(conn, tx, "ALL_ADMINS", null, "DOCUMENT", "INFO", "Document Verified",
+                $"Officer approved {type} for student {studentId}.", admin.FullName, ct);
+        }
+        else if (status == "CORRECTION_NEEDED")
+        {
+            await AddNotificationAsync(conn, tx, "PARENT", studentId, "DOCUMENT", "DANGER", $"Action Required: {type}",
+                $"The Admission Officer requested correction on {type}: {req.Comment}.", admin.FullName, ct);
+            await AddNotificationAsync(conn, tx, "ALL_ADMINS", null, "DOCUMENT", "WARNING", "Document Correction Requested",
+                $"Officer requested correction on {type} for student {studentId}: {req.Comment}.", admin.FullName, ct);
+        }
+
         await tx.CommitAsync(ct);
         return updated;
     }
@@ -940,6 +1003,13 @@ public sealed class PortalService(
             $"Need-based concession {status} ({pct}% off future monthly tuition). Note: {req.Note}", ct);
 
         var updated = await ReadProfileAsync(conn, tx, studentId, ct);
+
+        await AddNotificationAsync(conn, tx, "PARENT", studentId, "REFUND", status == "APPROVED" ? "SUCCESS" : "INFO",
+            $"Concession Request {status}",
+            $"Your need-based concession application has been {status.ToLowerInvariant()} ({pct}% discount).", admin.FullName, ct);
+        await AddNotificationAsync(conn, tx, "ALL_ADMINS", null, "REFUND", "INFO", "Concession Reviewed",
+            $"Concession {status} for student {studentId} ({pct}%).", admin.FullName, ct);
+
         await tx.CommitAsync(ct);
         return updated;
     }
@@ -970,14 +1040,16 @@ public sealed class PortalService(
 
         decimal netAmount;
         string receiptNo;
+        string studentId;
         await using (var getCmd = new NpgsqlCommand(
-                         "SELECT net_amount, receipt_no FROM payments WHERE id = @id FOR UPDATE", conn, tx))
+                         "SELECT net_amount, receipt_no, student_id FROM payments WHERE id = @id FOR UPDATE", conn, tx))
         {
             getCmd.Parameters.AddWithValue("id", paymentId);
             await using var r = await getCmd.ExecuteReaderAsync(ct);
             if (!await r.ReadAsync(ct)) throw ApiException.NotFound("Payment record not found.");
             netAmount = r.GetDecimal(0);
             receiptNo = r.GetString(1);
+            studentId = r.GetString(2).Trim();
         }
 
         var refundAmt = Math.Min(netAmount, req.Amount);
@@ -1001,6 +1073,11 @@ public sealed class PortalService(
 
         await WriteAuditAsync(conn, tx, admin.Username, admin.Role, "ISSUE_REFUND", "payments", receiptNo,
             $"Refunded {refundAmt} BDT ({status}). Reason: {reason}", ct);
+
+        await AddNotificationAsync(conn, tx, "PARENT", studentId, "REFUND", "INFO", "Refund Processed",
+            $"A refund of BDT {refundAmt:N0} has been processed for receipt {receiptNo}. Reason: {reason}.", admin.FullName, ct);
+        await AddNotificationAsync(conn, tx, "ALL_ADMINS", null, "REFUND", "WARNING", "Refund Issued",
+            $"Accountant {admin.FullName} issued BDT {refundAmt:N0} refund for receipt {receiptNo}.", admin.FullName, ct);
 
         await tx.CommitAsync(ct);
 
@@ -1317,6 +1394,195 @@ public sealed class PortalService(
                 Iso.Format(r.GetDateTime(15))));
         }
         return list;
+    }
+
+    // =========================================================================
+    // Notifications & Alert System
+    // =========================================================================
+
+    public async Task<NotificationSummaryDto> ListNotificationsAsync(string? studentId, CancellationToken ct)
+    {
+        await using var conn = await dataSource.OpenConnectionAsync(ct);
+        var list = new List<NotificationDto>();
+        var unreadCount = 0;
+
+        await using (var cmd = new NpgsqlCommand("""
+            SELECT id, recipient_type, recipient_id, category, severity, title, message, actor, is_read, created_at
+            FROM notifications
+            WHERE (recipient_type = 'PARENT' AND recipient_id = @sid)
+               OR (recipient_type = 'ALL')
+            ORDER BY created_at DESC
+            LIMIT 50
+            """, conn))
+        {
+            cmd.Parameters.AddWithValue("sid", (object?)studentId ?? string.Empty);
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            while (await r.ReadAsync(ct))
+            {
+                var isRead = r.GetBoolean(8);
+                if (!isRead) unreadCount++;
+                list.Add(new NotificationDto(
+                    r.GetInt64(0),
+                    r.GetString(1),
+                    r.IsDBNull(2) ? null : r.GetString(2),
+                    r.GetString(3),
+                    r.GetString(4),
+                    r.GetString(5),
+                    r.GetString(6),
+                    r.GetString(7),
+                    isRead,
+                    Iso.Format(r.GetDateTime(9))));
+            }
+        }
+
+        return new NotificationSummaryDto(unreadCount, list);
+    }
+
+    public async Task MarkNotificationReadAsync(long notifId, string? studentId, CancellationToken ct)
+    {
+        await using var conn = await dataSource.OpenConnectionAsync(ct);
+        await using var cmd = new NpgsqlCommand("""
+            UPDATE notifications SET is_read = TRUE
+            WHERE id = @id
+              AND (recipient_type = 'ALL' OR (recipient_type = 'PARENT' AND recipient_id = @sid) OR @sid = '')
+            """, conn);
+        cmd.Parameters.AddWithValue("id", notifId);
+        cmd.Parameters.AddWithValue("sid", studentId ?? string.Empty);
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
+
+    public async Task MarkAllNotificationsReadAsync(string? studentId, CancellationToken ct)
+    {
+        await using var conn = await dataSource.OpenConnectionAsync(ct);
+        await using var cmd = new NpgsqlCommand("""
+            UPDATE notifications SET is_read = TRUE
+            WHERE (recipient_type = 'PARENT' AND recipient_id = @sid) OR (recipient_type = 'ALL')
+            """, conn);
+        cmd.Parameters.AddWithValue("sid", (object?)studentId ?? string.Empty);
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
+
+    public async Task<NotificationSummaryDto> ListAdminNotificationsAsync(string? category, bool unreadOnly, CancellationToken ct)
+    {
+        await using var conn = await dataSource.OpenConnectionAsync(ct);
+        var list = new List<NotificationDto>();
+        var unreadCount = 0;
+
+        var sql = """
+            SELECT id, recipient_type, recipient_id, category, severity, title, message, actor, is_read, created_at
+            FROM notifications
+            WHERE recipient_type IN ('ALL_ADMINS', 'ALL')
+            """;
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            sql += " AND category = @cat";
+        }
+        if (unreadOnly)
+        {
+            sql += " AND is_read = FALSE";
+        }
+        sql += " ORDER BY created_at DESC LIMIT 100";
+
+        await using (var cmd = new NpgsqlCommand(sql, conn))
+        {
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                cmd.Parameters.AddWithValue("cat", category.Trim().ToUpperInvariant());
+            }
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            while (await r.ReadAsync(ct))
+            {
+                var isRead = r.GetBoolean(8);
+                if (!isRead) unreadCount++;
+                list.Add(new NotificationDto(
+                    r.GetInt64(0),
+                    r.GetString(1),
+                    r.IsDBNull(2) ? null : r.GetString(2),
+                    r.GetString(3),
+                    r.GetString(4),
+                    r.GetString(5),
+                    r.GetString(6),
+                    r.GetString(7),
+                    isRead,
+                    Iso.Format(r.GetDateTime(9))));
+            }
+        }
+
+        return new NotificationSummaryDto(unreadCount, list);
+    }
+
+    public async Task MarkAdminNotificationReadAsync(long notifId, CancellationToken ct)
+    {
+        await using var conn = await dataSource.OpenConnectionAsync(ct);
+        await using var cmd = new NpgsqlCommand("UPDATE notifications SET is_read = TRUE WHERE id = @id", conn);
+        cmd.Parameters.AddWithValue("id", notifId);
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
+
+    public async Task MarkAllAdminNotificationsReadAsync(CancellationToken ct)
+    {
+        await using var conn = await dataSource.OpenConnectionAsync(ct);
+        await using var cmd = new NpgsqlCommand(
+            "UPDATE notifications SET is_read = TRUE WHERE recipient_type IN ('ALL_ADMINS', 'ALL')", conn);
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
+
+    public async Task<NotificationDto> BroadcastNotificationAsync(
+        AdminSessionResponse admin, BroadcastNotificationRequest req, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(req.Title) || string.IsNullOrWhiteSpace(req.Message))
+            throw ApiException.Validation("Title and message are required.");
+
+        var recipientType = string.IsNullOrWhiteSpace(req.RecipientType) ? "ALL" : req.RecipientType.Trim().ToUpperInvariant();
+        var category = string.IsNullOrWhiteSpace(req.Category) ? "SYSTEM" : req.Category.Trim().ToUpperInvariant();
+        var severity = string.IsNullOrWhiteSpace(req.Severity) ? "INFO" : req.Severity.Trim().ToUpperInvariant();
+
+        await using var conn = await dataSource.OpenConnectionAsync(ct);
+        long id;
+        DateTime createdAt;
+        await using (var cmd = new NpgsqlCommand("""
+            INSERT INTO notifications (recipient_type, recipient_id, category, severity, title, message, actor, created_at)
+            VALUES (@rt, @rid, @cat, @sev, @title, @msg, @actor, clock_timestamp())
+            RETURNING id, created_at
+            """, conn))
+        {
+            cmd.Parameters.AddWithValue("rt", recipientType);
+            cmd.Parameters.AddWithValue("rid", (object?)req.RecipientId ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("cat", category);
+            cmd.Parameters.AddWithValue("sev", severity);
+            cmd.Parameters.AddWithValue("title", req.Title.Trim());
+            cmd.Parameters.AddWithValue("msg", req.Message.Trim());
+            cmd.Parameters.AddWithValue("actor", admin.FullName + " (" + admin.Role + ")");
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            await r.ReadAsync(ct);
+            id = r.GetInt64(0);
+            createdAt = r.GetDateTime(1);
+        }
+
+        await WriteAuditAsync(conn, null, admin.Username, admin.Role, "BROADCAST_ALERT", "notifications", id.ToString(),
+            $"{severity}: {req.Title}", ct);
+
+        return new NotificationDto(id, recipientType, req.RecipientId, category, severity, req.Title.Trim(), req.Message.Trim(),
+            admin.FullName, false, Iso.Format(createdAt));
+    }
+
+    public static async Task AddNotificationAsync(
+        NpgsqlConnection conn, NpgsqlTransaction? tx,
+        string recipientType, string? recipientId, string category, string severity,
+        string title, string message, string actor, CancellationToken ct)
+    {
+        await using var cmd = new NpgsqlCommand("""
+            INSERT INTO notifications (recipient_type, recipient_id, category, severity, title, message, actor, created_at)
+            VALUES (@rt, @rid, @cat, @sev, @title, @msg, @actor, clock_timestamp())
+            """, conn, tx);
+        cmd.Parameters.AddWithValue("rt", recipientType);
+        cmd.Parameters.AddWithValue("rid", (object?)recipientId ?? DBNull.Value);
+        cmd.Parameters.AddWithValue("cat", category);
+        cmd.Parameters.AddWithValue("sev", severity);
+        cmd.Parameters.AddWithValue("title", title);
+        cmd.Parameters.AddWithValue("msg", message);
+        cmd.Parameters.AddWithValue("actor", actor);
+        await cmd.ExecuteNonQueryAsync(ct);
     }
 
     private static async Task WriteAuditAsync(

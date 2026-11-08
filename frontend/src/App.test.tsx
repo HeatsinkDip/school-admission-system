@@ -322,5 +322,60 @@ describe('School Admission Frontend', () => {
       presentAddress: 'Dhanmondi, Dhaka',
     });
   });
+
+  it('displays notifications in the NotificationCenter and allows marking them as read', async () => {
+    localStorage.setItem(STUDENT_ID_STORAGE_KEY, VALID_STUDENT_ID);
+
+    let markReadCalled = false;
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith('/notifications')) {
+        return jsonResponse({
+          unreadCount: markReadCalled ? 0 : 1,
+          notifications: [
+            {
+              id: 101,
+              recipientType: 'STUDENT',
+              recipientId: VALID_STUDENT_ID,
+              category: 'SEAT_HOLD',
+              severity: 'WARNING',
+              title: 'Temporary Seat Hold Placed',
+              message: 'Your hold for Class 6 - Morning Shift expires in 10 minutes.',
+              actor: 'System',
+              isRead: markReadCalled,
+              createdAt: '2026-11-08T18:00:00Z',
+            },
+          ],
+        });
+      }
+      if (url.includes('/notifications/101/read') && init?.method === 'POST') {
+        markReadCalled = true;
+        return jsonResponse({ success: true });
+      }
+      if (url.endsWith('/classes') || url.endsWith('/me/holds')) {
+        return jsonResponse([]);
+      }
+      return jsonResponse({});
+    });
+
+    render(<App />);
+
+    // Notification bell should display badge with "1"
+    const bellBtn = await screen.findByTestId('notification-bell-btn');
+    expect(await screen.findByTestId('notification-badge')).toHaveTextContent('1');
+
+    // Click to open notification tray
+    fireEvent.click(bellBtn);
+    expect(await screen.findByText('Temporary Seat Hold Placed')).toBeInTheDocument();
+    expect(screen.getByText('Your hold for Class 6 - Morning Shift expires in 10 minutes.')).toBeInTheDocument();
+
+    // Mark as read by clicking unread notification item
+    const notifItem = screen.getByTestId('notif-item-101');
+    fireEvent.click(notifItem);
+
+    await waitFor(() => {
+      expect(markReadCalled).toBe(true);
+    });
+  });
 });
 

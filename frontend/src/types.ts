@@ -326,3 +326,24 @@ export interface AuditLogEntry {
   details: string;
   createdAt: string;
 }
+
+export type NotificationSeverity = 'INFO' | 'SUCCESS' | 'WARNING' | 'DANGER';
+
+export interface AppNotification {
+  id: number;
+  recipientType: string;
+  recipientId?: string | null;
+  category: string;
+  severity: NotificationSeverity | string;
+  title: string;
+  message: string;
+  actor: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
+export interface NotificationSummary {
+  unreadCount: number;
+  notifications: AppNotification[];
+}
+
