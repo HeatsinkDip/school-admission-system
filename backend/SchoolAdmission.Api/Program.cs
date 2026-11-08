@@ -15,6 +15,7 @@ builder.Services.AddSingleton(sp =>
     new NpgsqlDataSourceBuilder(sp.GetRequiredService<AdmissionSettings>().ConnectionString).Build());
 builder.Services.AddSingleton<DbMigrator>();
 builder.Services.AddSingleton<ClassService>();
+builder.Services.AddSingleton<HoldService>();
 
 // CORS: CORS_ALLOWED_ORIGINS is a comma separated list, or "*" (default) for any origin.
 // The Date header is exposed so the UI could also derive the server clock from it.
@@ -40,6 +41,7 @@ app.UseCors();
 app.UseMiddleware<ApiExceptionMiddleware>();
 
 app.MapClassEndpoints();
+app.MapHoldEndpoints();
 
 // Unknown routes get the same JSON error shape.
 app.MapFallback(() => Results.Json(new ErrorBody(ErrorCodes.NotFound, "Resource not found."), statusCode: StatusCodes.Status404NotFound));
