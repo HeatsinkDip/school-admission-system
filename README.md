@@ -1,6 +1,6 @@
 # School Admission System
 
-Full-stack first-come, first-served online school admission system built with **ASP.NET Core 8**, **PostgreSQL 16**, **React 18 (Vite + TypeScript)**, and **Docker Compose**.
+Full-stack first-come, first-served online school admission platform with two separate interfaces (**Parent Portal** at `/` and password-secured **Admin Console** at `/admin`), built with **ASP.NET Core 8**, **PostgreSQL 16**, **React 18 (Vite + TypeScript)**, and **Docker Compose**.
 
 ## Prerequisites
 
@@ -19,7 +19,15 @@ docker compose up --build
 
 Once the containers are healthy:
 
-- **Frontend UI:** [http://localhost:3000](http://localhost:3000)
+- **Parent Portal (Main URL):** [http://localhost:3000/](http://localhost:3000/)
+  - Parents enter their child's **17-digit Birth Registration Number (`X-Student-Id`)**, fill out the **Child Information, Guardians, Household Income & Document Upload** dossier (Slow Lane / Pre-fill Drafts), reserve a seat in real time (**Fast Lane**), view the itemized **Fee Breakdown & Automatic Sibling Concession**, pay the admission fee within the live countdown window, and view **Official Payment Receipts & Enrollment Status**.
+- **Admin Console (`/admin` — Password Secured):** [http://localhost:3000/admin](http://localhost:3000/admin)
+  - Navigating to `/admin` opens the **Admin Password Login Gate** before granting access to the Admin Console.
+  - **Pre-seeded Staff Credentials:**
+    - **Super Admin (Principal / IT):** Username `admin` / Password `admin123`
+    - **Admission Officer:** Username `officer` / Password `officer123`
+    - **Accountant (Finance):** Username `accountant` / Password `accountant123`
+  - **Admin Capabilities:** Live Seat Utilization Dashboard, Class-Shift & Fee Structure Builder, Application & Document Verification Queue, Need-Based Concession Review, Student Section Enrollment, Payment & Refund Management, CSV Report Export, Academic Window Settings, and Immutable Audit Log.
 - **Backend API:** [http://localhost:8080](http://localhost:8080)
 - **PostgreSQL:** `localhost:5432` (persisted in the named Docker volume `pgdata`)
 
@@ -47,6 +55,7 @@ All settings have sensible defaults in `docker-compose.yml` and can be overridde
 | `DB_CONNECTION_STRING` | `Host=db;Port=5432;Database=school_admission;Username=school_admin;Password=school_pass` | PostgreSQL connection string for the backend. |
 | `API_BASE_URL` | `http://localhost:8080` | Backend base URL written at container startup into `/config.js` (`window.__CONFIG__.API_BASE_URL`). In local Vite dev, `VITE_API_URL` is also supported. |
 | `SWEEP_INTERVAL_SECONDS` | `3` | Interval at which the background sweeper marks expired `HELD` rows as `EXPIRED`. |
+| `ADMIN_PASSWORD` | `admin123` | Optional override password for the `admin` account on `/admin`. |
 
 ### Demo with a Short Hold Duration (e.g. 15 seconds)
 
@@ -60,13 +69,13 @@ HOLD_DURATION_SECONDS=15 docker compose up --build
 
 Both backend integration/concurrency tests (xUnit + `WebApplicationFactory` against real PostgreSQL) and frontend tests (Vitest + React Testing Library) run inside Docker via the `test` profile:
 
-### 1. Backend Tests (including 200-applicant concurrency & 2-instance tests)
+### 1. Backend Tests (50 tests: concurrency, 2-instance, expiry, contract & portal/admin workflows)
 
 ```bash
 docker compose --profile test run --rm backend-tests
 ```
 
-### 2. Frontend Tests
+### 2. Frontend Tests (6 tests: Student ID, countdown expiry, error mapping, polling, `/admin` password login & Child Profile form)
 
 ```bash
 docker compose --profile test run --rm frontend-tests
@@ -90,19 +99,23 @@ To run **two independent backend processes** (`backend` on `http://localhost:808
 docker compose --profile multi up --build
 ```
 
-All concurrency guarantees (row-level `SELECT ... FOR UPDATE` on the class row, database clock comparisons via `clock_timestamp()`, and the partial unique index on active holds) live in PostgreSQL, so `heldSeats + confirmedSeats` never exceeds `totalSeats` even when requests hit both backend instances simultaneously.
+All concurrency guarantees (row-level `SELECT ... FOR UPDATE` on the class row, database clock comparisons via `clock_timestamp()`, partial unique index on active holds, and PostgreSQL-backed admin sessions) live in PostgreSQL, so `heldSeats + confirmedSeats` never exceeds `totalSeats` even when requests hit both backend instances simultaneously.
 
 ---
 
-## Architecture Overview
+## API Overview
 
-- **`backend/SchoolAdmission.Api`**:
-  - Minimal API on .NET 8 + `NpgsqlDataSource`.
-  - Versioned startup schema migration (`DbMigrator`) protected by `pg_advisory_lock` with automatic retry while PostgreSQL boots.
-  - `HoldService` executes seat reservation in a single PostgreSQL transaction locking the target `classes` row (`FOR UPDATE`), expiring stale holds using the database clock (`clock_timestamp()`), verifying one active hold per student per class, checking `held + confirmed < total_seats`, and inserting the hold.
-  - All read queries compute the **effective** status (`CASE WHEN status = 'HELD' AND expires_at <= now() THEN 'EXPIRED' ELSE status END`), so expired seats return immediately without waiting for the background sweeper (`HoldExpirySweeper`).
-- **`frontend/`**:
-  - React 18 + TypeScript single-page application served by Nginx in production.
-  - `docker-entrypoint.sh` generates `/usr/share/nginx/html/config.js` (`window.__CONFIG__.API_BASE_URL`) at container startup so `API_BASE_URL` works at runtime without rebuilding the bundle.
-  - All user-facing text is centralized in `src/strings.ts` for straightforward Bangla localization.
+### 1. Core Seat Engine (Exact Assignment Contract)
+- `POST /classes` — Create class-shift
+- `GET /classes` — List classes with `totalSeats`, `heldSeats`, `confirmedSeats`, `availableSeats`
+- `GET /classes/{classId}` — Single class-shift
+- `POST /classes/{classId}/holds` — Apply for seat hold (`X-Student-Id` header)
+- `GET /holds/{holdId}` — Hold status (`HELD`, `CONFIRMED`, `EXPIRED`, `CANCELLED`)
+- `POST /holds/{holdId}/confirm` — Pay admission fee & confirm hold (`X-Student-Id` header; also generates invoice & payment receipt atomically)
+- `DELETE /holds/{holdId}` — Cancel hold (`X-Student-Id` header)
+- `GET /me/holds` — List all holds for `X-Student-Id`
 
+### 2. Extended Parent Portal & Admin Console Endpoints
+- **Admin Auth (`/auth/admin/*`):** `POST /auth/admin/login`, `GET /auth/admin/me`, `POST /auth/admin/logout`
+- **Parent Portal (`/parent/*`):** `GET /parent/profile`, `PUT /parent/profile`, `POST /parent/documents`, `GET /parent/classes/{classId}/fees`, `GET /parent/payments`, `POST /parent/classes/{classId}/waitlist`, `GET /parent/waitlist`
+- **Admin Console (`/admin/*`):** `GET /admin/dashboard`, `PUT /admin/settings`, `POST /admin/classes`, `PUT /admin/classes/{classId}`, `GET /admin/applications`, `GET /admin/applications/{studentId}`, `POST /admin/applications/{studentId}/review`, `POST /admin/applications/{studentId}/documents/verify`, `POST /admin/applications/{studentId}/concession`, `GET /admin/payments`, `POST /admin/payments/{paymentId}/refund`, `GET /admin/waitlist`, `GET /admin/audit-logs`

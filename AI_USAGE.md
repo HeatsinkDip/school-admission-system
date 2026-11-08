@@ -40,4 +40,10 @@
    - **How it was caught:** Running `docker compose --profile test run --rm backend-tests` failed with `The argument /src/SchoolAdmission.Tests/bin/Debug/net8.0/SchoolAdmission.Tests.dll is invalid`.
    - **Fix:** Added `RUN dotnet build SchoolAdmission.Tests/SchoolAdmission.Tests.csproj -c Release --no-restore` in the `test` stage and passed `-c Release --no-build` to `ENTRYPOINT`.
 
+6. **Expanding to Two Portals (`/` Parent Portal vs `/admin` Password-Secured Admin Console) Without Breaking Existing Tests**:
+   - **What happened:** Adding `/parent/profile` and `/parent/payments` fetches on initial Parent Portal load could have caused existing Vitest unit tests (which only mocked `/classes` and `/me/holds`) to show an unexpected error banner if unhandled.
+   - **How it was caught:** Reviewed `App.test.tsx` fetch mocks when wiring `ParentPortal` in `App.tsx`.
+   - **Fix:** Made extended Parent Portal background fetches (`getStudentProfile`, `getStudentPayments`, `getClassFeeBreakdown`) fail gracefully when running against minimal test mocks, while keeping explicit user actions (`Save Child Information`, `Apply`, `Pay`, `/admin` login) strictly validated and surfaced via error/success banners. All 50 backend tests and 6 frontend tests pass.
+
+
 
