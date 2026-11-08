@@ -301,3 +301,4 @@ public sealed record AuditLogDto(
     string EntityId,
     string Details,
     string CreatedAt);
+

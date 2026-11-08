@@ -134,3 +134,4 @@ public sealed class PortalTests(ApiFactory factory) : IClassFixture<ApiFactory>
         Assert.Equal("Section A", reviewed.GetProperty("profile").GetProperty("assignedSection").GetString());
     }
 }
+
