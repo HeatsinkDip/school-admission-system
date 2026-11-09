@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: school-admission-backend
+  namespace: school-admission
+  labels:
+    app.kubernetes.io/name: school-admission-backend
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/part-of: onnorokom-projukti-school
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: school-admission-backend
+  template:
+    metadata:
+      labels:
+        app: school-admission-backend
+    spec:
+      containers:
+        - name: backend
+          image: school-admission-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: school-admission-config
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: school-admission-config
+                  key: PORT
+            - name: HOLD_DURATION_SECONDS
+              valueFrom:
+                configMapKeyRef:
+                  name: school-admission-config
+                  key: HOLD_DURATION_SECONDS
+            - name: ADMIN_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: school-admission-config
+                  key: ADMIN_TOKEN
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: school-admission-secrets
+                  key: ADMIN_PASSWORD
+            - name: DB_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: school-admission-secrets
+                  key: DB_CONNECTION_STRING
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: school-admission
+  labels:
+    app.kubernetes.io/name: school-admission-backend
+    app.kubernetes.io/component: backend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      name: http
+  selector:
+    app: school-admission-backend
+

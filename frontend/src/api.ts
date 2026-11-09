@@ -441,6 +441,22 @@ export const api = {
   ): Promise<NotificationSummary> {
     return fetchAdminNotifications(adminToken, category, unreadOnly);
   },
+
+  deleteClass(classId: string, adminToken: string): Promise<void> {
+    return deleteAdminClass(classId, adminToken);
+  },
+
+  deleteApplication(studentId: string, adminToken: string): Promise<void> {
+    return deleteAdminApplication(studentId, adminToken);
+  },
+
+  updateApplication(studentId: string, payload: Partial<StudentProfile>, adminToken: string): Promise<StudentProfile> {
+    return updateAdminApplication(studentId, payload, adminToken);
+  },
+
+  deleteNotification(id: number, adminToken: string): Promise<void> {
+    return deleteAdminNotification(id, adminToken);
+  },
 };
 
 export async function fetchNotifications(studentId?: string): Promise<NotificationSummary> {
@@ -506,5 +522,34 @@ export async function broadcastAdminNotification(
   return await request<AppNotification>('/admin/notifications/broadcast', {
     method: 'POST',
     body: JSON.stringify(payload),
+  }, undefined, adminToken);
+}
+
+export async function deleteAdminClass(classId: string, adminToken: string): Promise<void> {
+  await request<void>(`/admin/classes/${encodeURIComponent(classId)}`, {
+    method: 'DELETE',
+  }, undefined, adminToken);
+}
+
+export async function deleteAdminApplication(studentId: string, adminToken: string): Promise<void> {
+  await request<void>(`/admin/applications/${encodeURIComponent(studentId)}`, {
+    method: 'DELETE',
+  }, undefined, adminToken);
+}
+
+export async function updateAdminApplication(
+  studentId: string,
+  payload: Partial<StudentProfile>,
+  adminToken: string,
+): Promise<StudentProfile> {
+  return await request<StudentProfile>(`/admin/applications/${encodeURIComponent(studentId)}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  }, undefined, adminToken);
+}
+
+export async function deleteAdminNotification(id: number, adminToken: string): Promise<void> {
+  await request<void>(`/admin/notifications/${id}`, {
+    method: 'DELETE',
   }, undefined, adminToken);
 }

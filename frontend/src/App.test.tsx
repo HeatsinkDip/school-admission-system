@@ -377,5 +377,44 @@ describe('School Admission Frontend', () => {
       expect(markReadCalled).toBe(true);
     });
   });
+
+  it('renders landing page for Onnorokom Projukti School and supports navigation to parent portal', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith('/classes')) {
+        return jsonResponse([
+          {
+            id: 'c_101',
+            name: 'Class 6 - Morning Shift',
+            totalSeats: 50,
+            heldSeats: 0,
+            confirmedSeats: 0,
+            availableSeats: 50,
+          },
+        ]);
+      }
+      if (url.endsWith('/me/holds')) return jsonResponse([]);
+      if (url.includes('/me/notifications')) return jsonResponse({ notifications: [], unreadCount: 0 });
+      return jsonResponse({});
+    });
+
+    render(<App />);
+
+    // Click "School Home (Overview)" in sidebar navigation
+    const homeBtn = screen.getByTestId('nav-school-home-btn');
+    fireEvent.click(homeBtn);
+
+    // Landing page is shown
+    expect(screen.getByText(/Nurturing Curious Minds into/i)).toBeInTheDocument();
+    expect(screen.getByTestId('landing-apply-btn')).toBeInTheDocument();
+
+    // Click "Apply for Admission (Parent Portal)"
+    fireEvent.click(screen.getByTestId('landing-apply-btn'));
+
+    // Should now show Parent Portal with Student ID input
+    await waitFor(() => {
+      expect(screen.getByTestId('student-id-input')).toBeInTheDocument();
+    });
+  });
 });
 

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: school-admission-config
+  namespace: school-admission
+  labels:
+    app.kubernetes.io/name: school-admission-system
+    app.kubernetes.io/component: config
+data:
+  HOLD_DURATION_SECONDS: "600"
+  ADMIN_TOKEN: "onnorokom-admin-token-2027"
+  PORT: "8080"
+  API_BASE_URL: "http://school.local"
+  ASPNETCORE_ENVIRONMENT: "Production"
+

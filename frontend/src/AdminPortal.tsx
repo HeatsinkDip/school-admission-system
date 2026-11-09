@@ -31,6 +31,8 @@ import {
   Megaphone,
   Send,
   CheckCheck,
+  Edit2,
+  Trash2,
 } from 'lucide-react';
 import {
   api,
@@ -469,6 +471,59 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
     setActiveView('classes');
   };
 
+  const handleDeleteClass = async (cls: AdminClassDetail) => {
+    if (!session?.token) return;
+    if (cls.confirmedSeats > 0) {
+      alert(`Cannot delete '${cls.name}' because it already has ${cls.confirmedSeats} confirmed student admission(s). Please set its status to CLOSED instead.`);
+      return;
+    }
+    if (!window.confirm(`Are you sure you want to permanently delete class '${cls.name}' (${cls.id})?`)) {
+      return;
+    }
+    try {
+      await api.deleteClass(cls.id, session.token);
+      setDashboard((prev) =>
+        prev ? { ...prev, classes: prev.classes.filter((c) => c.id !== cls.id) } : null,
+      );
+      setSuccessMessage(`Class '${cls.name}' was deleted.`);
+      notifyToast('Class Deleted', `Class '${cls.name}' permanently removed.`, 'warning');
+      await refreshAdminData(true);
+    } catch (err) {
+      showError(err);
+    }
+  };
+
+  const handleDeleteApplication = async (studentId: string) => {
+    if (!session?.token) return;
+    if (!window.confirm(`Are you sure you want to delete application records for student ${studentId}?`)) {
+      return;
+    }
+    try {
+      await api.deleteApplication(studentId, session.token);
+      setApplications((prev) => prev.filter((a) => a.studentId !== studentId));
+      if (selectedStudentId === studentId) {
+        setSelectedStudentId(null);
+        setSelectedDetail(null);
+      }
+      setSuccessMessage(`Application for ${studentId} deleted.`);
+      notifyToast('Application Deleted', `Application record for ${studentId} removed.`, 'warning');
+      await refreshAdminData(true);
+    } catch (err) {
+      showError(err);
+    }
+  };
+
+  const handleDeleteNotification = async (id: number) => {
+    if (!session?.token) return;
+    try {
+      await api.deleteNotification(id, session.token);
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+      notifyToast('Alert Deleted', 'Notification removed from live feed.', 'info');
+    } catch (err) {
+      showError(err);
+    }
+  };
+
   const handleReviewAction = async (
     action: 'UNDER_REVIEW' | 'APPROVE' | 'REQUEST_CORRECTION' | 'REJECT' | 'ENROLL',
   ) => {
@@ -759,7 +814,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
           </div>
           {!isSidebarCollapsed && (
             <div className="brand-meta">
-              <h2 className="brand-name">ST. XAVIER ACADEMY</h2>
+              <h2 className="brand-name">ONNOROKOM PROJUKTI SCHOOL</h2>
               <span className="brand-badge">ADMIN CONSOLE</span>
             </div>
           )}
@@ -1191,13 +1246,28 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                           </td>
                           <td className="mono font-semibold">৳{cls.payableAtAdmissionTotal.toLocaleString()}</td>
                           <td>
-                            <button
-                              type="button"
-                              className="btn btn-outline btn-xs"
-                              onClick={() => startEditClass(cls)}
-                            >
-                              Configure
-                            </button>
+                            <div className="button-group">
+                              <button
+                                type="button"
+                                className="btn btn-outline btn-xs"
+                                onClick={() => startEditClass(cls)}
+                                title="Edit class and fee configuration"
+                              >
+                                <Edit2 size={12} className="inline mr-1" />
+                                Edit
+                              </button>
+                              {isSuperAdmin && (
+                                <button
+                                  type="button"
+                                  className="btn btn-danger btn-xs"
+                                  onClick={() => void handleDeleteClass(cls)}
+                                  title="Permanently delete class"
+                                >
+                                  <Trash2 size={12} className="inline mr-1" />
+                                  Delete
+                                </button>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -1351,14 +1421,26 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                               )}
                             </td>
                             <td>
-                              <button
-                                type="button"
-                                className="btn btn-primary btn-xs"
-                                data-testid={`inspect-student-${app.studentId}`}
-                                onClick={() => void loadStudentDossier(app.studentId)}
-                              >
-                                <Eye size={13} /> Inspect & Verify
-                              </button>
+                              <div className="button-group">
+                                <button
+                                  type="button"
+                                  className="btn btn-primary btn-xs"
+                                  data-testid={`inspect-student-${app.studentId}`}
+                                  onClick={() => void loadStudentDossier(app.studentId)}
+                                >
+                                  <Eye size={13} /> Inspect & Verify
+                                </button>
+                                {isSuperAdmin && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-danger btn-xs"
+                                    onClick={() => void handleDeleteApplication(app.studentId)}
+                                    title="Delete student application record"
+                                  >
+                                    <Trash2 size={13} />
+                                  </button>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -2187,18 +2269,33 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                             {notif.recipientId && (
                               <span className="text-xs text-indigo-600 font-mono">Student: {notif.recipientId}</span>
                             )}
-                            {!notif.isRead && (
-                              <button
-                                type="button"
-                                className="btn btn-outline btn-xs ml-auto"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  void handleMarkAdminNotificationRead(notif.id);
-                                }}
-                              >
-                                Mark Read
-                              </button>
-                            )}
+                            <div className="ml-auto flex items-center gap-1.5">
+                              {!notif.isRead && (
+                                <button
+                                  type="button"
+                                  className="btn btn-outline btn-xs"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    void handleMarkAdminNotificationRead(notif.id);
+                                  }}
+                                >
+                                  Mark Read
+                                </button>
+                              )}
+                              {isSuperAdmin && (
+                                <button
+                                  type="button"
+                                  className="btn btn-outline btn-xs text-rose-600 hover:bg-rose-50"
+                                  title="Delete alert from feed"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    void handleDeleteNotification(notif.id);
+                                  }}
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>

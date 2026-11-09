@@ -128,6 +128,13 @@ public static class PortalEndpoints
             return Results.Ok(await svc.UpdateAdminClassAsync(admin, classId, body, ct));
         });
 
+        app.MapDelete("/admin/classes/{classId}", async (string classId, HttpRequest request, PortalService svc, CancellationToken ct) =>
+        {
+            var admin = await svc.RequireAdminAsync(request, ct);
+            await svc.DeleteAdminClassAsync(admin, classId, ct);
+            return Results.NoContent();
+        });
+
         app.MapGet("/admin/applications", async (
             HttpRequest request,
             string? classId,
@@ -145,6 +152,19 @@ public static class PortalEndpoints
         {
             await svc.RequireAdminAsync(request, ct);
             return Results.Ok(await svc.GetAdminApplicationDetailAsync(studentId, ct));
+        });
+
+        app.MapPut("/admin/applications/{studentId}", async (string studentId, HttpRequest request, SaveStudentProfileRequest body, PortalService svc, CancellationToken ct) =>
+        {
+            await svc.RequireAdminAsync(request, ct);
+            return Results.Ok(await svc.SaveStudentProfileAsync(studentId, body, ct));
+        });
+
+        app.MapDelete("/admin/applications/{studentId}", async (string studentId, HttpRequest request, PortalService svc, CancellationToken ct) =>
+        {
+            var admin = await svc.RequireAdminAsync(request, ct);
+            await svc.DeleteStudentApplicationAsync(admin, studentId, ct);
+            return Results.NoContent();
         });
 
         app.MapPost("/admin/applications/{studentId}/review", async (
@@ -234,6 +254,13 @@ public static class PortalEndpoints
             var admin = await svc.RequireAdminAsync(request, ct);
             var created = await svc.BroadcastNotificationAsync(admin, body, ct);
             return Results.Created($"/notifications/{created.Id}", created);
+        });
+
+        app.MapDelete("/admin/notifications/{id:long}", async (long id, HttpRequest request, PortalService svc, CancellationToken ct) =>
+        {
+            await svc.RequireAdminAsync(request, ct);
+            await svc.DeleteAdminNotificationAsync(id, ct);
+            return Results.NoContent();
         });
     }
 }

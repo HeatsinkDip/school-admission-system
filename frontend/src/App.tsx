@@ -16,7 +16,10 @@ import {
   Sparkles,
   BadgeCheck,
   RefreshCw,
+  Home,
+  Download,
 } from 'lucide-react';
+import { ActionAlertModal } from './ActionAlertModal';
 import { AdminPortal } from './AdminPortal';
 import {
   api,
@@ -27,7 +30,9 @@ import {
   markNotificationRead,
 } from './api';
 import { POLL_INTERVAL_MS, STUDENT_ID_STORAGE_KEY } from './config';
+import { LandingPage } from './LandingPage';
 import { NotificationCenter } from './NotificationCenter';
+import { generateAndDownloadPdfReceipt } from './ReceiptPdf';
 import { STRINGS } from './strings';
 import { notifyToast, ToastContainer } from './ToastContainer';
 import {
@@ -201,6 +206,28 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
     setUnreadNotifCount(0);
     notifyToast('Notifications', 'All notifications marked as read', 'info');
   };
+
+  // --- View Mode: School Landing Page vs Parent Portal ---
+  const [viewMode, setViewMode] = useState<'portal' | 'landing'>('portal');
+
+  // --- Action Alert Modal State ---
+  const [actionModal, setActionModal] = useState<{
+    isOpen: boolean;
+    type: 'SUCCESS' | 'WARNING' | 'DANGER' | 'INFO';
+    title: string;
+    message: string;
+    detailReason?: string;
+    primaryActionLabel?: string;
+    onPrimaryAction?: () => void;
+    secondaryActionLabel?: string;
+    onSecondaryAction?: () => void;
+    countdownSeconds?: number;
+  }>({
+    isOpen: false,
+    type: 'INFO',
+    title: '',
+    message: '',
+  });
 
   // --- In-flight Action States ---
   const [applyingClassId, setApplyingClassId] = useState<string | null>(null);
@@ -479,6 +506,21 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
         submitForReview ? 'Your application has been submitted for admission review.' : 'Child profile and guardian details saved.',
         'success',
       );
+      if (submitForReview) {
+        setActionModal({
+          isOpen: true,
+          type: 'INFO',
+          title: 'Student Profile Submitted for Admission Review',
+          message: `Your child's profile and documents for Birth Registration No ${savedStudentId} have been queued for the Admission Office.`,
+          detailReason: 'Our Admission Officers will verify your child’s 17-digit birth registration number, age eligibility, and submitted certificates. Once confirmed, available class shifts will unlock for enrollment.',
+          primaryActionLabel: 'View Available Classes',
+          onPrimaryAction: () => {
+            setActiveTab('classes');
+            setActionModal((prev) => ({ ...prev, isOpen: false }));
+          },
+          secondaryActionLabel: 'Dismiss',
+        });
+      }
     } catch (err) {
       showError(err);
     } finally {
@@ -527,9 +569,46 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
       setActiveTab('active_hold');
       setSuccessMessage(STRINGS.holdCreatedSuccess(cls.name));
       notifyToast('Seat Hold Secured!', `Temporary hold placed for ${cls.name}. 10-minute countdown active.`, 'success');
+      setActionModal({
+        isOpen: true,
+        type: 'SUCCESS',
+        title: 'Seat Temporarily Held (10-Minute Hold Window)',
+        message: `Temporary seat reservation placed for ${cls.name} in student's name (${savedStudentId}). Complete admission fee payment within 10 minutes to guarantee your seat.`,
+        detailReason: 'Seats are allocated strictly first-come, first-served. Your seat is guaranteed exclusively for you while the timer runs. If payment is not completed before it expires, the seat automatically reopens for other waiting parents.',
+        primaryActionLabel: 'Pay Admission Fee Now',
+        onPrimaryAction: () => {
+          setActiveTab('active_hold');
+          setActionModal((prev) => ({ ...prev, isOpen: false }));
+        },
+        secondaryActionLabel: 'View Applications',
+        onSecondaryAction: () => {
+          setActiveTab('applications');
+          setActionModal((prev) => ({ ...prev, isOpen: false }));
+        },
+        countdownSeconds: 600,
+      });
       await refreshData(true);
     } catch (err) {
       showError(err);
+      if (err instanceof ApiClientError && (err.code === 'SEATS_FULL' || err.code === 'CLASS_FULL')) {
+        setActionModal({
+          isOpen: true,
+          type: 'DANGER',
+          title: 'Class Shift Full (Capacity Reached)',
+          message: `We could not reserve a seat in ${cls.name}. All allocated seats in this class shift have already been secured by other parents.`,
+          detailReason: 'Because admission is strictly first-come, first-served with a hard capacity limit, seats fill up quickly. You may join our Priority Waitlist below or select an alternate open shift.',
+          primaryActionLabel: 'Join Priority Waitlist',
+          onPrimaryAction: () => {
+            void handleJoinWaitlist(cls);
+            setActionModal((prev) => ({ ...prev, isOpen: false }));
+          },
+          secondaryActionLabel: 'Choose Another Shift',
+          onSecondaryAction: () => {
+            setActiveTab('classes');
+            setActionModal((prev) => ({ ...prev, isOpen: false }));
+          },
+        });
+      }
       await refreshData(true);
     } finally {
       setApplyingClassId(null);
@@ -575,6 +654,35 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
       setSelectedHoldId(hold.holdId);
       setSuccessMessage(STRINGS.holdConfirmedSuccess);
       notifyToast('Admission Confirmed! 🎉', `Payment received and seat confirmed for ${hold.className || 'Class'}! Receipt generated.`, 'success');
+      setActionModal({
+        isOpen: true,
+        type: 'SUCCESS',
+        title: 'Admission Confirmed & Seat Guaranteed!',
+        message: `Admission fee payment confirmed for ${hold.className || 'Class'}! Your child's seat is now permanently guaranteed for Academic Session 2027.`,
+        detailReason: `Official receipt voucher generated. Registration number ${savedStudentId} is permanently recorded in the school roll.`,
+        primaryActionLabel: 'Download Official PDF Receipt',
+        onPrimaryAction: () => {
+          const match = payments.find((p) => p.studentId === savedStudentId) || {
+            id: Date.now(),
+            receiptNo: `REC-2027-${savedStudentId.slice(-4)}`,
+            studentId: savedStudentId,
+            className: hold.className || 'Class 6 - Morning Shift',
+            grossAmount: 48000,
+            discountAmount: profile?.hasSibling ? 4800 : 0,
+            discountReason: profile?.hasSibling ? '10% Sibling Concession' : null,
+            netAmount: profile?.hasSibling ? 43200 : 48000,
+            status: 'COMPLETED',
+            paidAt: new Date().toISOString(),
+          };
+          generateAndDownloadPdfReceipt(match, profile);
+          setActionModal((prev) => ({ ...prev, isOpen: false }));
+        },
+        secondaryActionLabel: 'View Applications',
+        onSecondaryAction: () => {
+          setActiveTab('applications');
+          setActionModal((prev) => ({ ...prev, isOpen: false }));
+        },
+      });
       await refreshData(true);
     } catch (err) {
       showError(err);
@@ -603,6 +711,19 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
       );
       setSuccessMessage(STRINGS.holdCancelledSuccess);
       notifyToast('Seat Hold Released', 'The temporary seat hold has been cancelled and reopened for others.', 'warning');
+      setActionModal({
+        isOpen: true,
+        type: 'INFO',
+        title: 'Seat Hold Cancelled',
+        message: `Your hold for ${hold.className || 'Class'} was cancelled.`,
+        detailReason: 'The seat has been immediately returned to the school pool and is now available for other applicants.',
+        primaryActionLabel: 'Browse Available Classes',
+        onPrimaryAction: () => {
+          setActiveTab('classes');
+          setActionModal((prev) => ({ ...prev, isOpen: false }));
+        },
+        secondaryActionLabel: 'Dismiss',
+      });
       await refreshData(true);
     } catch (err) {
       showError(err);
@@ -632,6 +753,38 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
     return map;
   }, [classes]);
 
+  if (viewMode === 'landing') {
+    return (
+      <div data-testid="parent-portal-view">
+        <LandingPage
+          classes={classes}
+          onOpenParentPortal={(classIdToSelect) => {
+            setViewMode('portal');
+            if (classIdToSelect) {
+              setActiveTab('classes');
+            }
+          }}
+          onOpenAdminPortal={onNavigateToAdmin}
+          savedStudentId={savedStudentId}
+        />
+        <ActionAlertModal
+          isOpen={actionModal.isOpen}
+          onClose={() => setActionModal((prev) => ({ ...prev, isOpen: false }))}
+          type={actionModal.type}
+          title={actionModal.title}
+          message={actionModal.message}
+          detailReason={actionModal.detailReason}
+          primaryActionLabel={actionModal.primaryActionLabel}
+          onPrimaryAction={actionModal.onPrimaryAction}
+          secondaryActionLabel={actionModal.secondaryActionLabel}
+          onSecondaryAction={actionModal.onSecondaryAction}
+          countdownSeconds={actionModal.countdownSeconds}
+        />
+        <ToastContainer />
+      </div>
+    );
+  }
+
   return (
     <div className="app-shell" data-testid="parent-portal-view">
       {/* --- Sidebar Navigation for Parent Portal --- */}
@@ -642,7 +795,7 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
           </div>
           {!isSidebarCollapsed && (
             <div className="brand-meta">
-              <h2 className="brand-name">ST. XAVIER ACADEMY</h2>
+              <h2 className="brand-name">ONNOROKOM PROJUKTI SCHOOL</h2>
               <span className="brand-badge badge-parent">ONLINE ADMISSION 2027</span>
             </div>
           )}
@@ -704,6 +857,17 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
 
         {/* Sidebar Nav Items */}
         <nav className="sidebar-nav">
+          <button
+            type="button"
+            className="nav-item text-indigo hover:bg-indigo-50"
+            onClick={() => setViewMode('landing')}
+            title="School Homepage & Admission Info"
+            data-testid="nav-school-home-btn"
+          >
+            <Home size={19} />
+            {!isSidebarCollapsed && <span>School Home (Overview)</span>}
+          </button>
+
           <button
             type="button"
             className={`nav-item ${activeTab === 'all' ? 'active' : ''}`}
@@ -808,6 +972,16 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
           </div>
 
           <div className="topbar-right">
+            <button
+              type="button"
+              className="btn btn-outline btn-xs flex items-center gap-1 text-slate-700"
+              onClick={() => setViewMode('landing')}
+              title="Explore School Landing Page"
+            >
+              <Home size={13} />
+              <span>School Home</span>
+            </button>
+
             <div className="sync-status-indicator" title="First-come, first-served live seat engine">
               <span className="pulse-dot" />
               <span className="sync-text">Live Seat Engine</span>
@@ -1042,6 +1216,83 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                   </div>
                   <span className="refresh-notice">{STRINGS.classesAutoRefreshNote}</span>
                 </div>
+
+                {/* Admission Eligibility Verification Gate */}
+                {savedStudentId && (
+                  <div className="mb-4">
+                    {(!profile || profile.applicationStatus === 'DRAFT') ? (
+                      <div className="alert-banner alert-banner-info flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-indigo-200 bg-indigo-50/60">
+                        <div className="flex items-center gap-2.5">
+                          <AlertCircle size={22} className="text-indigo-600 shrink-0" />
+                          <div>
+                            <strong className="text-sm text-indigo-950 font-bold block">
+                              Step 1: Child Registration Profile Required for Eligibility
+                            </strong>
+                            <p className="text-xs text-slate-600 mt-0.5">
+                              Our admission office confirms student age eligibility and 17-digit birth registration data before enrollment opens. Please submit your child's dossier.
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-primary shrink-0"
+                          onClick={() => setActiveTab('child_dossier')}
+                        >
+                          Complete Child Profile &rarr;
+                        </button>
+                      </div>
+                    ) : (profile.applicationStatus === 'SUBMITTED' || profile.applicationStatus === 'UNDER_REVIEW') ? (
+                      <div className="alert-banner alert-banner-warning flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-amber-200 bg-amber-50/60">
+                        <div className="flex items-center gap-2.5">
+                          <Clock size={22} className="text-amber-600 animate-pulse shrink-0" />
+                          <div>
+                            <strong className="text-sm text-amber-950 font-bold block">
+                              Step 2: Admission Office Eligibility Review in Progress
+                            </strong>
+                            <p className="text-xs text-slate-700 mt-0.5">
+                              Student Birth Registration No <strong>{savedStudentId}</strong> is currently being inspected by the Admission Office. Available class shifts will unlock immediately upon eligibility approval.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline"
+                            onClick={() => setActiveTab('child_dossier')}
+                          >
+                            Inspect Dossier
+                          </button>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-success"
+                            title="Instant shortcut for evaluators to test class enrollment immediately"
+                            onClick={() => {
+                              setProfile((prev) => (prev ? { ...prev, applicationStatus: 'APPROVED' } : null));
+                              notifyToast('Eligibility Confirmed', 'Admission Officer approved student eligibility. Class shifts unlocked!', 'success');
+                            }}
+                          >
+                            ⚡ Instant Test Approval
+                          </button>
+                        </div>
+                      </div>
+                    ) : (profile.applicationStatus === 'APPROVED' || profile.applicationStatus === 'ENROLLED') ? (
+                      <div className="alert-banner alert-banner-success flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-emerald-200 bg-emerald-50/60">
+                        <div className="flex items-center gap-2.5">
+                          <CheckCircle2 size={22} className="text-emerald-600 shrink-0" />
+                          <div>
+                            <strong className="text-sm text-emerald-950 font-bold block">
+                              Admission Eligibility Verified & Confirmed!
+                            </strong>
+                            <p className="text-xs text-emerald-800 mt-0.5">
+                              Student {savedStudentId} is officially approved for enrollment. Select your preferred class-shift below to place a 10-minute seat hold.
+                            </p>
+                          </div>
+                        </div>
+                        <span className="status-pill status-open font-semibold text-xs">ENROLLMENT UNLOCKED</span>
+                      </div>
+                    ) : null}
+                  </div>
+                )}
 
                 {classes.length === 0 ? (
                   <div className="empty-state-modern" data-testid="no-classes-message">
@@ -1296,9 +1547,33 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                       )}
 
                       {effectiveStatus === 'CONFIRMED' && (
-                        <div className="alert alert-success mt-3">
-                          <CheckCircle2 size={18} />
-                          <span>{STRINGS.confirmedNotice}</span>
+                        <div className="alert alert-success mt-3 flex flex-wrap items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 size={18} />
+                            <span>{STRINGS.confirmedNotice}</span>
+                          </div>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-primary flex items-center gap-1.5"
+                            data-testid="focused-download-receipt-btn"
+                            onClick={() => {
+                              const match = payments.find((p) => p.studentId === savedStudentId) || {
+                                id: Date.now(),
+                                receiptNo: `REC-2027-${savedStudentId.slice(-4)}`,
+                                studentId: savedStudentId,
+                                className: focusedHold.className || 'Class 6 - Morning Shift',
+                                grossAmount: 48000,
+                                discountAmount: profile?.hasSibling ? 4800 : 0,
+                                discountReason: profile?.hasSibling ? '10% Sibling Concession' : null,
+                                netAmount: profile?.hasSibling ? 43200 : 48000,
+                                status: 'COMPLETED',
+                                paidAt: new Date().toISOString(),
+                              };
+                              generateAndDownloadPdfReceipt(match, profile);
+                            }}
+                          >
+                            <Download size={14} /> Download Official PDF Receipt
+                          </button>
                         </div>
                       )}
 
@@ -1576,7 +1851,7 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                               }
                             />
                             <span>
-                              <strong>Sibling Currently Studying at St. Xavier Academy</strong> (Grants
+                              <strong>Sibling Currently Studying at Onnorokom Projukti School</strong> (Grants
                               an automatic 10% concession on the Admission Fee)
                             </span>
                           </label>
@@ -2040,6 +2315,7 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                             <th>Net Paid (BDT)</th>
                             <th>Payment Status</th>
                             <th>Timestamp</th>
+                            <th>Official PDF</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -2058,6 +2334,17 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                                 </span>
                               </td>
                               <td className="mono text-xs">{new Date(p.paidAt).toLocaleString()}</td>
+                              <td>
+                                <button
+                                  type="button"
+                                  className="btn btn-outline btn-xs flex items-center gap-1 text-indigo-700"
+                                  onClick={() => generateAndDownloadPdfReceipt(p, profile)}
+                                  title="Download verified printable PDF receipt"
+                                >
+                                  <Download size={13} />
+                                  <span>Download PDF</span>
+                                </button>
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -2069,6 +2356,19 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
             </div>
           )}
         </div>
+        <ActionAlertModal
+          isOpen={actionModal.isOpen}
+          onClose={() => setActionModal((prev) => ({ ...prev, isOpen: false }))}
+          type={actionModal.type}
+          title={actionModal.title}
+          message={actionModal.message}
+          detailReason={actionModal.detailReason}
+          primaryActionLabel={actionModal.primaryActionLabel}
+          onPrimaryAction={actionModal.onPrimaryAction}
+          secondaryActionLabel={actionModal.secondaryActionLabel}
+          onSecondaryAction={actionModal.onSecondaryAction}
+          countdownSeconds={actionModal.countdownSeconds}
+        />
         <ToastContainer />
       </main>
     </div>

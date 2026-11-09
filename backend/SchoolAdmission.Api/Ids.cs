@@ -59,6 +59,13 @@ public static class StudentIds
             if (ch is < '0' or > '9') return false;
         return true;
     }
+
+    public static string ValidateOr400(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || !IsValid(value.Trim()))
+            throw ApiException.Validation("Student ID must be exactly 17 digits.");
+        return value.Trim();
+    }
 }
 
 public static class Iso

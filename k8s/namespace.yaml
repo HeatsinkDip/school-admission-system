@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: school-admission
+  labels:
+    app.kubernetes.io/name: school-admission-system
+    app.kubernetes.io/part-of: onnorokom-projukti-school
+

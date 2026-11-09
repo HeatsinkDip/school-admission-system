@@ -670,6 +670,60 @@ public sealed class PortalService(
         return classes.First(c => c.Id == Ids.Class(classId));
     }
 
+    public async Task DeleteAdminClassAsync(AdminSessionResponse admin, string rawClassId, CancellationToken ct)
+    {
+        var classId = Ids.ParseClassOr404(rawClassId);
+        await using var conn = await dataSource.OpenConnectionAsync(ct);
+        await using var tx = await conn.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
+
+        string className;
+        await using (var lockCmd = new NpgsqlCommand("SELECT name FROM classes WHERE id = @id FOR UPDATE", conn, tx))
+        {
+            lockCmd.Parameters.AddWithValue("id", classId);
+            var res = await lockCmd.ExecuteScalarAsync(ct);
+            if (res is null)
+                throw ApiException.NotFound("Class not found.");
+            className = (string)res;
+        }
+
+        long confirmed;
+        await using (var cntCmd = new NpgsqlCommand("SELECT COUNT(*) FROM holds WHERE class_id = @id AND status = 'CONFIRMED'", conn, tx))
+        {
+            cntCmd.Parameters.AddWithValue("id", classId);
+            confirmed = (long)(await cntCmd.ExecuteScalarAsync(ct))!;
+        }
+
+        if (confirmed > 0)
+        {
+            throw ApiException.Conflict("CANNOT_DELETE_ACTIVE_CLASS",
+                $"Cannot delete '{className}' because {confirmed} student(s) already have confirmed admissions. Set status to 'CLOSED' instead.");
+        }
+
+        await using (var delH = new NpgsqlCommand("DELETE FROM holds WHERE class_id = @id", conn, tx))
+        {
+            delH.Parameters.AddWithValue("id", classId);
+            await delH.ExecuteNonQueryAsync(ct);
+        }
+        await using (var delW = new NpgsqlCommand("DELETE FROM waitlist WHERE class_id = @id", conn, tx))
+        {
+            delW.Parameters.AddWithValue("id", classId);
+            await delW.ExecuteNonQueryAsync(ct);
+        }
+        await using (var delC = new NpgsqlCommand("DELETE FROM classes WHERE id = @id", conn, tx))
+        {
+            delC.Parameters.AddWithValue("id", classId);
+            await delC.ExecuteNonQueryAsync(ct);
+        }
+
+        await WriteAuditAsync(conn, tx, admin.Username, admin.Role, "DELETE_CLASS", "classes", Ids.Class(classId),
+            $"Deleted class '{className}' ({Ids.Class(classId)}).", ct);
+
+        await AddNotificationAsync(conn, tx, "ALL_ADMINS", null, "SYSTEM", "WARNING", "Class Deleted",
+            $"Class '{className}' was deleted by {admin.FullName}.", admin.FullName, ct);
+
+        await tx.CommitAsync(ct);
+    }
+
     public async Task<SchoolSettingsDto> UpdateSettingsAsync(
         AdminSessionResponse admin, UpdateSchoolSettingsRequest req, CancellationToken ct)
     {
@@ -917,6 +971,39 @@ public sealed class PortalService(
 
         await tx.CommitAsync(ct);
         return await GetAdminApplicationDetailAsync(studentId, ct);
+    }
+
+    public async Task DeleteStudentApplicationAsync(AdminSessionResponse admin, string studentId, CancellationToken ct)
+    {
+        StudentIds.ValidateOr400(studentId);
+        await using var conn = await dataSource.OpenConnectionAsync(ct);
+        await using var tx = await conn.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
+
+        await using (var delDocs = new NpgsqlCommand("DELETE FROM student_documents WHERE student_id = @sid", conn, tx))
+        {
+            delDocs.Parameters.AddWithValue("sid", studentId);
+            await delDocs.ExecuteNonQueryAsync(ct);
+        }
+        await using (var delWait = new NpgsqlCommand("DELETE FROM waitlist WHERE student_id = @sid", conn, tx))
+        {
+            delWait.Parameters.AddWithValue("sid", studentId);
+            await delWait.ExecuteNonQueryAsync(ct);
+        }
+        await using (var delHolds = new NpgsqlCommand("DELETE FROM holds WHERE student_id = @sid", conn, tx))
+        {
+            delHolds.Parameters.AddWithValue("sid", studentId);
+            await delHolds.ExecuteNonQueryAsync(ct);
+        }
+        await using (var delProf = new NpgsqlCommand("DELETE FROM student_profiles WHERE student_id = @sid", conn, tx))
+        {
+            delProf.Parameters.AddWithValue("sid", studentId);
+            await delProf.ExecuteNonQueryAsync(ct);
+        }
+
+        await WriteAuditAsync(conn, tx, admin.Username, admin.Role, "DELETE_APPLICATION", "student_profiles", studentId,
+            $"Deleted application and student profile for {studentId}.", ct);
+
+        await tx.CommitAsync(ct);
     }
 
     public async Task<StudentProfileDto> VerifyDocumentAsync(
@@ -1564,6 +1651,14 @@ public sealed class PortalService(
 
         return new NotificationDto(id, recipientType, req.RecipientId, category, severity, req.Title.Trim(), req.Message.Trim(),
             admin.FullName, false, Iso.Format(createdAt));
+    }
+
+    public async Task DeleteAdminNotificationAsync(long id, CancellationToken ct)
+    {
+        await using var conn = await dataSource.OpenConnectionAsync(ct);
+        await using var cmd = new NpgsqlCommand("DELETE FROM notifications WHERE id = @id", conn);
+        cmd.Parameters.AddWithValue("id", id);
+        await cmd.ExecuteNonQueryAsync(ct);
     }
 
     public static async Task AddNotificationAsync(
