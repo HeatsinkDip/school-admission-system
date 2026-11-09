@@ -29,7 +29,7 @@ import './LandingPage.css';
 import './K8sModals.css';
 
 interface LandingPageProps {
-  classes: SchoolClass[];
+  classes?: SchoolClass[];
   onOpenParentPortal: (classIdToSelect?: string) => void;
   savedStudentId: string | null;
   onOpenK8sSpikeModal?: () => void;

@@ -62,7 +62,8 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     };
   }, [isOpen]);
 
-  const filteredNotifications = notifications.filter((notif) => {
+  const safeNotifications = Array.isArray(notifications) ? notifications : [];
+  const filteredNotifications = safeNotifications.filter((notif) => {
     if (activeFilter === 'UNREAD') return !notif.isRead;
     if (activeFilter === 'IMPORTANT') {
       return (
@@ -167,7 +168,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
               className={`notif-filter-btn ${activeFilter === 'ALL' ? 'active' : ''}`}
               onClick={() => setActiveFilter('ALL')}
             >
-              All ({notifications.length})
+              All ({safeNotifications.length})
             </button>
             <button
               type="button"
