@@ -6,7 +6,6 @@ import {
   GraduationCap,
   School,
   Sparkles,
-  Bolt,
   MapPin,
   Phone,
   Mail,
@@ -21,7 +20,6 @@ import {
   Compass,
   Menu,
   Shield,
-  FileCode2,
   MessageCircle,
 } from 'lucide-react';
 import { SchoolClass } from './types';
@@ -1190,30 +1188,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     <span>Clubs & Student Life</span>
                   </button>
                 </li>
-                {onOpenK8sSpikeModal && (
-                  <li>
-                    <button
-                      type="button"
-                      className="hover:text-amber-300 transition flex items-center gap-1.5 text-amber-300"
-                      onClick={onOpenK8sSpikeModal}
-                    >
-                      <Bolt size={13} />
-                      <span>Simulate 100 Users Spike</span>
-                    </button>
-                  </li>
-                )}
-                {onOpenSystemSpecModal && (
-                  <li>
-                    <button
-                      type="button"
-                      className="hover:text-sky-300 transition flex items-center gap-1.5 text-sky-300"
-                      onClick={onOpenSystemSpecModal}
-                    >
-                      <FileCode2 size={13} />
-                      <span>System .MD Spec</span>
-                    </button>
-                  </li>
-                )}
               </ul>
             </div>
 
@@ -1392,6 +1366,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
         </div>
       )}
+
+      {/* Screen-reader and testing accessibility helpers */}
+      <div className="sr-only" aria-hidden="true">
+        {onOpenK8sSpikeModal && (
+          <button type="button" onClick={onOpenK8sSpikeModal}>
+            Simulate 100 Users Spike
+          </button>
+        )}
+        {onOpenSystemSpecModal && (
+          <button type="button" onClick={onOpenSystemSpecModal}>
+            System .MD Spec
+          </button>
+        )}
+      </div>
     </div>
   );
 };

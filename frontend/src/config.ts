@@ -21,5 +21,8 @@ export function getApiBaseUrl(): string {
 
 export const POLL_INTERVAL_MS = 4000;
 export const STUDENT_ID_STORAGE_KEY = 'school_admission_student_id';
+export const PARENT_PHONE_STORAGE_KEY = 'school_admission_parent_phone';
+export const PARENT_NAME_STORAGE_KEY = 'school_admission_parent_name';
+export const PARENT_CHILDREN_STORAGE_KEY = 'school_admission_parent_children';
 export const ADMIN_TOKEN_STORAGE_KEY = 'school_admission_admin_token';
 export const ADMIN_USER_STORAGE_KEY = 'school_admission_admin_user';

@@ -200,17 +200,16 @@ export const K8sSpikeModal: React.FC<K8sSpikeModalProps> = ({
             {logs.map((log, idx) => (
               <div
                 key={idx}
-                className={`terminal-line ${
-                  log.includes('[LOCK ACQUIRED]')
+                className={`terminal-line ${log.includes('[LOCK ACQUIRED]')
                     ? 'text-emerald-400 font-semibold'
                     : log.includes('[REJECTED')
-                    ? 'text-rose-400'
-                    : log.includes('[SUMMARY]')
-                    ? 'text-amber-300 font-bold'
-                    : log.includes('[K8s HPA]')
-                    ? 'text-sky-300'
-                    : 'text-slate-400'
-                }`}
+                      ? 'text-rose-400'
+                      : log.includes('[SUMMARY]')
+                        ? 'text-amber-300 font-bold'
+                        : log.includes('[K8s HPA]')
+                          ? 'text-sky-300'
+                          : 'text-slate-400'
+                  }`}
               >
                 {log}
               </div>
