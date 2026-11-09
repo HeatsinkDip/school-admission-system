@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Building,
+  School,
   GraduationCap,
   Clock,
   FileText,
@@ -977,8 +978,8 @@ function ParentPortal({ onNavigateToAdmin: _onNavigateToAdmin }: ParentPortalPro
       {/* --- Sidebar Navigation for Parent Portal --- */}
       <aside className={`app-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-brand">
-          <div className="brand-logo bg-indigo-gradient text-white">
-            <Building size={22} />
+          <div className="brand-logo text-amber-400">
+            <School size={22} />
           </div>
           {!isSidebarCollapsed && (
             <div className="brand-meta">
@@ -1046,7 +1047,7 @@ function ParentPortal({ onNavigateToAdmin: _onNavigateToAdmin }: ParentPortalPro
         <nav className="sidebar-nav">
           <button
             type="button"
-            className="nav-item text-indigo hover:bg-indigo-50"
+            className="nav-item text-emerald-700 hover:bg-emerald-50"
             onClick={() => setViewMode('landing')}
             title="School Homepage & Admission Info"
             data-testid="nav-school-home-btn"
@@ -1060,6 +1061,7 @@ function ParentPortal({ onNavigateToAdmin: _onNavigateToAdmin }: ParentPortalPro
             className={`nav-item ${activeTab === 'all' ? 'active' : ''}`}
             onClick={() => setActiveTab('all')}
             title="Complete Admission Overview"
+            data-testid="nav-all-overview-btn"
           >
             <Building size={19} />
             {!isSidebarCollapsed && <span>Full Portal Overview</span>}
@@ -1070,6 +1072,7 @@ function ParentPortal({ onNavigateToAdmin: _onNavigateToAdmin }: ParentPortalPro
             className={`nav-item ${activeTab === 'classes' ? 'active' : ''}`}
             onClick={() => setActiveTab('classes')}
             title="Available Classes & Apply"
+            data-testid="nav-classes-btn"
           >
             <GraduationCap size={19} />
             {!isSidebarCollapsed && <span>Available Classes</span>}
@@ -1083,6 +1086,7 @@ function ParentPortal({ onNavigateToAdmin: _onNavigateToAdmin }: ParentPortalPro
             className={`nav-item ${activeTab === 'active_hold' ? 'active' : ''}`}
             onClick={() => setActiveTab('active_hold')}
             title="Active Seat Hold & Payment"
+            data-testid="nav-active-hold-btn"
           >
             <Clock size={19} />
             {!isSidebarCollapsed && <span>Seat Hold & Payment</span>}
@@ -1096,6 +1100,7 @@ function ParentPortal({ onNavigateToAdmin: _onNavigateToAdmin }: ParentPortalPro
             className={`nav-item ${activeTab === 'child_dossier' ? 'active' : ''}`}
             onClick={() => setActiveTab('child_dossier')}
             title="Child Information & Documents"
+            data-testid="nav-child-dossier-btn"
           >
             <FileText size={19} />
             {!isSidebarCollapsed && <span>Child & Guardian Dossier</span>}
@@ -1109,6 +1114,7 @@ function ParentPortal({ onNavigateToAdmin: _onNavigateToAdmin }: ParentPortalPro
             className={`nav-item ${activeTab === 'applications' ? 'active' : ''}`}
             onClick={() => setActiveTab('applications')}
             title="My Applications & Receipts"
+            data-testid="nav-applications-btn"
           >
             <CreditCard size={19} />
             {!isSidebarCollapsed && <span>Receipts & History</span>}
@@ -1724,7 +1730,7 @@ function ParentPortal({ onNavigateToAdmin: _onNavigateToAdmin }: ParentPortalPro
           {/* ================================================================= */}
           {/* TAB 2: ACTIVE SEAT HOLD & ADMISSION FEE CONFIRMATION              */}
           {/* ================================================================= */}
-          {(activeTab === 'active_hold' || (savedStudentId && focusedHold)) && (
+          {(activeTab === 'active_hold' || (activeTab === 'all' && savedStudentId && focusedHold)) && (
             <div className="view-section" data-testid="active-application-section">
               {!savedStudentId ? (
                 <div className="panel-card empty-state-modern">

@@ -1,5 +1,5 @@
 /* =========================================================================
-   Admin Portal Stylesheet (All-White SaaS Theme)
+   Admin Portal Stylesheet (White & Emerald Green Executive Theme)
    ========================================================================= */
 
 .admin-portal-wrapper {
@@ -11,66 +11,156 @@
   background-color: #f8fafc;
 }
 
-/* White Admin Sidebar */
+/* White & Crisp Admin Sidebar */
 .admin-sidebar {
   background: #ffffff !important;
   border-right: 1px solid #e2e8f0 !important;
   color: #1e293b !important;
 }
 
+.admin-sidebar .sidebar-brand {
+  border-bottom: 1px solid #f1f5f9;
+  padding: 1.25rem 1.5rem;
+}
+
+.admin-sidebar .brand-logo {
+  background: linear-gradient(135deg, #014d33 0%, #047857 100%) !important;
+  color: #facc15 !important;
+  box-shadow: 0 4px 8px rgba(4, 120, 87, 0.25) !important;
+}
+
+.admin-sidebar .sidebar-user-card {
+  background: #f0fdf4 !important;
+  border: 1px solid #bbf7d0 !important;
+  border-radius: 12px;
+  padding: 0.85rem;
+}
+
+.user-avatar-circle {
+  background: #047857 !important;
+  color: #ffffff !important;
+  font-weight: 800;
+}
+
+/* Admin Sidebar Nav Items */
+.admin-sidebar .nav-item {
+  color: #475569 !important;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  transition: all 0.15s ease;
+  border-left: 3px solid transparent;
+}
+
+.admin-sidebar .nav-item:hover {
+  background-color: #f0fdf4 !important;
+  color: #047857 !important;
+}
+
+.admin-sidebar .nav-item.active {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  font-weight: 800 !important;
+  border-left: 3px solid #059669 !important;
+  box-shadow: inset 0 1px 2px rgba(4, 120, 87, 0.05);
+}
+
+.admin-sidebar .nav-group-label {
+  color: #065f46 !important;
+  font-weight: 800;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  padding: 0.75rem 0.85rem 0.25rem 0.85rem;
+}
+
+.admin-sidebar .nav-badge {
+  background-color: #059669 !important;
+  color: #ffffff !important;
+}
+
+.admin-sidebar .nav-badge-alert {
+  background-color: #ea580c !important;
+  color: #ffffff !important;
+}
+
 /* Admin Metric Cards */
 .admin-stat-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 1.25rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .admin-stat-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+  border-color: #a7f3d0;
+  box-shadow: 0 8px 16px -4px rgba(4, 120, 87, 0.1);
 }
 
-/* Admin Modern Tables */
-.admin-table {
+/* Admin Tables in White & Green */
+.admin-table,
+.table-modern {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 14px;
   overflow: hidden;
 }
 
-.admin-table th {
+.admin-table th,
+.table-modern th {
   background: #f8fafc;
-  color: #475569;
+  color: #064e3b;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   padding: 0.85rem 1rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 2px solid #e2e8f0;
 }
 
-.admin-table td {
+.admin-table td,
+.table-modern td {
   padding: 0.85rem 1rem;
   border-bottom: 1px solid #f1f5f9;
   color: #1e293b;
   font-size: 0.85rem;
 }
 
-.admin-table tr:hover td {
-  background: #f8fafc;
+.admin-table tr:hover td,
+.table-modern tr:hover td {
+  background: #f0fdf4;
 }
 
 /* Inspection Modal & Document Viewer */
 .inspection-modal-desk {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border-radius: 20px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
 }
 
+/* Status Badges */
+.badge-status.badge-confirmed,
+.badge-status.badge-eligible {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+}
+
+.badge-status.badge-held {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+}
+
+.badge-status.badge-expired,
+.badge-status.badge-rejected {
+  background-color: #fef2f2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fecaca !important;
+}

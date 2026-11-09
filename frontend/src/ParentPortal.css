@@ -1,5 +1,5 @@
 /* =========================================================================
-   Parent & Student Portal Stylesheet (All-White SaaS Theme)
+   Parent & Student Portal Stylesheet (White & Emerald Green SaaS Theme)
    ========================================================================= */
 
 .portal-page-wrapper {
@@ -9,12 +9,12 @@
   flex-direction: column;
 }
 
-/* All-white parent shell */
+/* White & clean parent shell */
 .app-shell[data-testid="parent-portal-view"] {
   background-color: #f8fafc;
 }
 
-/* White Sidebar */
+/* Crisp White Sidebar with Emerald Accents */
 .app-sidebar {
   background: #ffffff !important;
   border-right: 1px solid #e2e8f0 !important;
@@ -23,29 +23,72 @@
 
 .sidebar-brand {
   border-bottom: 1px solid #f1f5f9;
+  padding: 1.25rem 1.5rem;
+}
+
+.brand-logo.bg-indigo-gradient,
+.brand-logo {
+  background: linear-gradient(135deg, #014d33 0%, #047857 100%) !important;
+  color: #facc15 !important;
+  box-shadow: 0 4px 8px rgba(4, 120, 87, 0.25) !important;
 }
 
 .sidebar-user-card {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #f0fdf4 !important;
+  border: 1px solid #bbf7d0 !important;
   border-radius: 12px;
+  padding: 0.85rem;
 }
 
+.student-session-active {
+  color: #064e3b;
+}
+
+.student-id-active-val {
+  color: #065f46 !important;
+  font-weight: 800;
+}
+
+/* Navigation items in White & Green Theme */
 .nav-item {
   color: #475569 !important;
-  font-weight: 500;
+  font-weight: 600;
   border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  transition: all 0.15s ease;
+  border-left: 3px solid transparent;
 }
 
 .nav-item:hover {
-  background-color: #f1f5f9 !important;
-  color: #0f172a !important;
+  background-color: #f0fdf4 !important;
+  color: #047857 !important;
 }
 
 .nav-item.active {
-  background-color: #e0e7ff !important;
-  color: #4338ca !important;
-  font-weight: 700 !important;
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  font-weight: 800 !important;
+  border-left: 3px solid #059669 !important;
+  box-shadow: inset 0 1px 2px rgba(4, 120, 87, 0.05);
+}
+
+.nav-item.text-indigo {
+  color: #047857 !important;
+}
+
+.nav-item.text-indigo:hover {
+  background-color: #ecfdf5 !important;
+}
+
+.nav-badge {
+  background-color: #059669 !important;
+  color: #ffffff !important;
+}
+
+.nav-badge-pill {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
 }
 
 /* Main Content Area */
@@ -59,7 +102,7 @@
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
 }
 
-/* All-white Card Panels */
+/* White Card Panels */
 .panel-card,
 .class-card,
 .stat-card-modern,
@@ -72,8 +115,8 @@
 
 .panel-card:hover,
 .class-card:hover {
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06) !important;
+  border-color: #a7f3d0 !important;
+  box-shadow: 0 6px 16px -2px rgba(4, 120, 87, 0.08) !important;
 }
 
 /* Class Reservation Cards */
@@ -85,16 +128,16 @@
 
 .class-card-title {
   color: #0f172a;
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  font-weight: 800;
 }
 
 /* Hold & Payment Checkout Box */
 .hold-timer-card {
   background: #ffffff;
-  border: 2px solid #6366f1;
+  border: 2px solid #059669;
   border-radius: 16px;
-  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.08);
+  box-shadow: 0 10px 20px -3px rgba(5, 150, 105, 0.12);
 }
 
 .hold-countdown-timer {
@@ -107,16 +150,58 @@
 /* Form inputs */
 .input,
 .select,
-.textarea {
+.textarea,
+.form-input {
   background-color: #ffffff !important;
   border: 1px solid #cbd5e1 !important;
   color: #0f172a !important;
+  border-radius: 10px;
 }
 
 .input:focus,
 .select:focus,
-.textarea:focus {
-  border-color: #6366f1 !important;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+.textarea:focus,
+.form-input:focus {
+  border-color: #059669 !important;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15) !important;
+  outline: none;
 }
 
+/* Primary Green Buttons */
+.btn-primary {
+  background: #047857 !important;
+  color: #ffffff !important;
+  border: 1px solid #065f46 !important;
+  border-radius: 10px;
+  font-weight: 700;
+  box-shadow: 0 2px 4px rgba(4, 120, 87, 0.2);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #065f46 !important;
+  box-shadow: 0 4px 8px rgba(4, 120, 87, 0.3);
+}
+
+/* Secondary & Action Buttons */
+.btn-warning {
+  background: #ea580c !important;
+  color: #ffffff !important;
+  border: none !important;
+}
+
+.btn-warning:hover:not(:disabled) {
+  background: #c2410c !important;
+}
+
+/* Alert banners in White & Green theme */
+.alert-banner-info {
+  background-color: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+  color: #064e3b !important;
+}
+
+/* Step Badges */
+.step-number {
+  background: #047857 !important;
+  color: #ffffff !important;
+}

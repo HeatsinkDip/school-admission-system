@@ -115,7 +115,7 @@ body {
   width: 38px;
   height: 38px;
   border-radius: 8px;
-  background: linear-gradient(135deg, var(--indigo-600), var(--blue-600));
+  background: linear-gradient(135deg, #014d33, #047857);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -307,10 +307,10 @@ body {
 }
 
 .nav-item.active {
-  background: var(--blue-50);
-  color: var(--blue-700);
-  font-weight: 600;
-  border-left: 3px solid var(--blue-600);
+  background: var(--emerald-50);
+  color: var(--emerald-700);
+  font-weight: 700;
+  border-left: 3px solid var(--emerald-600);
 }
 
 .nav-badge {
@@ -836,8 +836,8 @@ body {
 
 .input:focus {
   outline: none;
-  border-color: var(--blue-600);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: var(--emerald-600);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
 }
 
 .input-lg {
@@ -895,8 +895,8 @@ body {
   cursor: not-allowed;
 }
 
-.btn-primary { background: var(--blue-600); color: #fff; }
-.btn-primary:hover:not(:disabled) { background: var(--blue-700); }
+.btn-primary { background: var(--emerald-600); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--emerald-700); }
 
 .btn-secondary { background: var(--slate-200); color: var(--slate-800); }
 .btn-secondary:hover:not(:disabled) { background: var(--slate-300); }

@@ -1,26 +1,55 @@
 /* =========================================================================
-   All-White Institutional Theme: Landing Page Stylesheet
+   Onnorokom Projukti School: White & Deep Emerald Green Landing Stylesheet
+   Inspired by International School Dhaka (ISD) Visual Architecture
    ========================================================================= */
+
+:root {
+  --isd-green-dark: #014d33;
+  --isd-green-deep: #064e3b;
+  --isd-green-primary: #047857;
+  --isd-green-light: #10b981;
+  --isd-green-subtle: #ecfdf5;
+  --isd-orange: #ea580c;
+  --isd-orange-bright: #f97316;
+  --isd-yellow: #facc15;
+  --isd-yellow-warm: #eab308;
+  --isd-slate-dark: #0f172a;
+  --isd-slate-text: #334155;
+  --isd-white: #ffffff;
+}
 
 .landing-page-root {
   background-color: #ffffff;
-  color: #0f172a;
+  color: var(--isd-slate-dark);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 .landing-container {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 1.5rem;
+  width: 100%;
 }
 
 /* =========================================================================
-   All-White Institutional Header
+   TOP UTILITY BAR (Deep Green Strip)
    ========================================================================= */
 
-.isd-header-white {
+.isd-top-utility-bar {
+  background: var(--isd-green-dark);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  z-index: 51;
+}
+
+/* =========================================================================
+   MAIN HEADER (White Background with Emerald & Orange Highlights)
+   ========================================================================= */
+
+.isd-main-header {
   background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
@@ -30,324 +59,801 @@
   backdrop-filter: blur(8px);
 }
 
-.isd-brand-emblem {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-  color: #f59e0b;
-  border: 1px solid #e2e8f0;
+.isd-sunburst-logo {
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
   flex-shrink: 0;
+  transition: transform 0.2s ease;
 }
 
-.isd-nav-link {
-  color: #475569;
+.isd-sunburst-logo:hover {
+  transform: rotate(45deg);
+}
+
+.isd-nav-item {
+  color: #334155;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
   transition: all 0.15s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  text-decoration: none;
   background: transparent;
   border: none;
   cursor: pointer;
 }
 
-.isd-nav-link:hover {
-  color: #1e1b4b;
-  background-color: #f1f5f9;
+.isd-nav-item:hover {
+  color: var(--isd-green-primary);
+  background-color: #f0fdf4;
 }
 
-/* =========================================================================
-   Clean All-White Hero Section with High-Impact Imagery
-   ========================================================================= */
-
-.isd-hero-white {
-  background: #ffffff;
-  padding-top: 3rem;
-  padding-bottom: 4rem;
-  position: relative;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.hero-tag-pill {
+.isd-apply-cta-btn {
+  background: var(--isd-orange);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 800;
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background-color: #fef3c7;
-  border: 1px solid #fde68a;
-  color: #92400e;
-  padding: 0.35rem 0.85rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-}
-
-.hero-title-white {
-  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-  font-size: 2.75rem;
-  line-height: 1.15;
-  font-weight: 800;
-  color: #0f172a;
-  letter-spacing: -0.03em;
-  margin-top: 1rem;
-  margin-bottom: 1.25rem;
-}
-
-@media (min-width: 640px) {
-  .hero-title-white {
-    font-size: 3.5rem;
-  }
-}
-
-.hero-highlight-amber {
-  color: #d97706;
-}
-
-.hero-description-white {
-  color: #475569;
-  font-size: 1.1rem;
-  line-height: 1.65;
-  max-width: 600px;
-  margin-bottom: 2rem;
-}
-
-.hero-image-wrapper {
-  position: relative;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.12);
-  border: 4px solid #ffffff;
-}
-
-.hero-image-main {
-  width: 100%;
-  height: 380px;
-  object-fit: cover;
-  display: block;
-}
-
-.hero-floating-badge {
-  position: absolute;
-  bottom: 1.25rem;
-  left: 1.25rem;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 0.85rem 1.15rem;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-/* =========================================================================
-   Interactive Workflow Preview Card (White Theme)
-   ========================================================================= */
-
-.workflow-card-white {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 1.25rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
-}
-
-.workflow-step-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.85rem;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  padding: 0.85rem 1rem;
-  border-radius: 12px;
-  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 4px rgba(234, 88, 12, 0.25);
   transition: all 0.2s ease;
 }
 
-.workflow-step-item:hover {
-  border-color: #4f46e5;
-  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.06);
+.isd-apply-cta-btn:hover {
+  background: #c2410c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(234, 88, 12, 0.35);
 }
 
-.step-num-badge {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: #4f46e5;
+/* Iconic Orange Hamburger Trigger matching ISD reference */
+.isd-hamburger-trigger {
+  width: 44px;
+  height: 44px;
+  background: var(--isd-orange);
   color: #ffffff;
-  font-weight: 700;
-  font-size: 0.8rem;
+  border: none;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(234, 88, 12, 0.2);
+}
+
+.isd-hamburger-trigger:hover {
+  background: #c2410c;
+  transform: scale(1.05);
 }
 
 /* =========================================================================
-   Real-Time Seat Matrix Cards (All-White Theme)
+   MEGA MENU OVERLAY (Deep Forest Green #014d33 matching ISD Image 2)
    ========================================================================= */
 
-.matrix-grid-white {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+.isd-megamenu-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--isd-green-dark);
+  z-index: 100;
+  overflow-y: auto;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.isd-megamenu-panel {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem 1.5rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.isd-megamenu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 1.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.seat-matrix-card-white {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+.isd-search-bar-wrap {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  flex: 1;
+  max-width: 600px;
 }
 
-.seat-matrix-card-white:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
-  border-color: #cbd5e1;
-}
-
-.seat-progress-bar-white {
+.isd-megamenu-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 1rem;
   width: 100%;
-  height: 8px;
-  background-color: #f1f5f9;
-  border-radius: 9999px;
-  overflow: hidden;
-  margin-top: 0.5rem;
+}
+
+.isd-megamenu-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.isd-megamenu-close-btn {
+  width: 44px;
+  height: 44px;
+  background: var(--isd-orange);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.isd-megamenu-close-btn:hover {
+  transform: rotate(90deg);
+}
+
+.isd-megamenu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2.5rem;
+  padding: 3rem 0;
+  flex: 1;
+}
+
+.isd-menu-col-title {
+  color: var(--isd-yellow);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-bottom: 1.25rem;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid var(--isd-orange);
+}
+
+.isd-menu-link-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  space-y: 1rem;
+}
+
+.isd-menu-link-btn {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 0.5rem 0;
+  width: 100%;
+  cursor: pointer;
+  display: block;
+  transition: transform 0.15s ease;
+}
+
+.isd-menu-link-btn:hover {
+  transform: translateX(6px);
+}
+
+.isd-menu-link-btn .link-title {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.isd-menu-link-btn:hover .link-title {
+  color: var(--isd-yellow);
+}
+
+.isd-menu-link-btn .link-desc {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.75rem;
+  margin-top: 0.2rem;
+}
+
+.isd-menu-link-btn.highlight .link-title {
+  color: var(--isd-orange-bright);
+}
+
+.isd-megamenu-footer {
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 /* =========================================================================
-   Academic Pathways with Visual Photos
+   HERO SHOWCASE (Matching ISD Image 1 & 4 with Outlined Typography)
    ========================================================================= */
 
-.pathway-card-photo {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
+.isd-hero-showcase {
+  position: relative;
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  background: var(--isd-slate-dark);
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.isd-hero-bg-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.isd-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  filter: brightness(0.72) contrast(1.1);
+}
+
+.isd-hero-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(1, 77, 51, 0.92) 0%,
+    rgba(6, 78, 59, 0.85) 45%,
+    rgba(15, 23, 42, 0.4) 100%
+  );
+  z-index: 2;
+}
+
+.isd-hero-content-wrap {
+  position: relative;
+  z-index: 10;
+  padding-top: 4rem;
+  padding-bottom: 5rem;
+}
+
+.isd-hero-session-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(250, 204, 21, 0.15);
+  border: 1px solid rgba(250, 204, 21, 0.4);
+  color: var(--isd-yellow);
+  padding: 0.4rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin-bottom: 1.5rem;
+}
+
+.isd-hero-title-group {
+  margin-bottom: 1.5rem;
+}
+
+.isd-hero-title-filled {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 3.5rem;
+  line-height: 1.05;
+  font-weight: 900;
+  color: var(--isd-orange-bright);
+  letter-spacing: -0.03em;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Iconic Outline Typography matching ISD "The Communicator" */
+.isd-hero-title-outlined {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 4rem;
+  line-height: 1.05;
+  font-weight: 900;
+  color: transparent;
+  -webkit-text-stroke: 2px #ffffff;
+  letter-spacing: -0.03em;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 768px) {
+  .isd-hero-title-filled {
+    font-size: 4.75rem;
+  }
+  .isd-hero-title-outlined {
+    font-size: 5.5rem;
+  }
+}
+
+.isd-hero-lead-text {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: #f1f5f9;
+  max-width: 650px;
+  font-weight: 400;
+  margin-bottom: 2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.btn-isd-primary {
+  background: var(--isd-orange);
+  color: #ffffff;
+  padding: 0.85rem 1.75rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-isd-primary:hover {
+  background: #c2410c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.4);
+}
+
+/* Yellow Pill Button: "WATCH THE FULL VIDEO >" matching Reference Image 1 */
+.isd-video-pill-btn {
+  background: var(--isd-yellow);
+  color: #1e1b4b;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 0.85rem 1.6rem;
+  border-radius: 9999px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(250, 204, 21, 0.35);
+  transition: all 0.2s ease;
+}
+
+.isd-video-pill-btn:hover {
+  background: #facc15;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(250, 204, 21, 0.5);
+}
+
+/* Floating "Talk to Hawk / Counselor" Badge matching Image 1 */
+.isd-hawk-counselor-pill {
+  position: absolute;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 20;
+  background: #014d33;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  padding: 0.5rem 1.25rem 0.5rem 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.isd-hawk-counselor-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+  background: #064e3b;
+}
+
+/* =========================================================================
+   CAMPUS FACILITIES (Matching ISD Image 4: "COME AND SEE OUR CAMPUS")
+   ========================================================================= */
+
+.isd-facility-banner-card {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
+  height: 380px;
+}
+
+.isd-facility-hero-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.isd-facility-banner-card:hover .isd-facility-hero-img {
+  transform: scale(1.03);
+}
+
+.isd-facility-card-badge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(0deg, rgba(1, 77, 51, 0.95) 0%, rgba(1, 77, 51, 0) 100%);
+  padding: 3rem 1.5rem 1.5rem 1.5rem;
+}
+
+.isd-facility-thumb {
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  height: 100px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+}
+
+.isd-facility-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.isd-facility-thumb span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(1, 77, 51, 0.85);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  text-align: center;
+}
+
+.isd-yellow-pill-solid {
+  background: var(--isd-yellow);
+  color: #1e1b4b;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.isd-yellow-pill-solid:hover {
+  background: #eab308;
+  transform: translateY(-1px);
+}
+
+/* =========================================================================
+   "FIND OUT MORE ABOUT OUR SCHOOLS" (Deep Green & Orange Curves: ISD Image 3 & 4)
+   ========================================================================= */
+
+.isd-our-schools-section {
+  background-color: var(--isd-green-dark);
+  padding: 6rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative Geometric Orange Curves matching ISD reference */
+.isd-ribbon-decor {
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border: 24px solid var(--isd-orange);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+.isd-ribbon-top {
+  top: -120px;
+  right: -80px;
+  border-color: var(--isd-orange);
+}
+
+.isd-ribbon-bottom {
+  bottom: -140px;
+  right: 15%;
+  border-color: var(--isd-yellow);
+  width: 240px;
+  height: 240px;
+  border-width: 18px;
+}
+
+.isd-school-level-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(10px);
 }
 
-.pathway-card-photo:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.08);
-  border-color: #cbd5e1;
+.isd-school-level-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--isd-orange);
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.4);
 }
 
-.pathway-photo {
+.isd-school-card-media {
+  position: relative;
+  height: 240px;
+  overflow: hidden;
+}
+
+.isd-school-photo {
   width: 100%;
-  height: 180px;
+  height: 100%;
   object-fit: cover;
-  display: block;
+  transition: transform 0.4s ease;
 }
 
-.pathway-body {
-  padding: 1.5rem;
+.isd-school-level-card:hover .isd-school-photo {
+  transform: scale(1.06);
+}
+
+.isd-school-card-overlay {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+}
+
+.isd-school-badge {
+  background: var(--isd-green-dark);
+  color: var(--isd-yellow);
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.35rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid rgba(250, 204, 21, 0.3);
+}
+
+.isd-school-card-body {
+  padding: 1.75rem;
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-/* =========================================================================
-   Campus Facilities Showcase
-   ========================================================================= */
-
-.facility-card-white {
-  position: relative;
-  border-radius: 16px;
-  overflow: hidden;
-  height: 220px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.06);
+.isd-school-card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
 }
 
-.facility-photo {
+.isd-school-card-text {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #e2e8f0;
+  margin-bottom: 1.5rem;
+}
+
+/* =========================================================================
+   "OPS IN NUMBERS" STATS BAR (Matching ISD Image 4)
+   ========================================================================= */
+
+.isd-numbers-bar-section {
+  background-color: #033f2a;
+  padding: 4rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.isd-stat-item {
+  padding: 1rem;
+}
+
+/* =========================================================================
+   "EXCEPTIONAL LEARNING EXPERIENCES" (Matching ISD Image 4)
+   ========================================================================= */
+
+.isd-exp-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.isd-exp-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.1);
+  border-color: var(--isd-green-primary);
+}
+
+.isd-exp-media {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.isd-exp-media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
-  transition: transform 0.3s ease;
 }
 
-.facility-card-white:hover .facility-photo {
-  transform: scale(1.04);
-}
-
-.facility-overlay {
+.isd-exp-badge {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 60%, transparent 100%);
-  color: #ffffff;
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  bottom: 0.75rem;
+  left: 0.75rem;
+  background: var(--isd-green-dark);
+  color: var(--isd-yellow);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
 }
 
 /* =========================================================================
-   Director's Welcome Letter (White Theme)
+   STUDENT CLUBS BOXES
    ========================================================================= */
 
-.director-card-white {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-left: 5px solid #d97706;
-  border-radius: 16px;
-  padding: 2.25rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
-}
-
-/* =========================================================================
-   All-White Institutional Footer
-   ========================================================================= */
-
-.isd-footer-white {
+.isd-club-box {
   background: #ffffff;
-  color: #475569;
-  border-top: 1px solid #e2e8f0;
-  padding-top: 3.5rem;
-  padding-bottom: 2rem;
-  margin-top: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
 }
 
-.footer-column-title {
-  color: #0f172a;
-  font-size: 0.875rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  letter-spacing: 0.02em;
+.isd-club-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08);
+  border-color: var(--isd-green-primary);
 }
 
-.footer-link-white {
-  color: #64748b;
-  font-size: 0.85rem;
+.isd-club-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  background: transparent;
-  border: none;
-  padding: 0.25rem 0;
-  cursor: pointer;
-  text-decoration: none;
-  transition: color 0.15s ease;
+  justify-content: center;
+  margin-bottom: 1rem;
 }
 
-.footer-link-white:hover {
-  color: #1e1b4b;
+/* =========================================================================
+   SEAT CAPACITY MATRIX (White & Emerald Theme)
+   ========================================================================= */
+
+.isd-seat-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 1.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
 }
 
+.isd-seat-card:hover {
+  border-color: var(--isd-green-primary);
+  box-shadow: 0 10px 20px -5px rgba(4, 120, 87, 0.12);
+}
+
+.isd-seat-pill {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  letter-spacing: 0.04em;
+}
+
+.isd-seat-pill.open {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.isd-seat-pill.full {
+  background: #fff1f2;
+  color: #be123c;
+  border: 1px solid #fecdd3;
+}
+
+.isd-seat-progress-bar {
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.isd-seat-progress-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+/* =========================================================================
+   WORKFLOW BOXES
+   ========================================================================= */
+
+.isd-workflow-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.isd-step-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--isd-green-primary);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+/* =========================================================================
+   OFFICIAL FOOTER (Matching ISD Image 4 Reference)
+   ========================================================================= */
+
+.isd-official-footer {
+  background-color: var(--isd-green-dark);
+  color: #ffffff;
+  padding: 5rem 0 2rem 0;
+  position: relative;
+}
+
+.isd-footer-col-title {
+  color: var(--isd-yellow);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Video & Counselor Modals */
+.isd-video-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.isd-video-modal-box {
+  background: #ffffff;
+  border-radius: 20px;
+  max-width: 800px;
+  width: 100%;
+  padding: 1.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+}
+
+.isd-counselor-modal-box {
+  background: #ffffff;
+  border-radius: 20px;
+  max-width: 520px;
+  width: 100%;
+  padding: 1.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+}

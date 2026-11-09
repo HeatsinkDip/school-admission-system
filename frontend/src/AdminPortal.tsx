@@ -21,7 +21,7 @@ import {
   TrendingUp,
   Download,
   KeyRound,
-  Building,
+  School,
   UserX,
   BadgeCheck,
   Menu,
@@ -868,7 +868,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
       <aside className={`app-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-brand">
           <div className="brand-logo">
-            <Building size={22} />
+            <School size={22} className="text-amber-400" />
           </div>
           {!isSidebarCollapsed && (
             <div className="brand-meta">
