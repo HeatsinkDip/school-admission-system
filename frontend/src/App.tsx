@@ -13,7 +13,12 @@ export function App() {
   const [pathname, setPathname] = useState<string>(() =>
     typeof window !== 'undefined' ? window.location.pathname : '/',
   );
-  const [viewMode, setViewMode] = useState<'portal' | 'landing'>('portal');
+  const [viewMode, setViewMode] = useState<'portal' | 'landing'>(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem(STUDENT_ID_STORAGE_KEY)) {
+      return 'portal';
+    }
+    return 'landing';
+  });
 
   useEffect(() => {
     const onPopState = () => setPathname(window.location.pathname);

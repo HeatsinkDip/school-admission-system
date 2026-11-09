@@ -36,6 +36,9 @@ describe('School Admission Frontend', () => {
 
     render(<App />);
 
+    // Default page is Landing Page; click Apply for Admission to open Parent Login
+    fireEvent.click(screen.getByTestId('landing-apply-btn'));
+
     const input = screen.getByTestId('student-id-input');
     const saveBtn = screen.getByTestId('save-student-id-btn');
 
@@ -203,6 +206,7 @@ describe('School Admission Frontend', () => {
       return jsonResponse([]);
     });
 
+    localStorage.setItem(STUDENT_ID_STORAGE_KEY, VALID_STUDENT_ID);
     render(<App />);
 
     await act(async () => {
@@ -414,11 +418,7 @@ describe('School Admission Frontend', () => {
 
     render(<App />);
 
-    // Click "School Home (Overview)" in sidebar navigation
-    const homeBtn = screen.getByTestId('nav-school-home-btn');
-    fireEvent.click(homeBtn);
-
-    // Landing page is shown
+    // Default page is Landing Page
     expect(screen.getByText(/Nurturing Curious Minds into/i)).toBeInTheDocument();
     expect(screen.getByTestId('landing-apply-btn')).toBeInTheDocument();
 
@@ -429,6 +429,11 @@ describe('School Admission Frontend', () => {
     await waitFor(() => {
       expect(screen.getByTestId('student-id-input')).toBeInTheDocument();
     });
+
+    // Click "School Home" in sidebar navigation to return to Landing Page
+    const homeBtn = screen.getByTestId('nav-school-home-btn');
+    fireEvent.click(homeBtn);
+    expect(screen.getByText(/Nurturing Curious Minds into/i)).toBeInTheDocument();
   });
 
   it('blocks student holding another class from applying to a second shift/class (Single Admission Rule)', async () => {
@@ -600,13 +605,15 @@ describe('School Admission Frontend', () => {
     });
 
     render(<App />);
+    fireEvent.click(screen.getByTestId('landing-apply-btn'));
 
     // Click on "Class Routines & Hours" in sidebar nav
     const routineNavBtn = await screen.findByTestId('nav-routines-btn');
     fireEvent.click(routineNavBtn);
 
-    // Should display class routine timetable with fixed hours
+    // Should display weekly calendar class routine timetable with fixed hours
     expect(await screen.findByTestId('class-routines-section')).toBeInTheDocument();
+    expect(screen.getByTestId('weekly-routine-calendar-table')).toBeInTheDocument();
     expect(screen.getByText(/School Operating Hours:/i)).toBeInTheDocument();
     expect(screen.getByText(/07:30 — 12:00/i)).toBeInTheDocument();
     expect(screen.getByText('Bangla 1st Paper')).toBeInTheDocument();
@@ -632,6 +639,7 @@ describe('School Admission Frontend', () => {
     });
 
     render(<App />);
+    fireEvent.click(screen.getByTestId('landing-apply-btn'));
 
     // Click "Simulate 100 Users Spike" in the top K8s Live bar
     const simBtns = screen.getAllByRole('button', { name: /Simulate 100 Users Spike/i });
@@ -733,6 +741,50 @@ describe('School Admission Frontend', () => {
     expect(await screen.findByText(/Payment Aborted — Class Filled Moments Ago!/i)).toBeInTheDocument();
     expect(screen.getByText(/other parents finalized their payments milliseconds ahead of you/i)).toBeInTheDocument();
     expect(screen.getByText(/K8S_ATOMIC_LOCK_REJECTED/i)).toBeInTheDocument();
+  });
+
+  it('supports Parent Login and Logout and resets student name to null when Birth Registration Number changes', async () => {
+    const firstId = '20152691234567890';
+    const secondId = '20162691234567899';
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith('/classes') || url.endsWith('/me/holds')) {
+        return jsonResponse([]);
+      }
+      return jsonResponse({}, 404);
+    });
+
+    render(<App />);
+
+    // Navigate from Landing Page to Parent Login
+    fireEvent.click(screen.getByTestId('landing-parent-login-btn'));
+
+    // Log in with first Birth Registration Number
+    fireEvent.change(screen.getByTestId('student-id-input'), { target: { value: firstId } });
+    fireEvent.click(screen.getByTestId('save-student-id-btn'));
+
+    expect(await screen.findByTestId('active-student-id')).toHaveTextContent(firstId);
+
+    // Enter student name for firstId
+    const nameInput = screen.getByTestId('child-name-en-input');
+    fireEvent.change(nameInput, { target: { value: 'Aarav Rahman' } });
+    expect(screen.getByTestId('active-student-name')).toHaveTextContent('Aarav Rahman');
+
+    // Change Birth Registration Number to secondId -> name must become null
+    fireEvent.click(screen.getByTestId('change-student-id-btn'));
+    fireEvent.change(screen.getByTestId('student-id-input'), { target: { value: secondId } });
+    fireEvent.click(screen.getByTestId('save-student-id-btn'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('active-student-id')).toHaveTextContent(secondId);
+      expect(screen.getByTestId('active-student-name')).toHaveTextContent('null');
+    });
+
+    // Click Parent Logout button -> session clears and login form returns
+    fireEvent.click(screen.getByTestId('parent-logout-btn'));
+    expect(localStorage.getItem(STUDENT_ID_STORAGE_KEY)).toBeNull();
+    expect(screen.getByTestId('student-id-input')).toHaveValue('');
   });
 });
 

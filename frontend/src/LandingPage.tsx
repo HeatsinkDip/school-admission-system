@@ -225,7 +225,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </nav>
 
           {/* Right Action: Admission Trigger & Orange Menu Trigger */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => onOpenParentPortal()}
+              data-testid="landing-parent-login-btn"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-emerald-700/30 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-bold text-xs transition"
+            >
+              <Shield size={14} className="text-emerald-700" />
+              <span>{savedStudentId ? 'Parent Dashboard' : 'Parent Login'}</span>
+            </button>
+
             <button
               type="button"
               className="isd-apply-cta-btn"

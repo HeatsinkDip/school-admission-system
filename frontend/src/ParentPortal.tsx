@@ -30,6 +30,8 @@ import {
   Phone,
   Sparkles,
   Check,
+  LogOut,
+  LogIn,
 } from 'lucide-react';
 import { ActionAlertModal } from './ActionAlertModal';
 import { K8sSpikeModal } from './K8sSpikeModal';
@@ -91,53 +93,96 @@ export function getEffectiveHoldStatus(hold: HoldItem, nowMs: number): HoldStatu
   return hold.status;
 }
 
-// --- Rich Default Routine Schedule (Sunday to Thursday) ---
-const DEFAULT_ROUTINE_BY_DAY: Record<string, Array<{ period: string; time: string; subject: string; room: string | null; isBreak: boolean }>> = {
-  Sunday: [
-    { period: 'Period 1', time: '12:30 - 13:10', subject: 'Mathematics', room: 'Room 102', isBreak: false },
-    { period: 'Period 2', time: '13:10 - 13:50', subject: 'General Science', room: 'Room 102', isBreak: false },
-    { period: 'Period 3', time: '13:50 - 14:30', subject: 'ICT', room: 'Room 102', isBreak: false },
-    { period: 'Recess / Break', time: '14:30 - 14:50', subject: 'Tiffin Break', room: null, isBreak: true },
-    { period: 'Period 4', time: '14:50 - 15:30', subject: 'Bangladesh & Global Studies', room: 'Room 102', isBreak: false },
-    { period: 'Period 5', time: '15:30 - 16:10', subject: 'Religion & Moral Education', room: 'Room 102', isBreak: false },
-    { period: 'Period 6', time: '16:10 - 16:50', subject: 'Physical Education', room: 'Room 102', isBreak: false },
-  ],
-  Monday: [
-    { period: 'Period 1', time: '12:30 - 13:10', subject: 'English First Paper', room: 'Room 102', isBreak: false },
-    { period: 'Period 2', time: '13:10 - 13:50', subject: 'Mathematics', room: 'Room 102', isBreak: false },
-    { period: 'Period 3', time: '13:50 - 14:30', subject: 'Bangla Literature', room: 'Room 102', isBreak: false },
-    { period: 'Recess / Break', time: '14:30 - 14:50', subject: 'Tiffin Break', room: null, isBreak: true },
-    { period: 'Period 4', time: '14:50 - 15:30', subject: 'General Science', room: 'Room 102', isBreak: false },
-    { period: 'Period 5', time: '15:30 - 16:10', subject: 'ICT Lab', room: 'Computer Lab 1', isBreak: false },
-    { period: 'Period 6', time: '16:10 - 16:50', subject: 'Arts & Crafts', room: 'Room 102', isBreak: false },
-  ],
-  Tuesday: [
-    { period: 'Period 1', time: '12:30 - 13:10', subject: 'Mathematics', room: 'Room 102', isBreak: false },
-    { period: 'Period 2', time: '13:10 - 13:50', subject: 'Bangla Grammar', room: 'Room 102', isBreak: false },
-    { period: 'Period 3', time: '13:50 - 14:30', subject: 'English Grammar', room: 'Room 102', isBreak: false },
-    { period: 'Recess / Break', time: '14:30 - 14:50', subject: 'Tiffin Break', room: null, isBreak: true },
-    { period: 'Period 4', time: '14:50 - 15:30', subject: 'Bangladesh & Global Studies', room: 'Room 102', isBreak: false },
-    { period: 'Period 5', time: '15:30 - 16:10', subject: 'General Science', room: 'Room 102', isBreak: false },
-    { period: 'Period 6', time: '16:10 - 16:50', subject: 'Library & Reading', room: 'Room 102', isBreak: false },
-  ],
-  Wednesday: [
-    { period: 'Period 1', time: '12:30 - 13:10', subject: 'General Science', room: 'Room 102', isBreak: false },
-    { period: 'Period 2', time: '13:10 - 13:50', subject: 'Mathematics', room: 'Room 102', isBreak: false },
-    { period: 'Period 3', time: '13:50 - 14:30', subject: 'ICT', room: 'Room 102', isBreak: false },
-    { period: 'Recess / Break', time: '14:30 - 14:50', subject: 'Tiffin Break', room: null, isBreak: true },
-    { period: 'Period 4', time: '14:50 - 15:30', subject: 'English First Paper', room: 'Room 102', isBreak: false },
-    { period: 'Period 5', time: '15:30 - 16:10', subject: 'Religion & Moral Education', room: 'Room 102', isBreak: false },
-    { period: 'Period 6', time: '16:10 - 16:50', subject: 'Co-Curricular Debate', room: 'Room 102', isBreak: false },
-  ],
-  Thursday: [
-    { period: 'Period 1', time: '12:30 - 13:10', subject: 'Mathematics', room: 'Room 102', isBreak: false },
-    { period: 'Period 2', time: '13:10 - 13:50', subject: 'Bangla First Paper', room: 'Room 102', isBreak: false },
-    { period: 'Period 3', time: '13:50 - 14:30', subject: 'General Science', room: 'Room 102', isBreak: false },
-    { period: 'Recess / Break', time: '14:30 - 14:50', subject: 'Tiffin Break', room: null, isBreak: true },
-    { period: 'Period 4', time: '14:50 - 15:30', subject: 'Bangladesh & Global Studies', room: 'Room 102', isBreak: false },
-    { period: 'Period 5', time: '15:30 - 16:10', subject: 'Physical Education', room: 'Playground', isBreak: false },
-    { period: 'Period 6', time: '16:10 - 16:50', subject: 'Weekly Cultural Assembly', room: 'Auditorium', isBreak: false },
-  ],
+const EMPTY_PROFILE_FORM: SaveStudentProfilePayload = {
+  fullNameEn: '',
+  fullNameBn: '',
+  dob: '',
+  gender: '',
+  nationality: 'Bangladeshi',
+  religion: '',
+  bloodGroup: '',
+  presentAddress: '',
+  permanentAddress: '',
+  previousSchool: '',
+  lastClassPassed: '',
+  lastResult: '',
+  healthNotes: '',
+  hasSibling: false,
+  siblingName: '',
+  siblingClass: '',
+  siblingStudentId: '',
+  fatherName: '',
+  fatherNid: '',
+  fatherOccupation: '',
+  fatherEmployer: '',
+  fatherPhone: '',
+  fatherEmail: '',
+  motherName: '',
+  motherNid: '',
+  motherOccupation: '',
+  motherEmployer: '',
+  motherPhone: '',
+  motherEmail: '',
+  guardianName: '',
+  guardianRelation: 'Father',
+  guardianPhone: '',
+  emergencyContact: '',
+  monthlyIncome: 0,
+  incomeBracket: '',
+  incomeSource: '',
+  dependents: 0,
+  concessionRequested: false,
+};
+
+const WEEK_DAYS = [
+  { key: 'SUN', label: 'Sunday' },
+  { key: 'MON', label: 'Monday' },
+  { key: 'TUE', label: 'Tuesday' },
+  { key: 'WED', label: 'Wednesday' },
+  { key: 'THU', label: 'Thursday' },
+];
+
+const DEFAULT_WEEKLY_SUBJECTS: Record<string, Record<number, { subject: string; teacher: string; room: string }>> = {
+  SUN: {
+    1: { subject: 'Bangla 1st Paper', teacher: 'Mrs. Sultana', room: 'Room 201' },
+    2: { subject: 'English 1st Paper', teacher: 'Mr. David', room: 'Room 201' },
+    3: { subject: 'General Mathematics', teacher: 'Mr. Kamal', room: 'Room 201' },
+    4: { subject: 'General Science', teacher: 'Dr. Farhana', room: 'Science Lab 1' },
+    5: { subject: 'Bangladesh & Global Studies', teacher: 'Mr. Rafiq', room: 'Room 201' },
+    6: { subject: 'ICT & Coding Lab', teacher: 'Engr. Tanvir', room: 'Computer Lab 2' },
+  },
+  MON: {
+    1: { subject: 'General Mathematics', teacher: 'Mr. Kamal', room: 'Room 201' },
+    2: { subject: 'Bangla Grammar & Essay', teacher: 'Mrs. Sultana', room: 'Room 201' },
+    3: { subject: 'English Literature', teacher: 'Mr. David', room: 'Room 201' },
+    4: { subject: 'ICT & Robotics Lab', teacher: 'Engr. Tanvir', room: 'Computer Lab 2' },
+    5: { subject: 'Religion & Moral Studies', teacher: 'Maulana Habib', room: 'Room 201' },
+    6: { subject: 'Library & Reading Hour', teacher: 'Ms. Nusrat', room: 'Central Library' },
+  },
+  TUE: {
+    1: { subject: 'English 2nd Paper', teacher: 'Mr. David', room: 'Room 201' },
+    2: { subject: 'General Science', teacher: 'Dr. Farhana', room: 'Science Lab 1' },
+    3: { subject: 'General Mathematics', teacher: 'Mr. Kamal', room: 'Room 201' },
+    4: { subject: 'Bangla 2nd Paper', teacher: 'Mrs. Sultana', room: 'Room 201' },
+    5: { subject: 'Arts & Creative Crafts', teacher: 'Ms. Laila', room: 'Art Studio' },
+    6: { subject: 'Physical Education & Sports', teacher: 'Coach Reza', room: 'Main Field' },
+  },
+  WED: {
+    1: { subject: 'General Mathematics', teacher: 'Mr. Kamal', room: 'Room 201' },
+    2: { subject: 'General Science Lab', teacher: 'Dr. Farhana', room: 'Science Lab 1' },
+    3: { subject: 'Bangla Literature', teacher: 'Mrs. Sultana', room: 'Room 201' },
+    4: { subject: 'English Grammar & Writing', teacher: 'Mr. David', room: 'Room 201' },
+    5: { subject: 'Bangladesh & Global Studies', teacher: 'Mr. Rafiq', room: 'Room 201' },
+    6: { subject: 'Debate & Public Speaking', teacher: 'Ms. Nusrat', room: 'Auditorium' },
+  },
+  THU: {
+    1: { subject: 'Bangla Literature & Poetry', teacher: 'Mrs. Sultana', room: 'Room 201' },
+    2: { subject: 'General Mathematics', teacher: 'Mr. Kamal', room: 'Room 201' },
+    3: { subject: 'English Conversation', teacher: 'Mr. David', room: 'Language Lab' },
+    4: { subject: 'General Science', teacher: 'Dr. Farhana', room: 'Room 201' },
+    5: { subject: 'Co-Curricular Club Activity', teacher: 'Coach Reza', room: 'Club Hall' },
+    6: { subject: 'Weekly Cultural Assembly', teacher: 'All Faculty', room: 'Auditorium' },
+  },
 };
 
 export interface ParentChildItem {
@@ -236,46 +281,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
   // --- Student Profile & Dossier State ---
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [dossierSection, setDossierSection] = useState(1);
-  const [profileForm, setProfileForm] = useState<SaveStudentProfilePayload>({
-    fullNameEn: '',
-    fullNameBn: '',
-    dob: '',
-    gender: '',
-    nationality: 'Bangladeshi',
-    religion: '',
-    bloodGroup: '',
-    presentAddress: '',
-    permanentAddress: '',
-    previousSchool: '',
-    lastClassPassed: '',
-    lastResult: '',
-    healthNotes: '',
-    hasSibling: false,
-    siblingName: '',
-    siblingClass: '',
-    siblingStudentId: '',
-    fatherName: '',
-    fatherNid: '',
-    fatherOccupation: '',
-    fatherEmployer: '',
-    fatherPhone: '',
-    fatherEmail: '',
-    motherName: '',
-    motherNid: '',
-    motherOccupation: '',
-    motherEmployer: '',
-    motherPhone: '',
-    motherEmail: '',
-    guardianName: '',
-    guardianRelation: 'Father',
-    guardianPhone: '',
-    emergencyContact: '',
-    monthlyIncome: 0,
-    incomeBracket: '',
-    incomeSource: '',
-    dependents: 0,
-    concessionRequested: false,
-  });
+  const [profileForm, setProfileForm] = useState<SaveStudentProfilePayload>(EMPTY_PROFILE_FORM);
 
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [_waitlistEntries, setWaitlistEntries] = useState<WaitlistEntry[]>([]);
@@ -316,7 +322,6 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
   const [routines, setRoutines] = useState<ClassRoutine[]>([]);
   const [selectedRoutineClassIndex, setSelectedRoutineClassIndex] = useState<number>(0);
   const [selectedShiftTab, setSelectedShiftTab] = useState<'Morning' | 'Standard'>('Standard');
-  const [selectedDay, setSelectedDay] = useState<string>('Sunday');
 
   // --- Pagination for Classes (6 per page) ---
   const [classPage, setClassPage] = useState<number>(1);
@@ -445,11 +450,25 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
   );
 
   // --- Load Profile on Student ID Change ---
+  const prevStudentIdRef = useRef<string>(savedStudentId);
   useEffect(() => {
     let cancelled = false;
+    const isChangedId = prevStudentIdRef.current !== savedStudentId;
+    prevStudentIdRef.current = savedStudentId;
+
     if (!savedStudentId) {
       setProfile(null);
+      setProfileForm(EMPTY_PROFILE_FORM);
       return;
+    }
+
+    if (isChangedId) {
+      const existingChild = parentChildren.find((c) => c.studentId === savedStudentId);
+      setProfile(null);
+      setProfileForm({
+        ...EMPTY_PROFILE_FORM,
+        fullNameEn: existingChild?.fullNameEn || '',
+      });
     }
 
     (async () => {
@@ -457,15 +476,15 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
         const loaded = await api.getStudentProfile(savedStudentId);
         if (cancelled) return;
         setProfile(loaded);
-        setProfileForm({
-          fullNameEn: loaded.fullNameEn ?? '',
+        setProfileForm((prev) => ({
+          fullNameEn: loaded.fullNameEn ?? (isChangedId ? '' : prev.fullNameEn),
           fullNameBn: loaded.fullNameBn ?? '',
           dob: loaded.dob ?? '',
           gender: loaded.gender ?? '',
           nationality: loaded.nationality ?? 'Bangladeshi',
           religion: loaded.religion ?? '',
           bloodGroup: loaded.bloodGroup ?? '',
-          presentAddress: loaded.presentAddress ?? '',
+          presentAddress: loaded.presentAddress ?? (isChangedId ? '' : prev.presentAddress),
           permanentAddress: loaded.permanentAddress ?? '',
           previousSchool: loaded.previousSchool ?? '',
           lastClassPassed: loaded.lastClassPassed ?? '',
@@ -496,9 +515,17 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
           incomeSource: loaded.incomeSource ?? '',
           dependents: loaded.dependents ?? 0,
           concessionRequested: Boolean(loaded.concessionRequested),
-        });
+        }));
       } catch {
-        // Keep current form
+        if (cancelled) return;
+        if (isChangedId) {
+          const existingChild = parentChildren.find((c) => c.studentId === savedStudentId);
+          setProfile(null);
+          setProfileForm({
+            ...EMPTY_PROFILE_FORM,
+            fullNameEn: existingChild?.fullNameEn || '',
+          });
+        }
       }
     })();
 
@@ -647,7 +674,28 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
     return classes.slice(start, start + classesPerPage);
   }, [classes, classPage, classesPerPage]);
 
+  // --- Active Student Display Name (null when Birth Registration Number changes & has no saved name) ---
+  const activeStudentName: string | null =
+    (profileForm.fullNameEn && profileForm.fullNameEn.trim()) ||
+    (profile?.fullNameEn && profile.fullNameEn.trim()) ||
+    null;
+
   // --- Handlers ---
+  const handleStudentIdInputChange = (nextVal: string) => {
+    setStudentIdInput(nextVal);
+    if (studentIdError) setStudentIdError(null);
+    const trimmed = nextVal.trim();
+    if (trimmed !== savedStudentId) {
+      const existingChild = parentChildren.find((c) => c.studentId === trimmed);
+      setProfile(null);
+      setParentNameInput('');
+      setProfileForm({
+        ...EMPTY_PROFILE_FORM,
+        fullNameEn: existingChild?.fullNameEn || '',
+      });
+    }
+  };
+
   const handleSaveStudentId = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const candidate = studentIdInput.trim();
@@ -658,6 +706,16 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
 
     const phoneVal = (parentPhoneInput || parentPhone || '').trim();
     const nameVal = (parentNameInput || parentName || '').trim();
+    const isDifferentStudent = candidate !== savedStudentId;
+    const existingChild = parentChildren.find((c) => c.studentId === candidate);
+
+    if (isDifferentStudent) {
+      setProfile(null);
+      setProfileForm({
+        ...EMPTY_PROFILE_FORM,
+        fullNameEn: existingChild?.fullNameEn || '',
+      });
+    }
 
     try {
       localStorage.setItem(STUDENT_ID_STORAGE_KEY, candidate);
@@ -671,7 +729,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
         if (existingIdx >= 0) {
           updated = prev.map((c, i) =>
             i === existingIdx
-              ? { ...c, fullNameEn: c.fullNameEn || (nameVal ? `${nameVal}'s Child` : 'Student Candidate') }
+              ? { ...c, fullNameEn: c.fullNameEn || '' }
               : c
           );
         } else {
@@ -679,8 +737,8 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             ...prev,
             {
               studentId: candidate,
-              fullNameEn: profileForm.fullNameEn || (nameVal ? `${nameVal}'s Child` : 'Student Candidate'),
-              isComplete: isMandatoryComplete,
+              fullNameEn: isDifferentStudent ? '' : (profileForm.fullNameEn || ''),
+              isComplete: isDifferentStudent ? false : isMandatoryComplete,
             },
           ];
         }
@@ -711,19 +769,28 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
     }
     setSavedStudentId('');
     setStudentIdInput('');
+    setParentNameInput('');
     setIsEditingStudentId(true);
     setMyHolds([]);
+    setPayments([]);
     setProfile(null);
-    triggerToast('Parent session cleared. Please log in with a student birth registration ID.');
+    setProfileForm(EMPTY_PROFILE_FORM);
+    triggerToast('Parent logged out and session cleared. Please log in with a student birth registration ID.');
   };
 
   const handleSwitchChild = (childId: string) => {
     if (childId === savedStudentId) return;
+    const existingChild = parentChildren.find((c) => c.studentId === childId);
     try {
       localStorage.setItem(STUDENT_ID_STORAGE_KEY, childId);
     } catch {
       // ignore
     }
+    setProfile(null);
+    setProfileForm({
+      ...EMPTY_PROFILE_FORM,
+      fullNameEn: existingChild?.fullNameEn || '',
+    });
     setSavedStudentId(childId);
     setStudentIdInput(childId);
     setIsEditingStudentId(false);
@@ -1018,10 +1085,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
   };
 
   const handleDownloadAdmitCard = () => {
-    const studentName = profileForm.fullNameEn || profile?.fullNameEn || 'Dip Kundu';
+    const studentName = activeStudentName || 'Unregistered Student';
     const rollNo = profile?.enrolledStudentNo || 'STU-2027-5678';
     const section = profile?.assignedSection || 'Section A';
-    const assignedClass = confirmedHold?.className || 'Test 3 (Day Shift)';
+    const assignedClass = confirmedHold?.className || focusedHold?.className || 'Assigned Class';
 
     const printWindow = window.open('', '_blank', 'width=800,height=900');
     if (!printWindow) {
@@ -1206,8 +1273,13 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 <span className="font-mono font-bold text-amber-300 bg-slate-950 px-2 py-0.5 rounded border border-slate-800" data-testid="active-student-id">
                   {savedStudentId}
                 </span>
-                <span className="font-semibold text-white hidden md:inline truncate max-w-[120px]">
-                  {profileForm.fullNameEn || profile?.fullNameEn || 'Dip Kundu'}
+                <span
+                  data-testid="active-student-name"
+                  className={`font-semibold hidden md:inline truncate max-w-[130px] ${
+                    activeStudentName ? 'text-white' : 'text-slate-400 italic font-mono'
+                  }`}
+                >
+                  {activeStudentName ?? 'null'}
                 </span>
 
                 {/* Sibling Switcher Dropdown */}
@@ -1252,10 +1324,21 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   <span className="text-slate-600">•</span>
                   <button
                     onClick={handleClearStudentId}
-                    className="text-rose-400 hover:underline font-semibold"
+                    className="text-slate-400 hover:text-white hover:underline font-semibold"
                     data-testid="clear-student-id-btn"
                   >
                     Clear
+                  </button>
+                  <span className="text-slate-600">•</span>
+                  <button
+                    type="button"
+                    onClick={handleClearStudentId}
+                    data-testid="parent-logout-btn"
+                    className="px-2 py-0.5 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-[11px] flex items-center gap-1 transition"
+                    title="Parent Logout"
+                  >
+                    <LogOut size={11} />
+                    <span>Logout</span>
                   </button>
                 </div>
               </div>
@@ -1265,10 +1348,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   type="text"
                   data-testid="student-id-input"
                   value={studentIdInput}
-                  onChange={(e) => {
-                    setStudentIdInput(e.target.value);
-                    if (studentIdError) setStudentIdError(null);
-                  }}
+                  onChange={(e) => handleStudentIdInputChange(e.target.value)}
                   placeholder="17-digit Birth ID"
                   maxLength={17}
                   className="bg-slate-950 text-amber-300 font-mono text-xs px-2.5 py-1 rounded border border-slate-700 w-36 sm:w-44 focus:outline-none"
@@ -1291,10 +1371,18 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 </button>
               </form>
             ) : (
-              <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-[11px] text-emerald-300">
-                <ShieldCheck size={13} className="text-emerald-400" />
-                <span>Parent Registration & Admission Portal</span>
-              </div>
+              <button
+                type="button"
+                data-testid="parent-login-trigger-btn"
+                onClick={() => {
+                  setIsEditingStudentId(true);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-[11px] font-bold text-emerald-300 transition"
+              >
+                <LogIn size={12} className="text-emerald-400" />
+                <span>Parent Login</span>
+              </button>
             )}
 
             {studentIdError && savedStudentId && isEditingStudentId && (
@@ -1369,14 +1457,21 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             <div className="p-2.5 rounded-xl bg-slate-900 text-white space-y-1.5 border border-slate-800 shadow-xs">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-emerald-500 text-slate-950 font-extrabold flex items-center justify-center text-xs shrink-0">
-                  {profileForm.fullNameEn ? profileForm.fullNameEn.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() : 'DK'}
+                  {activeStudentName
+                    ? activeStudentName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+                    : '—'}
                 </div>
-                <div className="min-w-0">
-                  <div className="text-xs font-bold text-white truncate">
-                    {profileForm.fullNameEn || profile?.fullNameEn || 'Dip Kundu'}
+                <div className="min-w-0 flex-1">
+                  <div
+                    data-testid="sidebar-student-name"
+                    className={`text-xs font-bold truncate ${
+                      activeStudentName ? 'text-white' : 'text-slate-400 italic font-mono'
+                    }`}
+                  >
+                    {activeStudentName ?? 'null'}
                   </div>
                   <div className="text-[10px] font-mono text-amber-300 truncate">
-                    {savedStudentId || '12345678912345678'}
+                    {savedStudentId || 'Not Logged In'}
                   </div>
                 </div>
               </div>
@@ -1392,6 +1487,17 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   {profile?.assignedSection || (confirmedHold ? `Sec A (${confirmedHold.className})` : (focusedHold ? focusedHold.className : 'Not Assigned'))}
                 </span>
               </div>
+              {savedStudentId && (
+                <button
+                  type="button"
+                  onClick={handleClearStudentId}
+                  data-testid="sidebar-logout-btn"
+                  className="w-full mt-1 py-1 px-2 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-[10px] font-bold flex items-center justify-center gap-1.5 transition"
+                >
+                  <LogOut size={11} />
+                  <span>Parent Logout</span>
+                </button>
+              )}
             </div>
 
             {/* Sidebar Navigation Menu */}
@@ -1575,10 +1681,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                       type="text"
                       data-testid="student-id-input"
                       value={studentIdInput}
-                      onChange={(e) => {
-                        setStudentIdInput(e.target.value);
-                        if (studentIdError) setStudentIdError(null);
-                      }}
+                      onChange={(e) => handleStudentIdInputChange(e.target.value)}
                       placeholder="e.g. 20152691234567890"
                       maxLength={17}
                       className="w-full bg-slate-50 border border-slate-300 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 text-slate-900 font-mono text-sm px-3.5 py-2 rounded-xl transition outline-none"
@@ -1699,7 +1802,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   Admission Journey
                 </span>
                 <h2 className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1">
-                  Child Admission Roadmap: {profileForm.fullNameEn || profile?.fullNameEn || 'Student Candidate'}
+                  Child Admission Roadmap: <span className={activeStudentName ? 'text-slate-900' : 'text-slate-400 italic font-mono'}>{activeStudentName ?? 'null'}</span>
                 </h2>
               </div>
               <div className="text-[11px] text-slate-500 font-medium">
@@ -2015,22 +2118,31 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   <div className="p-3.5 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-slate-950 font-extrabold text-lg flex items-center justify-center shadow-md border-2 border-white/20 shrink-0">
-                        {profileForm.fullNameEn ? profileForm.fullNameEn.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() : 'DK'}
+                        {activeStudentName
+                          ? activeStudentName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+                          : '—'}
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <h3 className="text-sm font-extrabold">{profileForm.fullNameEn || profile?.fullNameEn || 'Dip Kundu'}</h3>
-                          <span className="text-[11px] text-amber-300 font-medium">({profileForm.fullNameBn || 'দীপ কুন্ডু'})</span>
+                          <h3
+                            data-testid="profile-card-student-name"
+                            className={`text-sm font-extrabold ${activeStudentName ? 'text-white' : 'text-slate-400 italic font-mono'}`}
+                          >
+                            {activeStudentName ?? 'null'}
+                          </h3>
+                          {profileForm.fullNameBn && (
+                            <span className="text-[11px] text-amber-300 font-medium">({profileForm.fullNameBn})</span>
+                          )}
                         </div>
                         <p className="text-[11px] font-mono text-slate-300 mt-0.5">
-                          Birth Reg ID: <strong className="text-white">{savedStudentId || '12345678912345678'}</strong>
+                          Birth Reg ID: <strong className="text-white">{savedStudentId || 'Not Logged In'}</strong>
                         </p>
                         <div className="flex flex-wrap items-center gap-1.5 mt-1">
                           <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[9px] font-bold uppercase">
-                            Roll: {profile?.enrolledStudentNo || 'STU-2027-5678'}
+                            Roll: {profile?.enrolledStudentNo || (confirmedHold ? 'STU-2027-5678' : 'Pending')}
                           </span>
                           <span className="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[9px] font-bold uppercase">
-                            {profile?.assignedSection || 'Section A'} • {confirmedHold?.className || focusedHold?.className || 'Test 3'}
+                            {profile?.assignedSection || 'Section A'} • {confirmedHold?.className || focusedHold?.className || 'Not Enrolled'}
                           </span>
                         </div>
                       </div>
@@ -3166,26 +3278,62 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 </div>
               </div>
 
-              {/* Active Routine Header */}
+              {/* Active Weekly Calendar Routine Matrix */}
               <div className="p-3 sm:p-3.5 space-y-3">
                 {(() => {
-                  const activeRoutine =
-                    routines.find((r) => r.classId === classes[selectedRoutineClassIndex]?.id) ||
+                  const rawRoutine =
+                    routines.find((r) => r && r.classId === classes[selectedRoutineClassIndex]?.id) ||
                     routines[0] ||
                     null;
+                  const activeRoutine =
+                    rawRoutine && typeof rawRoutine.startTime === 'string' ? rawRoutine : null;
+                  const routineClassName =
+                    classes[selectedRoutineClassIndex]?.name ||
+                    (typeof activeRoutine?.className === 'string' ? activeRoutine.className : '') ||
+                    'Class 6 - Morning Shift';
+                  const isMorningShift =
+                    (typeof activeRoutine?.shift === 'string' && activeRoutine.shift.toLowerCase().includes('morning')) ||
+                    (typeof activeRoutine?.startTime === 'string' && activeRoutine.startTime.startsWith('07')) ||
+                    selectedShiftTab === 'Morning' ||
+                    routineClassName.toLowerCase().includes('morning');
                   const operatingHours = activeRoutine
                     ? `${activeRoutine.startTime} — ${activeRoutine.endTime}`
-                    : selectedShiftTab === 'Morning'
+                    : isMorningShift
                     ? '07:30 — 12:00'
                     : '12:30 — 17:00';
 
+                  const timeSlots = isMorningShift
+                    ? [
+                        { period: 1, label: 'Period 1', startTime: '07:30', endTime: '08:15' },
+                        { period: 2, label: 'Period 2', startTime: '08:15', endTime: '09:00' },
+                        { period: 3, label: 'Period 3', startTime: '09:00', endTime: '09:45' },
+                        { period: 0, label: 'Tiffin & Recess Break', startTime: '09:45', endTime: '10:15', isBreak: true },
+                        { period: 4, label: 'Period 4', startTime: '10:15', endTime: '11:00' },
+                        { period: 5, label: 'Period 5', startTime: '11:00', endTime: '11:30' },
+                        { period: 6, label: 'Period 6', startTime: '11:30', endTime: '12:00' },
+                      ]
+                    : [
+                        { period: 1, label: 'Period 1', startTime: '12:30', endTime: '13:15' },
+                        { period: 2, label: 'Period 2', startTime: '13:15', endTime: '14:00' },
+                        { period: 3, label: 'Period 3', startTime: '14:00', endTime: '14:45' },
+                        { period: 0, label: 'Tiffin & Prayer Break', startTime: '14:45', endTime: '15:15', isBreak: true },
+                        { period: 4, label: 'Period 4', startTime: '15:15', endTime: '16:00' },
+                        { period: 5, label: 'Period 5', startTime: '16:00', endTime: '16:30' },
+                        { period: 6, label: 'Period 6', startTime: '16:30', endTime: '17:00' },
+                      ];
+
                   return (
                     <>
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
                         <div>
-                          <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
-                            {classes[selectedRoutineClassIndex]?.name || activeRoutine?.className || 'Class 6 - Morning Shift'} — Class Routine
-                          </h3>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase tracking-wider">
+                              Weekly Academic Calendar
+                            </span>
+                            <h3 className="text-sm sm:text-base font-extrabold text-slate-900">
+                              {routineClassName} — Weekly Class Timetable
+                            </h3>
+                          </div>
                           <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 mt-1">
                             <span className="font-semibold text-emerald-800">
                               School Operating Hours: {operatingHours}
@@ -3196,80 +3344,107 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                         </div>
                         <button
                           onClick={() => window.print()}
-                          className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition flex items-center gap-1.5 self-start sm:self-center"
+                          className="px-3.5 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition flex items-center gap-1.5 self-start sm:self-center"
                         >
                           <Printer className="w-3.5 h-3.5 text-amber-400" />
-                          Print Routine
+                          Print Weekly Calendar
                         </button>
                       </div>
 
-                      {/* Day Selector Pills */}
-                      <div className="flex flex-wrap gap-2">
-                        {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'].map((day) => (
-                          <button
-                            key={day}
-                            onClick={() => setSelectedDay(day)}
-                            className={`px-4 py-2 rounded-xl text-xs font-extrabold transition ${
-                              selectedDay === day
-                                ? 'bg-slate-900 text-white shadow-xs'
-                                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                            }`}
-                          >
-                            {day}
-                          </button>
-                        ))}
-                      </div>
+                      {/* Weekly Calendar Matrix Table (Sunday – Thursday) */}
+                      <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-2xs">
+                        <table className="w-full border-collapse text-left min-w-[780px]" data-testid="weekly-routine-calendar-table">
+                          <thead>
+                            <tr className="bg-slate-900 text-white text-[11px] font-extrabold uppercase tracking-wider">
+                              <th className="py-2.5 px-3 border-r border-slate-800 w-36">
+                                Period & Class Time
+                              </th>
+                              {WEEK_DAYS.map((day) => (
+                                <th key={day.key} className="py-2.5 px-3 border-r border-slate-800 last:border-r-0">
+                                  <div className="flex items-center justify-between">
+                                    <span>{day.label}</span>
+                                    <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300">
+                                      {day.key}
+                                    </span>
+                                  </div>
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-200 text-xs">
+                            {timeSlots.map((slot) => {
+                              if (slot.isBreak) {
+                                return (
+                                  <tr key="weekly-break" className="bg-amber-50/90 text-amber-950">
+                                    <td className="py-2 px-3 font-extrabold border-r border-amber-200">
+                                      <div className="text-[11px] uppercase tracking-wider text-amber-800">Recess Break</div>
+                                      <div className="font-mono text-[11px] text-amber-900">{slot.startTime} - {slot.endTime}</div>
+                                    </td>
+                                    <td colSpan={5} className="py-2 px-4 text-center font-extrabold text-xs tracking-wide text-amber-900">
+                                      🍱 {slot.label} ({slot.startTime} – {slot.endTime}) • Mid-Shift Refreshment & Assembly Break
+                                    </td>
+                                  </tr>
+                                );
+                              }
 
-                      {/* Period Cards Grid */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-                        {activeRoutine?.periods && activeRoutine.periods.length > 0 ? (
-                          activeRoutine.periods.map((slot, index) => (
-                            <div
-                              key={index}
-                              className="p-4 rounded-2xl border bg-slate-50 border-slate-200 text-slate-900 flex flex-col justify-between"
-                            >
-                              <div>
-                                <div className="flex items-center justify-between text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
-                                  <span>Period {slot.period}</span>
-                                  <span className="font-mono text-slate-700">{slot.startTime} - {slot.endTime}</span>
-                                </div>
-                                <div className="text-sm font-extrabold mt-2">{slot.subject}</div>
-                              </div>
-                              {slot.teacher && (
-                                <div className="text-xs text-slate-500 mt-1">Teacher: {slot.teacher}</div>
-                              )}
-                              {slot.room && (
-                                <div className="mt-3 pt-2 border-t border-slate-200/80 text-xs text-slate-600 font-medium">
-                                  Room: <strong className="text-slate-900">{slot.room}</strong>
-                                </div>
-                              )}
-                            </div>
-                          ))
-                        ) : (
-                          DEFAULT_ROUTINE_BY_DAY[selectedDay]?.map((slot, index) => (
-                            <div
-                              key={index}
-                              className={`p-2.5 rounded-lg border flex flex-col justify-between ${
-                                slot.isBreak
-                                  ? 'bg-amber-50/90 border-amber-300 text-amber-950'
-                                  : 'bg-slate-50 border-slate-200 text-slate-900'
-                              }`}
-                            >
-                              <div>
-                                <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
-                                  <span>{slot.period}</span>
-                                  <span className="font-mono text-slate-700">{slot.time}</span>
-                                </div>
-                                <div className="text-xs font-extrabold mt-1">{slot.subject}</div>
-                              </div>
-                              {slot.room && (
-                                <div className="mt-2 pt-1 border-t border-slate-200/80 text-[11px] text-slate-600 font-medium">
-                                  Room: <strong className="text-slate-900">{slot.room}</strong>
-                                </div>
-                              )}
-                            </div>
-                          ))
-                        )}
+                              return (
+                                <tr key={slot.period} className="hover:bg-slate-50/70 transition">
+                                  <td className="py-2.5 px-3 bg-slate-50 font-bold border-r border-slate-200 align-top">
+                                    <span className="inline-block px-2 py-0.5 rounded bg-emerald-900 text-white text-[10px] font-extrabold">
+                                      {slot.label}
+                                    </span>
+                                    <div className="font-mono text-[11px] font-extrabold text-slate-800 mt-1 flex items-center gap-1">
+                                      <Clock className="w-3 h-3 text-emerald-600 shrink-0" />
+                                      <span>{slot.startTime} - {slot.endTime}</span>
+                                    </div>
+                                  </td>
+                                  {WEEK_DAYS.map((day) => {
+                                    const apiMatch = activeRoutine?.periods?.find(
+                                      (p) => p.period === slot.period && (!p.day || p.day.toUpperCase() === day.key),
+                                    );
+                                    const fallback =
+                                      DEFAULT_WEEKLY_SUBJECTS[day.key]?.[slot.period] || {
+                                        subject: 'Academic Session',
+                                        teacher: 'Faculty',
+                                        room: 'Room 101',
+                                      };
+
+                                    const subjectName =
+                                      apiMatch && day.key === 'SUN' ? apiMatch.subject : fallback.subject;
+                                    const cellStart = apiMatch?.startTime || slot.startTime;
+                                    const cellEnd = apiMatch?.endTime || slot.endTime;
+                                    const teacherName = apiMatch?.teacher || fallback.teacher;
+                                    const roomName = apiMatch?.room || fallback.room;
+
+                                    return (
+                                      <td
+                                        key={`${day.key}-${slot.period}`}
+                                        className="p-2.5 border-r border-slate-200 last:border-r-0 align-top"
+                                      >
+                                        <div className="p-2 rounded-lg bg-white border border-slate-200/90 shadow-2xs space-y-1 hover:border-emerald-400 transition">
+                                          <div className="text-xs font-extrabold text-slate-900 leading-snug">
+                                            {subjectName}
+                                          </div>
+                                          <div className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/60 truncate">
+                                            {routineClassName}
+                                          </div>
+                                          <div className="text-[10px] font-mono font-semibold text-slate-600 flex items-center gap-1">
+                                            <Clock className="w-2.5 h-2.5 text-amber-600 shrink-0" />
+                                            <span>{cellStart} - {cellEnd}</span>
+                                          </div>
+                                          <div className="pt-1 border-t border-slate-100 flex items-center justify-between gap-1 text-[10px] text-slate-500">
+                                            <span className="truncate">{teacherName}</span>
+                                            <span className="font-semibold text-slate-700 shrink-0">{roomName}</span>
+                                          </div>
+                                        </div>
+                                      </td>
+                                    );
+                                  })}
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
                       </div>
                     </>
                   );
