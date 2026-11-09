@@ -6,10 +6,24 @@
         "supportEmail": "toknowdip@gmail.com",
         "authorizedRedirectUris": [
           "https://onnorokom-school-admissions.firebaseapp.com/__/auth/handler",
+          "https://onnorokom-school-admissions.web.app/__/auth/handler",
           "http://localhost:3000"
         ]
       }
     }
+  },
+  "hosting": {
+    "public": "frontend/dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
   }
 }
-

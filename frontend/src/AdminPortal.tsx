@@ -88,19 +88,17 @@ type AdminView =
   | 'audit';
 
 export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
-  // --- Persisted Admin Session ---
-  const [session, setSession] = useState<AdminSession | null>(() => {
+  // --- Admin Session: ALWAYS require password on every entry (No auto-login) ---
+  const [session, setSession] = useState<AdminSession | null>(null);
+
+  useEffect(() => {
     try {
-      const token = localStorage.getItem(ADMIN_TOKEN_STORAGE_KEY);
-      const rawUser = localStorage.getItem(ADMIN_USER_STORAGE_KEY);
-      if (token && rawUser) {
-        return JSON.parse(rawUser) as AdminSession;
-      }
+      localStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY);
+      localStorage.removeItem(ADMIN_USER_STORAGE_KEY);
     } catch {
       // ignore
     }
-    return null;
-  });
+  }, []);
 
   // --- Login Form State ---
   const [loginUsername, setLoginUsername] = useState('admin');
@@ -430,12 +428,25 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
     }
     setSession(null);
     setDashboard(null);
+    setLoginPassword('');
     try {
       localStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY);
       localStorage.removeItem(ADMIN_USER_STORAGE_KEY);
     } catch {
       // ignore
     }
+  };
+
+  const handleExitAdmin = () => {
+    setSession(null);
+    setLoginPassword('');
+    try {
+      localStorage.removeItem(ADMIN_TOKEN_STORAGE_KEY);
+      localStorage.removeItem(ADMIN_USER_STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+    onNavigateToParent();
   };
 
   // Role simulation switcher (convenient for test verification)
@@ -845,7 +856,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                 type="button"
                 className="w-full py-2 px-3 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs transition flex items-center justify-center gap-1.5"
                 data-testid="back-to-parent-btn"
-                onClick={onNavigateToParent}
+                onClick={handleExitAdmin}
               >
                 <ArrowLeft size={14} /> Return to Parent Portal
               </button>
@@ -889,7 +900,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             <button
               type="button"
               data-testid="back-to-parent-btn"
-              onClick={onNavigateToParent}
+              onClick={handleExitAdmin}
               className="flex items-center gap-1 text-amber-300 hover:text-white font-bold text-xs transition"
             >
               <ArrowLeft size={12} />
@@ -1292,7 +1303,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                 type="button"
                 className="w-full flex items-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition"
                 data-testid="back-to-parent-btn"
-                onClick={onNavigateToParent}
+                onClick={handleExitAdmin}
               >
                 <ArrowLeft size={14} />
                 {!isSidebarCollapsed && <span>Parent Portal</span>}
