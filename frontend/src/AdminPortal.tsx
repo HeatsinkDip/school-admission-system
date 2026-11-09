@@ -21,7 +21,6 @@ import {
   TrendingUp,
   Download,
   KeyRound,
-  School,
   UserX,
   BadgeCheck,
   Menu,
@@ -868,31 +867,69 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
     <div className="min-h-screen bg-slate-100 text-slate-900 font-sans flex flex-col" data-testid="admin-console-view">
       <ToastContainer />
 
-      {/* Top Navbar (Executive Slate theme - 50% compact height 52px) */}
-      <header className="bg-slate-950 text-white border-b border-slate-800 sticky top-0 z-40">
-        <div className="px-3 sm:px-4 h-13 flex items-center justify-between gap-3">
+      {/* =========================================================================
+          TOP UTILITY & INSTITUTIONAL HEADER (White & Deep Emerald `#014d33`)
+          ========================================================================= */}
+      <div className="isd-top-utility-bar">
+        <div className="px-3 sm:px-6 flex items-center justify-between text-xs py-1 text-emerald-100">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              <span className="hidden sm:inline">Plot 19-21, Block D, Bashundhara R/A, Dhaka-1229</span>
+              <span className="sm:hidden">ISD Dhaka</span>
+            </span>
+            <span className="hidden md:inline text-emerald-400/50">|</span>
+            <span className="hidden md:flex items-center gap-1.5 font-mono text-[11px]">
+              <span>Admission Engine: PostgreSQL FCFS Row Locking Active</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              data-testid="back-to-parent-btn"
+              onClick={onNavigateToParent}
+              className="flex items-center gap-1 text-amber-300 hover:text-white font-bold text-xs transition"
+            >
+              <ArrowLeft size={12} />
+              <span>Parent Portal</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <header className="bg-white text-slate-900 border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+        <div className="px-3 sm:px-4 h-14 flex items-center justify-between gap-3">
           {/* Left Brand & Sidebar Hamburger */}
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className="p-1.5 rounded-lg bg-slate-900 text-slate-300 hover:text-white border border-slate-800"
+              className="p-1.5 rounded-lg bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200"
               aria-label="Toggle Sidebar"
             >
               <Menu size={16} />
             </button>
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-400/40 flex items-center justify-center text-emerald-400 shrink-0">
-              <School size={18} />
+            <div className="isd-sunburst-logo">
+              <svg viewBox="0 0 44 44" className="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22 4C23.1 4 24 4.9 24 6V10C24 11.1 23.1 12 22 12C20.9 12 20 10V6C20 4.9 20.9 4 22 4Z" fill="#10B981" />
+                <path d="M22 32C23.1 32 24 32.9 24 34V38C24 39.1 23.1 40 22 40C20.9 40 20 39.1 20 38V34C20 32.9 20.9 32 22 32Z" fill="#EA580C" />
+                <path d="M4 22C4 20.9 4.9 20 6 20H10C11.1 20 12 20.9 12 22C12 23.1 11.1 24 10 24H6C4.9 24 4 23.1 4 22Z" fill="#F59E0B" />
+                <path d="M32 22C32 20.9 32.9 20 34 20H38C39.1 20 40 20.9 40 22C40 23.1 39.1 24 38 24H34C32.9 24 32 23.1 32 22Z" fill="#047857" />
+                <path d="M9.27 9.27C10.05 8.49 11.32 8.49 12.1 9.27L14.93 12.1C15.71 12.88 15.71 14.15 14.93 14.93C14.15 15.71 12.88 15.71 12.1 14.93L9.27 12.1C8.49 11.32 8.49 10.05 9.27 9.27Z" fill="#10B981" />
+                <path d="M29.07 29.07C29.85 28.29 31.12 28.29 31.9 29.07L34.73 31.9C35.51 32.68 35.51 33.95 34.73 34.73C33.95 35.51 32.68 35.51 31.9 34.73L29.07 31.9C28.29 31.12 28.29 29.85 29.07 29.07Z" fill="#F97316" />
+                <path d="M9.27 34.73C8.49 33.95 8.49 32.68 9.27 31.9L12.1 29.07C12.88 28.29 14.15 28.29 14.93 29.07C15.71 29.85 15.71 31.12 14.93 31.9L12.1 34.73C11.32 35.51 10.05 35.51 9.27 34.73Z" fill="#EAB308" />
+                <path d="M29.07 14.93C28.29 14.15 28.29 12.88 29.07 12.1L31.9 9.27C32.68 8.49 33.95 8.49 34.73 9.27C35.51 10.05 35.51 11.32 34.73 12.1L31.9 14.93C31.12 15.71 29.85 15.71 29.07 14.93Z" fill="#059669" />
+              </svg>
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-bold tracking-tight text-xs sm:text-sm text-white">
-                  ONNOROKOM PROJUKTI SCHOOL
+                <span className="font-serif font-black tracking-tight text-xs sm:text-sm text-slate-900">
+                  International School Dhaka
                 </span>
-                <span className="px-1.5 py-0.2 text-[9px] font-extrabold uppercase tracking-wider bg-amber-400 text-slate-950 rounded-full">
-                  ADMIN
+                <span className="px-1.5 py-0.2 text-[9px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300 rounded-full">
+                  Staff Admin
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 hidden sm:block">
+              <p className="text-[10px] text-slate-500 hidden sm:block">
                 Administrative Control Center & Live K8s Seat Management
               </p>
             </div>
@@ -900,14 +937,14 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
 
           {/* Right Action & Active Admin Pill */}
           <div className="flex items-center gap-2">
-            <div className="hidden md:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800 text-[10px] text-emerald-400 font-mono" title="Connected to PostgreSQL Database">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] text-emerald-800 font-mono" title="Connected to PostgreSQL Database">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span>PostgreSQL Active</span>
             </div>
 
             <button
               type="button"
-              className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition"
+              className="p-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 transition"
               onClick={() => void refreshAdminData(false)}
               title="Refresh Data"
             >
@@ -923,30 +960,20 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
               titleLabel="School System & Officer Alerts"
             />
 
-            <div className="hidden sm:flex items-center gap-1.5 bg-slate-900 border border-slate-800 px-2 py-1 rounded-lg text-xs">
-              <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[9px] font-bold">
+            <div className="hidden sm:flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2 py-1 rounded-lg text-xs">
+              <span className="px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 text-[9px] font-bold">
                 {session.role}
               </span>
-              <span className="font-semibold text-white text-xs truncate max-w-[120px]">
+              <span className="font-semibold text-slate-900 text-xs truncate max-w-[120px]">
                 {session.fullName}
               </span>
             </div>
 
             <button
               type="button"
-              data-testid="back-to-parent-btn"
-              onClick={onNavigateToParent}
-              className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white text-[11px] font-semibold"
-            >
-              <ArrowLeft size={12} />
-              <span>Parent Portal</span>
-            </button>
-
-            <button
-              type="button"
               data-testid="admin-logout-btn"
               onClick={() => void handleLogout()}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-[11px] font-semibold transition"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-[11px] font-semibold transition"
             >
               <LogOut size={12} />
               <span className="hidden sm:inline">Sign Out</span>
@@ -2703,6 +2730,22 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
           )}
         </main>
       </div>
+
+      {/* =========================================================================
+          INSTITUTIONAL FOOTER (White & Emerald ISD)
+          ========================================================================= */}
+      <footer className="isd-white-footer mt-auto border-t border-slate-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+            <div className="flex items-center gap-2">
+              <span className="font-serif font-black text-slate-800">International School Dhaka</span>
+              <span>•</span>
+              <span>Staff Administrative Console</span>
+            </div>
+            <div>PostgreSQL ACID Row Locks • FCFS Single Admission Rule Active</div>
+          </div>
+        </div>
+      </footer>
 
       {/* --- Application Inspection & Verification Modal --- */}
       {inspectingApp && session && (

@@ -3,7 +3,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   Clock,
-  Download,
   Info,
   X,
   XCircle,
@@ -41,75 +40,112 @@ export const ActionAlertModal: React.FC<ActionAlertModalProps> = ({
   const renderIcon = () => {
     switch (type) {
       case 'SUCCESS':
-        return <CheckCircle2 size={36} className="text-emerald-500" />;
+        return (
+          <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+            <CheckCircle2 size={28} />
+          </div>
+        );
       case 'WARNING':
-        return <AlertTriangle size={36} className="text-amber-500" />;
+        return (
+          <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
+            <AlertTriangle size={28} />
+          </div>
+        );
       case 'DANGER':
-        return <XCircle size={36} className="text-rose-500" />;
+        return (
+          <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center">
+            <XCircle size={28} />
+          </div>
+        );
       default:
-        return <Info size={36} className="text-indigo-500" />;
+        return (
+          <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-[#014d33] flex items-center justify-center">
+            <Info size={28} />
+          </div>
+        );
     }
   };
 
-  const getBorderColor = () => {
+  const getHeaderAccent = () => {
     switch (type) {
       case 'SUCCESS':
-        return 'border-emerald-500';
+        return 'border-emerald-600 bg-emerald-50/50';
       case 'WARNING':
-        return 'border-amber-500';
+        return 'border-amber-500 bg-amber-50/50';
       case 'DANGER':
-        return 'border-rose-500';
+        return 'border-rose-600 bg-rose-50/50';
       default:
-        return 'border-indigo-500';
+        return 'border-[#014d33] bg-emerald-50/50';
     }
   };
 
   return (
-    <div className="action-modal-backdrop" data-testid="action-alert-modal">
-      <div className={`action-modal-container ${getBorderColor()}`}>
-        <button
-          type="button"
-          className="action-modal-close"
-          onClick={onClose}
-          aria-label="Close dialog"
-        >
-          <X size={18} />
-        </button>
-
-        <div className="action-modal-header">
-          <div className="action-modal-icon-box">{renderIcon()}</div>
-          <div className="action-modal-title-box">
-            <h3 className="action-modal-title">{title}</h3>
-            {countdownSeconds !== undefined && countdownSeconds > 0 && (
-              <div className="action-modal-timer">
-                <Clock size={14} className="animate-spin" />
-                <span>
-                  {Math.floor(countdownSeconds / 60)}:
-                  {String(Math.floor(countdownSeconds % 60)).padStart(2, '0')} remaining
-                </span>
-              </div>
-            )}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 animate-fadeIn"
+      data-testid="action-alert-modal"
+      onClick={onClose}
+    >
+      <div
+        className={`bg-white rounded-2xl border-t-4 max-w-lg w-full shadow-2xl overflow-hidden animate-scaleUp ${getHeaderAccent()}`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="p-5 flex items-start justify-between gap-4 border-b border-slate-100">
+          <div className="flex items-center gap-3.5">
+            {renderIcon()}
+            <div>
+              <h3 className="font-serif font-black text-lg text-slate-900 leading-tight">
+                {title}
+              </h3>
+              {countdownSeconds !== undefined && countdownSeconds > 0 && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-mono font-bold mt-1">
+                  <Clock size={12} className="animate-spin text-amber-700" />
+                  <span>
+                    {Math.floor(countdownSeconds / 60)}:
+                    {String(Math.floor(countdownSeconds % 60)).padStart(2, '0')} remaining
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
+
+          <button
+            type="button"
+            className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition shrink-0"
+            onClick={onClose}
+            aria-label="Close dialog"
+          >
+            <X size={16} />
+          </button>
         </div>
 
-        <div className="action-modal-body">
-          <p className="action-modal-msg">{message}</p>
+        {/* Modal Body */}
+        <div className="p-5 space-y-3.5 text-xs text-slate-700">
+          <p className="text-sm font-medium leading-relaxed text-slate-800">
+            {message}
+          </p>
+
           {detailReason && (
-            <div className="action-modal-detail-box">
-              <span className="font-semibold text-xs uppercase text-slate-500">Official Note / Valid Reason:</span>
-              <p className="text-sm text-slate-800 mt-1">{detailReason}</p>
+            <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+              <span className="font-extrabold text-[10px] uppercase tracking-wider text-slate-500 block mb-1">
+                Official Note / System Explanation:
+              </span>
+              <p className="text-xs text-slate-900 font-semibold leading-normal">
+                {detailReason}
+              </p>
             </div>
           )}
         </div>
 
-        <div className="action-modal-footer">
+        {/* Modal Actions */}
+        <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-end gap-2.5">
           {secondaryActionLabel && (
             <button
               type="button"
-              className="btn btn-secondary"
+              className="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs transition"
               onClick={() => {
                 if (onSecondaryAction) onSecondaryAction();
-                else onClose();
+                onClose();
               }}
             >
               {secondaryActionLabel}
@@ -119,20 +155,21 @@ export const ActionAlertModal: React.FC<ActionAlertModalProps> = ({
           {primaryActionLabel ? (
             <button
               type="button"
-              className={`btn ${type === 'DANGER' ? 'btn-danger' : 'btn-primary'}`}
+              className="px-5 py-2 rounded-xl bg-[#014d33] hover:bg-emerald-800 text-white font-extrabold text-xs transition shadow-md"
               onClick={() => {
                 if (onPrimaryAction) onPrimaryAction();
-                else onClose();
+                onClose();
               }}
             >
-              {primaryActionLabel.includes('PDF') || primaryActionLabel.includes('Download') ? (
-                <Download size={16} className="inline mr-1" />
-              ) : null}
               {primaryActionLabel}
             </button>
           ) : (
-            <button type="button" className="btn btn-primary" onClick={onClose}>
-              Dismiss
+            <button
+              type="button"
+              className="px-5 py-2 rounded-xl bg-[#014d33] hover:bg-emerald-800 text-white font-extrabold text-xs transition"
+              onClick={onClose}
+            >
+              Acknowledge & Close
             </button>
           )}
         </div>
@@ -140,4 +177,4 @@ export const ActionAlertModal: React.FC<ActionAlertModalProps> = ({
     </div>
   );
 };
-
+export default ActionAlertModal;

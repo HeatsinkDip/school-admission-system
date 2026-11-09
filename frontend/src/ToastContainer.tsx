@@ -67,29 +67,65 @@ export const ToastContainer: React.FC = () => {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="toast-portal-container" aria-live="polite" data-testid="toast-container">
+    <div
+      className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"
+      aria-live="polite"
+      data-testid="toast-container"
+    >
       {toasts.map((toast) => {
-        const icon =
-          toast.severity === 'success' ? (
-            <CheckCircle className="toast-icon text-emerald-500" size={18} />
-          ) : toast.severity === 'danger' ? (
-            <AlertCircle className="toast-icon text-rose-500" size={18} />
-          ) : toast.severity === 'warning' ? (
-            <AlertTriangle className="toast-icon text-amber-500" size={18} />
-          ) : (
-            <Info className="toast-icon text-sky-500" size={18} />
-          );
+        const getStyles = () => {
+          switch (toast.severity) {
+            case 'success':
+              return {
+                border: 'border-l-4 border-emerald-600',
+                bg: 'bg-white',
+                icon: <CheckCircle className="text-emerald-600 shrink-0" size={18} />,
+                badge: 'bg-emerald-100 text-emerald-800',
+              };
+            case 'danger':
+              return {
+                border: 'border-l-4 border-rose-600',
+                bg: 'bg-white',
+                icon: <AlertCircle className="text-rose-600 shrink-0" size={18} />,
+                badge: 'bg-rose-100 text-rose-800',
+              };
+            case 'warning':
+              return {
+                border: 'border-l-4 border-amber-500',
+                bg: 'bg-white',
+                icon: <AlertTriangle className="text-amber-500 shrink-0" size={18} />,
+                badge: 'bg-amber-100 text-amber-900',
+              };
+            default:
+              return {
+                border: 'border-l-4 border-[#014d33]',
+                bg: 'bg-white',
+                icon: <Info className="text-[#014d33] shrink-0" size={18} />,
+                badge: 'bg-emerald-50 text-emerald-900',
+              };
+          }
+        };
+
+        const config = getStyles();
 
         return (
-          <div key={toast.id} className={`toast-card toast-${toast.severity}`} role="alert">
-            <div className="toast-icon-box">{icon}</div>
-            <div className="toast-body">
-              <div className="toast-title">{toast.title}</div>
-              <div className="toast-message">{toast.message}</div>
+          <div
+            key={toast.id}
+            className={`pointer-events-auto rounded-xl p-3.5 shadow-xl border border-slate-200/90 ${config.bg} ${config.border} flex items-start gap-3 transition-all duration-300 transform translate-y-0 opacity-100 animate-slideUp`}
+            role="alert"
+          >
+            <div className="pt-0.5">{config.icon}</div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-black text-slate-900 leading-snug">
+                {toast.title}
+              </div>
+              <div className="text-[11px] text-slate-600 mt-0.5 leading-normal">
+                {toast.message}
+              </div>
             </div>
             <button
               type="button"
-              className="toast-close-btn"
+              className="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100 transition shrink-0"
               onClick={() => removeToast(toast.id)}
               aria-label="Close notification"
             >
@@ -101,4 +137,4 @@ export const ToastContainer: React.FC = () => {
     </div>
   );
 };
-
+export default ToastContainer;

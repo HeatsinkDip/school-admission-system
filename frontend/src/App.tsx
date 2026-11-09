@@ -2,8 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { AdminPortal } from './AdminPortal';
 import { ParentPortal, formatRemainingSeconds, isValidStudentId } from './ParentPortal';
 import { LandingPage } from './LandingPage';
+import { ParentLoginPage } from './ParentLoginPage';
 import { STUDENT_ID_STORAGE_KEY } from './config';
 import './ParentPortal.css';
+import './LandingPage.css';
 import './K8sModals.css';
 
 export { isValidStudentId, formatRemainingSeconds };
@@ -13,7 +15,7 @@ export function App() {
   const [pathname, setPathname] = useState<string>(() =>
     typeof window !== 'undefined' ? window.location.pathname : '/',
   );
-  const [viewMode, setViewMode] = useState<'portal' | 'landing'>(() => {
+  const [viewMode, setViewMode] = useState<'portal' | 'landing' | 'login'>(() => {
     if (typeof window !== 'undefined' && localStorage.getItem(STUDENT_ID_STORAGE_KEY)) {
       return 'portal';
     }
@@ -35,9 +37,25 @@ export function App() {
   }, []);
 
   const isAdminRoute = pathname === '/admin' || pathname.startsWith('/admin/');
+  const isLoginRoute = pathname === '/login' || pathname.startsWith('/login');
 
   if (isAdminRoute) {
     return <AdminPortal onNavigateToParent={() => navigateTo('/')} />;
+  }
+
+  if (isLoginRoute) {
+    return (
+      <ParentLoginPage
+        onLoginSuccess={() => {
+          navigateTo('/');
+          setViewMode('portal');
+        }}
+        onOpenLanding={() => {
+          navigateTo('/');
+          setViewMode('landing');
+        }}
+      />
+    );
   }
 
   if (viewMode === 'landing') {

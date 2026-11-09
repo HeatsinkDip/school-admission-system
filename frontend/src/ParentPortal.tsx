@@ -1223,53 +1223,85 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
       />
 
       {/* =========================================================================
-          TOP APPLICANT IDENTITY BAR (Compact Executive Density)
+          TOP APPLICANT IDENTITY BAR (White & Deep Emerald Green `#014d33` ISD Header)
           ========================================================================= */}
-      <header className="bg-slate-950 text-white border-b border-slate-800 sticky top-0 z-40">
-        <div className="px-3 sm:px-4 h-13 flex items-center justify-between gap-3">
+      {/* 1. Top Utility Bar */}
+      <div className="isd-top-utility-bar">
+        <div className="px-3 sm:px-6 flex items-center justify-between text-xs py-1 text-emerald-100">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              <span className="hidden sm:inline">Plot 19-21, Block D, Bashundhara R/A, Dhaka-1229</span>
+              <span className="sm:hidden">ISD Dhaka</span>
+            </span>
+            <span className="hidden md:inline text-emerald-400/50">|</span>
+            <span className="hidden md:flex items-center gap-1.5">
+              <Phone size={12} className="text-amber-400" />
+              <span>Admissions: +880 2 843 1101</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            {parentPhone && (
+              <span className="text-[11px] font-mono text-emerald-200 hidden sm:inline">
+                Parent Account: <strong className="text-white">{parentPhone}</strong>
+              </span>
+            )}
+            {onOpenLanding && (
+              <button
+                type="button"
+                data-testid="header-school-home-btn"
+                onClick={onOpenLanding}
+                className="flex items-center gap-1 text-amber-300 hover:text-white font-bold text-xs transition"
+              >
+                <Home size={12} />
+                <span>School Home</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Main Institutional White & Emerald Header */}
+      <header className="bg-white text-slate-900 border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+        <div className="px-3 sm:px-4 h-14 flex items-center justify-between gap-3">
           {/* Left Brand & Mobile Hamburger */}
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-              className="lg:hidden p-1.5 rounded-lg bg-slate-900 text-slate-300 hover:text-white border border-slate-800"
+              className="lg:hidden p-1.5 rounded-lg bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200"
               aria-label="Toggle Sidebar"
             >
               {mobileSidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-400/40 flex items-center justify-center text-emerald-400 shrink-0">
-              <GraduationCap className="w-5 h-5" />
+            <div className="isd-sunburst-logo">
+              <svg viewBox="0 0 44 44" className="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22 4C23.1 4 24 4.9 24 6V10C24 11.1 23.1 12 22 12C20.9 12 20 10V6C20 4.9 20.9 4 22 4Z" fill="#10B981" />
+                <path d="M22 32C23.1 32 24 32.9 24 34V38C24 39.1 23.1 40 22 40C20.9 40 20 39.1 20 38V34C20 32.9 20.9 32 22 32Z" fill="#EA580C" />
+                <path d="M4 22C4 20.9 4.9 20 6 20H10C11.1 20 12 20.9 12 22C12 23.1 11.1 24 10 24H6C4.9 24 4 23.1 4 22Z" fill="#F59E0B" />
+                <path d="M32 22C32 20.9 32.9 20 34 20H38C39.1 20 40 20.9 40 22C40 23.1 39.1 24 38 24H34C32.9 24 32 23.1 32 22Z" fill="#047857" />
+                <path d="M9.27 9.27C10.05 8.49 11.32 8.49 12.1 9.27L14.93 12.1C15.71 12.88 15.71 14.15 14.93 14.93C14.15 15.71 12.88 15.71 12.1 14.93L9.27 12.1C8.49 11.32 8.49 10.05 9.27 9.27Z" fill="#10B981" />
+                <path d="M29.07 29.07C29.85 28.29 31.12 28.29 31.9 29.07L34.73 31.9C35.51 32.68 35.51 33.95 34.73 34.73C33.95 35.51 32.68 35.51 31.9 34.73L29.07 31.9C28.29 31.12 28.29 29.85 29.07 29.07Z" fill="#F97316" />
+                <path d="M9.27 34.73C8.49 33.95 8.49 32.68 9.27 31.9L12.1 29.07C12.88 28.29 14.15 28.29 14.93 29.07C15.71 29.85 15.71 31.12 14.93 31.9L12.1 34.73C11.32 35.51 10.05 35.51 9.27 34.73Z" fill="#EAB308" />
+                <path d="M29.07 14.93C28.29 14.15 28.29 12.88 29.07 12.1L31.9 9.27C32.68 8.49 33.95 8.49 34.73 9.27C35.51 10.05 35.51 11.32 34.73 12.1L31.9 14.93C31.12 15.71 29.85 15.71 29.07 14.93Z" fill="#059669" />
+              </svg>
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-bold tracking-tight text-xs sm:text-sm text-white">
-                  ONNOROKOM PROJUKTI SCHOOL
+                <span className="font-serif font-black tracking-tight text-xs sm:text-sm text-slate-900">
+                  International School Dhaka
                 </span>
-                <span className="hidden md:inline-block px-1.5 py-0.2 text-[9px] font-extrabold uppercase tracking-wider bg-amber-400 text-slate-950 rounded-full">
-                  2027
+                <span className="hidden sm:inline-block px-1.5 py-0.2 text-[9px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 rounded-full border border-emerald-300">
+                  Parent Portal
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 hidden sm:block">
-                Smart Fast-Lane Seat Booking & Digital Enrollment
+              <p className="text-[10px] text-slate-500 hidden sm:block">
+                Online Admissions 2027 • High-Concurrency Seat Booking
               </p>
             </div>
           </div>
 
           {/* Right Action & Active Student Identity Pill */}
           <div className="flex items-center gap-2">
-            {/* Top Developer & Simulation Controls */}
-            {onOpenLanding && (
-              <button
-                type="button"
-                onClick={onOpenLanding}
-                data-testid="header-school-home-btn"
-                className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white text-[11px] font-semibold"
-                title="School Home Overview"
-              >
-                <Home size={12} className="text-emerald-400" />
-                <span>School Home</span>
-              </button>
-            )}
-
             {/* Screen-reader only accessibility hooks for automated test verification without visual presence */}
             <div className="sr-only">
               <button
@@ -1287,22 +1319,22 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             </div>
 
             {/* Family Account Mobile/Phone Pill */}
-            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-[11px] text-slate-300">
-              <Phone size={12} className="text-emerald-400" />
-              <span>Family Account: <strong className="text-white font-mono">{parentPhone || '01712-345678'}</strong></span>
+            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-[11px] text-slate-600">
+              <Phone size={12} className="text-emerald-600" />
+              <span>Family Mobile: <strong className="text-slate-900 font-mono">{parentPhone || '01712-345678'}</strong></span>
             </div>
 
             {/* Active Student Registration Identity Box */}
             {!isEditingStudentId && savedStudentId ? (
-              <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-lg text-xs" data-testid="student-id-section">
-                <span className="text-slate-400 hidden sm:inline">{STRINGS.applyingAsPrefix}</span>
-                <span className="font-mono font-bold text-amber-300 bg-slate-950 px-2 py-0.5 rounded border border-slate-800" data-testid="active-student-id">
+              <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 border border-slate-200 px-2 sm:px-2.5 py-1 rounded-lg text-xs" data-testid="student-id-section">
+                <span className="text-slate-500 hidden sm:inline">{STRINGS.applyingAsPrefix}</span>
+                <span className="font-mono font-bold text-emerald-900 bg-emerald-100/70 px-2 py-0.5 rounded border border-emerald-300" data-testid="active-student-id">
                   {savedStudentId}
                 </span>
                 <span
                   data-testid="active-student-name"
-                  className={`font-semibold hidden md:inline truncate max-w-[130px] ${
-                    activeStudentName ? 'text-white' : 'text-slate-400 italic font-mono'
+                  className={`font-semibold hidden md:inline truncate max-w-[120px] ${
+                    activeStudentName ? 'text-slate-800' : 'text-slate-400 italic font-mono'
                   }`}
                 >
                   {activeStudentName ?? 'null'}
@@ -1313,7 +1345,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   <select
                     value={savedStudentId}
                     onChange={(e) => handleSwitchChild(e.target.value)}
-                    className="bg-slate-950 text-emerald-300 text-[11px] font-semibold border border-slate-700 rounded px-1.5 py-0.5 focus:outline-none cursor-pointer"
+                    className="bg-white text-emerald-900 text-[11px] font-semibold border border-slate-300 rounded px-1.5 py-0.5 focus:outline-none cursor-pointer"
                     title="Switch Active Child / Sibling"
                   >
                     {parentChildren.map((c) => (
@@ -1329,38 +1361,38 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   type="button"
                   data-testid="add-child-btn"
                   onClick={() => setIsAddChildModalOpen(true)}
-                  className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 font-bold text-[11px] flex items-center gap-1 transition"
+                  className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 hover:bg-emerald-200 font-bold text-[11px] flex items-center gap-1 transition border border-emerald-300"
                   title="Register Another Child / Sibling in School"
                 >
                   <UserPlus size={11} />
                   <span>+ Sibling</span>
                 </button>
 
-                <div className="flex items-center gap-1.5 pl-1 border-l border-slate-800">
+                <div className="flex items-center gap-1.5 pl-1 border-l border-slate-200">
                   <button
                     onClick={() => {
                       setStudentIdInput(savedStudentId);
                       setIsEditingStudentId(true);
                     }}
-                    className="text-emerald-400 hover:underline font-semibold"
+                    className="text-emerald-700 hover:underline font-semibold"
                     data-testid="change-student-id-btn"
                   >
                     Change
                   </button>
-                  <span className="text-slate-600">•</span>
+                  <span className="text-slate-300">•</span>
                   <button
                     onClick={handleClearStudentId}
-                    className="text-slate-400 hover:text-white hover:underline font-semibold"
+                    className="text-slate-500 hover:text-slate-800 hover:underline font-semibold"
                     data-testid="clear-student-id-btn"
                   >
                     Clear
                   </button>
-                  <span className="text-slate-600">•</span>
+                  <span className="text-slate-300">•</span>
                   <button
                     type="button"
                     onClick={handleClearStudentId}
                     data-testid="parent-logout-btn"
-                    className="px-2 py-0.5 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-[11px] flex items-center gap-1 transition"
+                    className="px-2 py-0.5 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-[11px] flex items-center gap-1 transition border border-rose-200"
                     title="Parent Logout"
                   >
                     <LogOut size={11} />
@@ -1369,7 +1401,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 </div>
               </div>
             ) : isEditingStudentId && savedStudentId ? (
-              <form onSubmit={handleSaveStudentId} className="flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-700" data-testid="student-id-section">
+              <form onSubmit={handleSaveStudentId} className="flex items-center gap-1.5 sm:gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-300" data-testid="student-id-section">
                 <input
                   type="text"
                   data-testid="student-id-input"
@@ -1377,21 +1409,21 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   onChange={(e) => handleStudentIdInputChange(e.target.value)}
                   placeholder="17-digit Birth ID"
                   maxLength={17}
-                  className="bg-slate-950 text-amber-300 font-mono text-xs px-2.5 py-1 rounded border border-slate-700 w-36 sm:w-44 focus:outline-none"
+                  className="bg-white text-emerald-900 font-mono text-xs px-2.5 py-1 rounded border border-slate-300 w-36 sm:w-44 focus:outline-none focus:border-emerald-600"
                   autoFocus
                 />
                 <button
                   type="submit"
                   data-testid="save-student-id-btn"
                   onClick={handleSaveStudentId}
-                  className="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded transition"
+                  className="px-2.5 py-1 bg-[#014d33] hover:bg-emerald-800 text-white font-bold text-xs rounded transition"
                 >
                   Save
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsEditingStudentId(false)}
-                  className="px-2 py-1 text-slate-400 text-xs hover:text-white"
+                  className="px-2 py-1 text-slate-500 text-xs hover:text-slate-800"
                 >
                   Cancel
                 </button>
@@ -1404,15 +1436,15 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   setIsEditingStudentId(true);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-[11px] font-bold text-emerald-300 transition"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-[11px] font-bold text-emerald-800 transition"
               >
-                <LogIn size={12} className="text-emerald-400" />
+                <LogIn size={12} className="text-emerald-700" />
                 <span>Parent Login</span>
               </button>
             )}
 
             {studentIdError && savedStudentId && isEditingStudentId && (
-              <span className="text-rose-400 text-xs font-bold">
+              <span className="text-rose-600 text-xs font-bold">
                 {studentIdError}
               </span>
             )}
@@ -2847,51 +2879,84 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 </div>
               )}
 
-              {/* Section Filter Tabs (All Sections + 4 Step Tabs) */}
-              <div className="px-3 sm:px-3.5 pt-2 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-1.5">
-                <div className="flex flex-wrap gap-1.5">
-                  {[
-                    { id: 0, title: 'All Sections (Full View)', done: isMandatoryComplete },
-                    {
-                      id: 1,
-                      title: '1. Child Profile & Identity',
-                      done: Boolean(profileForm.fullNameEn && profileForm.dob && profileForm.gender && profileForm.presentAddress),
-                    },
-                    {
-                      id: 2,
-                      title: '2. Father, Mother & Guardian',
-                      done: Boolean((profileForm.fatherName || profileForm.motherName || profileForm.guardianName) && (profileForm.guardianPhone || profileForm.fatherPhone || profileForm.motherPhone)),
-                    },
-                    {
-                      id: 3,
-                      title: '3. Sibling, Income & Concession',
-                      done: Boolean((profileForm.monthlyIncome ?? 0) > 0 || profileForm.incomeBracket || profileForm.hasSibling),
-                    },
-                    {
-                      id: 4,
-                      title: '4. Document Uploads (5 Slots)',
-                      done: Boolean((profile?.documents || []).some((d) => d.status !== 'NOT_UPLOADED')),
-                    },
-                  ].map((step) => (
+              {/* HCI Step Progress Bar & Wizard Header */}
+              <div className="bg-slate-50 border-b border-slate-200 p-3 sm:p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                  <div>
+                    <h2 className="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2">
+                      <GraduationCap className="text-[#014d33]" size={18} />
+                      <span>Child & Guardian Admission Dossier</span>
+                    </h2>
+                    <p className="text-[11px] text-slate-500">
+                      Step-by-step verification pipeline for candidate student admission and sibling concession.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-bold text-slate-500">
+                      Completeness: <strong className="text-emerald-700">{profile?.completenessPercent ?? (isMandatoryComplete ? 100 : 45)}%</strong>
+                    </span>
                     <button
-                      key={step.id}
                       type="button"
-                      data-testid={`dossier-tab-${step.id}`}
-                      onClick={() => setDossierSection(step.id)}
-                      className={`px-3 py-1.5 rounded-t-lg text-xs font-extrabold border-t border-x transition flex items-center gap-1.5 ${
-                        dossierSection === step.id
-                          ? 'bg-white text-[#014d33] border-slate-200 shadow-2xs'
-                          : 'bg-slate-100 text-slate-600 border-transparent hover:bg-slate-200/70'
+                      data-testid="dossier-tab-0"
+                      onClick={() => setDossierSection(0)}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${
+                        dossierSection === 0
+                          ? 'bg-[#014d33] text-white border-transparent shadow-xs'
+                          : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
                       }`}
                     >
-                      <span>{step.title}</span>
-                      {step.done && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />}
+                      All Sections (Full View)
                     </button>
-                  ))}
+                  </div>
                 </div>
-                <span className="text-[10px] font-bold text-slate-500 pb-1.5">
-                  Fields marked with <span className="text-rose-600 font-extrabold">*</span> are mandatory for seat reservation
-                </span>
+
+                {/* 5-Step Visual Progress Stepper */}
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                  {[
+                    { id: 1, title: '1. Child Identity', subtitle: 'Name, DoB & School', done: Boolean(profileForm.fullNameEn && profileForm.dob && profileForm.gender && profileForm.presentAddress) },
+                    { id: 2, title: '2. Parents & Guardian', subtitle: 'Father, Mother & Legal', done: Boolean((profileForm.fatherName || profileForm.motherName || profileForm.guardianName) && (profileForm.guardianPhone || profileForm.fatherPhone || profileForm.motherPhone)) },
+                    { id: 3, title: '3. Sibling & Concession', subtitle: '10% Discount & Income', done: Boolean((profileForm.monthlyIncome ?? 0) > 0 || profileForm.incomeBracket || profileForm.hasSibling) },
+                    { id: 4, title: '4. Documents (5 Slots)', subtitle: 'Birth Cert, NID, Photo', done: Boolean((profile?.documents || []).some((d) => d.status !== 'NOT_UPLOADED')) },
+                    { id: 5, title: '5. Review & Submit', subtitle: 'Audit & Final Submit', done: Boolean(profile?.applicationStatus === 'SUBMITTED') },
+                  ].map((s) => {
+                    const isCurrent = dossierSection === s.id;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        data-testid={`dossier-tab-${s.id}`}
+                        onClick={() => setDossierSection(s.id)}
+                        className={`text-left p-2.5 rounded-xl border transition relative flex items-start gap-2 ${
+                          isCurrent
+                            ? 'bg-white border-[#014d33] ring-2 ring-emerald-700/20 shadow-xs'
+                            : s.done
+                            ? 'bg-emerald-50/70 border-emerald-200 hover:bg-emerald-50'
+                            : 'bg-white/80 border-slate-200 hover:bg-white'
+                        }`}
+                      >
+                        <div
+                          className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black shrink-0 ${
+                            isCurrent
+                              ? 'bg-[#014d33] text-white'
+                              : s.done
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-slate-100 text-slate-500'
+                          }`}
+                        >
+                          {s.done ? <Check size={13} strokeWidth={3} /> : s.id}
+                        </div>
+                        <div className="min-w-0">
+                          <div className={`text-[11px] font-extrabold truncate ${isCurrent ? 'text-[#014d33]' : 'text-slate-800'}`}>
+                            {s.title}
+                          </div>
+                          <div className="text-[9px] text-slate-400 truncate hidden sm:block">
+                            {s.subtitle}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Form Fields Container */}
@@ -3821,6 +3886,74 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   </div>
                 )}
 
+                {/* =====================================================
+                    SECTION 5: REVIEW SUMMARY & FINAL SUBMISSION
+                   ===================================================== */}
+                {(dossierSection === 0 || dossierSection === 5) && (
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:p-4 space-y-3" data-testid="dossier-section-5">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-[#014d33] text-white font-extrabold text-xs flex items-center justify-center">
+                          5
+                        </span>
+                        <div>
+                          <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">
+                            Step 5: Review Complete Dossier & Verification
+                          </h3>
+                          <p className="text-[10px] text-slate-500">
+                            Comprehensive summary audit before official submission to ISD Admissions Committee.
+                          </p>
+                        </div>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-100 border border-emerald-300 text-[11px] font-bold text-emerald-900">
+                        Status: {profile?.applicationStatus || 'DRAFT'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                      {/* Child Candidate Summary Card */}
+                      <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-1.5 shadow-2xs">
+                        <div className="font-extrabold text-[#014d33] text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                          <User size={13} />
+                          <span>Child Candidate Details</span>
+                        </div>
+                        <div className="space-y-1 text-slate-700">
+                          <div><strong>Full Name:</strong> {profileForm.fullNameEn || '—'} {profileForm.fullNameBn && `(${profileForm.fullNameBn})`}</div>
+                          <div><strong>Birth Reg ID:</strong> <span className="font-mono">{savedStudentId || '—'}</span></div>
+                          <div><strong>Date of Birth:</strong> {profileForm.dob || '—'} • <strong>Gender:</strong> {profileForm.gender || '—'}</div>
+                          <div><strong>Blood Group:</strong> {profileForm.bloodGroup || '—'} • <strong>Religion:</strong> {profileForm.religion || '—'}</div>
+                          <div><strong>Present Address:</strong> {profileForm.presentAddress || '—'}</div>
+                        </div>
+                      </div>
+
+                      {/* Parents & Sibling Summary Card */}
+                      <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-1.5 shadow-2xs">
+                        <div className="font-extrabold text-[#014d33] text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+                          <Users size={13} />
+                          <span>Parents, Guardian & Sibling</span>
+                        </div>
+                        <div className="space-y-1 text-slate-700">
+                          <div><strong>Father:</strong> {profileForm.fatherName || '—'} ({profileForm.fatherPhone || 'No Phone'})</div>
+                          <div><strong>Mother:</strong> {profileForm.motherName || '—'} ({profileForm.motherPhone || 'No Phone'})</div>
+                          <div><strong>Primary Guardian:</strong> {profileForm.guardianName || profileForm.fatherName || '—'} ({profileForm.guardianPhone || profileForm.fatherPhone || '—'})</div>
+                          <div><strong>Sibling Enrolled:</strong> {profileForm.hasSibling ? `Yes (${profileForm.siblingName || 'Sibling'}) — 10% Concession Active` : 'None'}</div>
+                          <div><strong>Monthly Household Income:</strong> ৳{profileForm.monthlyIncome?.toLocaleString() || '0'} ({profileForm.incomeBracket || 'Not specified'})</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-start gap-2">
+                      <CheckCircle2 size={16} className="text-emerald-700 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="block font-bold">Official Parental Declaration</strong>
+                        <p className="text-[11px] text-emerald-800 mt-0.5">
+                          I hereby confirm that all information entered in this dossier is accurate and verifiable against original government documents.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Dossier Readiness & Action Footer */}
                 <div className="pt-3 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="text-xs">
@@ -4331,6 +4464,52 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
           )}
         </main>
       </div>
+
+      {/* =========================================================================
+          INSTITUTIONAL FOOTER (White & Emerald ISD)
+          ========================================================================= */}
+      <footer className="isd-white-footer mt-auto border-t border-slate-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-6 border-b border-slate-200 text-xs">
+            <div className="md:col-span-5 space-y-2.5">
+              <div className="flex items-center gap-2.5">
+                <GraduationCap className="text-[#014d33]" size={22} />
+                <span className="font-serif font-black text-base text-slate-900">
+                  International School Dhaka
+                </span>
+              </div>
+              <p className="text-slate-600 leading-relaxed max-w-sm">
+                Plot 19-21, Block D, Bashundhara R/A, Dhaka-1229, Bangladesh.
+                <br />
+                Admissions Helpline: +880 2 843 1101 | Email: admissions@isd.edu.bd
+              </p>
+            </div>
+            <div className="md:col-span-4 space-y-1.5 text-slate-600">
+              <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px]">
+                Admission Support & Verification
+              </div>
+              <div>Single Admission Policy: 1 Active Class Hold Per 17-digit BRN</div>
+              <div>FCFS 10-Minute Atomic Hold with Real-time Postgres Row Locking</div>
+              <div>Sibling Concession: 10% Automated Tuition Fee Discount</div>
+            </div>
+            <div className="md:col-span-3 space-y-1.5 text-slate-600">
+              <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px]">
+                Accreditation & Curriculum
+              </div>
+              <div className="flex flex-wrap gap-1.5 text-[11px] font-semibold text-emerald-800">
+                <span>IB World School</span> • <span>CIS Member</span> • <span>NEASC</span> • <span>NCTB Bangladesh</span>
+              </div>
+              <div className="text-[10px] text-slate-400 pt-1">
+                Authorized Cambridge & IB Continuum School
+              </div>
+            </div>
+          </div>
+          <div className="pt-4 flex flex-col sm:flex-row justify-between items-center text-[11px] text-slate-500 gap-2">
+            <div>&copy; {new Date().getFullYear()} International School Dhaka. All rights reserved.</div>
+            <div>Powered by Onnorokom High-Concurrency Admission Engine</div>
+          </div>
+        </div>
+      </footer>
 
       {/* Sibling Registration Modal */}
       {isAddChildModalOpen && (
