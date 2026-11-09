@@ -735,34 +735,34 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
 
   if (!session) {
     return (
-      <div className="login-gateway-page" data-testid="admin-login-screen">
-        <div className="login-gateway-box">
-          <div className="login-card-header">
-            <div className="school-emblem">
-              <Shield size={32} />
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4 font-sans" data-testid="admin-login-screen">
+        <div className="max-w-md w-full bg-white rounded-2xl border border-slate-200 shadow-xl p-6 space-y-4">
+          <div className="text-center space-y-1.5">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto shadow-xs">
+              <Shield size={26} />
             </div>
-            <h2>Staff Portal Authentication</h2>
-            <p className="login-desc">
+            <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">Staff Portal Authentication</h2>
+            <p className="text-xs text-slate-500">
               Restricted portal for authorized School Administration, Admission Officers, and Finance Staff.
             </p>
           </div>
 
           {errorMessage && (
-            <div className="alert alert-error" role="alert" data-testid="error-banner">
-              <AlertCircle size={18} />
+            <div className="bg-rose-50 border border-rose-200 text-rose-900 px-3.5 py-2 rounded-xl flex items-center gap-2 text-xs font-semibold" role="alert" data-testid="error-banner">
+              <AlertCircle size={16} className="text-rose-600 shrink-0" />
               <span>{errorMessage}</span>
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="login-form-body" noValidate>
-            <div className="form-field">
-              <label htmlFor="admin-username-select" className="form-label">
+          <form onSubmit={handleLogin} className="space-y-3" noValidate>
+            <div>
+              <label htmlFor="admin-username-select" className="block text-xs font-bold text-slate-700 mb-1">
                 Select Staff Role / Account
               </label>
               <select
                 id="admin-username-select"
                 data-testid="admin-username-select"
-                className="input select-lg"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white font-medium text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
                 value={loginUsername}
                 onChange={(e) => setLoginUsername(e.target.value)}
               >
@@ -772,17 +772,17 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
               </select>
             </div>
 
-            <div className="form-field">
-              <label htmlFor="admin-password-input" className="form-label">
+            <div>
+              <label htmlFor="admin-password-input" className="block text-xs font-bold text-slate-700 mb-1">
                 Security Password
               </label>
-              <div className="input-with-icon">
-                <KeyRound size={18} className="input-icon" />
+              <div className="relative">
+                <KeyRound size={16} className="absolute left-3 top-2.5 text-slate-400" />
                 <input
                   id="admin-password-input"
                   data-testid="admin-password-input"
                   type="password"
-                  className="input pl-10"
+                  className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 font-mono text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
                   placeholder="Enter staff security password"
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
@@ -791,47 +791,49 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
               </div>
             </div>
 
-            <div className="quick-fill-presets">
-              <span className="preset-label">1-Click Quick Fill Credentials:</span>
-              <div className="button-group">
+            <div className="pt-1">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                1-Click Quick Fill Credentials:
+              </span>
+              <div className="grid grid-cols-3 gap-1.5">
                 <button
                   type="button"
-                  className="preset-btn"
+                  className="px-2 py-1 text-[11px] font-semibold rounded-lg bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 border border-slate-200 transition text-center truncate"
                   data-testid="quick-fill-admin-btn"
                   onClick={() => {
                     setLoginUsername('admin');
                     setLoginPassword('admin123');
                   }}
                 >
-                  Principal (admin123)
+                  Principal
                 </button>
                 <button
                   type="button"
-                  className="preset-btn"
+                  className="px-2 py-1 text-[11px] font-semibold rounded-lg bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 border border-slate-200 transition text-center truncate"
                   onClick={() => {
                     setLoginUsername('officer');
                     setLoginPassword('officer123');
                   }}
                 >
-                  Admission Officer (officer123)
+                  Admissions
                 </button>
                 <button
                   type="button"
-                  className="preset-btn"
+                  className="px-2 py-1 text-[11px] font-semibold rounded-lg bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 border border-slate-200 transition text-center truncate"
                   onClick={() => {
                     setLoginUsername('accountant');
                     setLoginPassword('accountant123');
                   }}
                 >
-                  Finance Officer (accountant123)
+                  Finance
                 </button>
               </div>
             </div>
 
-            <div className="login-actions">
+            <div className="pt-2 space-y-2">
               <button
                 type="submit"
-                className="btn btn-primary btn-lg btn-full"
+                className="w-full py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition disabled:opacity-50"
                 data-testid="admin-login-btn"
                 disabled={isLoggingIn}
               >
@@ -840,17 +842,17 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
 
               <button
                 type="button"
-                className="btn btn-outline btn-full"
+                className="w-full py-2 px-3 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs transition flex items-center justify-center gap-1.5"
                 data-testid="back-to-parent-btn"
                 onClick={onNavigateToParent}
               >
-                <ArrowLeft size={16} /> Return to Parent Portal
+                <ArrowLeft size={14} /> Return to Parent Portal
               </button>
             </div>
           </form>
 
-          <div className="login-footer-security">
-            <BadgeCheck size={16} className="text-emerald" />
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-center gap-1.5 text-[10px] text-slate-500">
+            <BadgeCheck size={14} className="text-emerald-600" />
             <span>Encrypted Session • Role-Based Access Control • Immutable Audit</span>
           </div>
         </div>
@@ -863,265 +865,431 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
   // =========================================================================
 
   return (
-    <div className="app-shell" data-testid="admin-console-view">
-      {/* --- Sidebar Navigation --- */}
-      <aside className={`app-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
-        <div className="sidebar-brand">
-          <div className="brand-logo">
-            <School size={22} className="text-amber-400" />
-          </div>
-          {!isSidebarCollapsed && (
-            <div className="brand-meta">
-              <h2 className="brand-name">ONNOROKOM PROJUKTI SCHOOL</h2>
-              <span className="brand-badge">ADMIN CONSOLE</span>
-            </div>
-          )}
-        </div>
+    <div className="min-h-screen bg-slate-100 text-slate-900 font-sans flex flex-col" data-testid="admin-console-view">
+      <ToastContainer />
 
-        {/* User Identity & Role Badge */}
-        <div className="sidebar-user-card">
-          <div className="user-avatar-circle">
-            {isSuperAdmin ? 'SA' : isAdmissionOfficer ? 'AO' : 'FO'}
-          </div>
-          {!isSidebarCollapsed && (
-            <div className="user-details">
-              <div className="user-name">{session.fullName}</div>
-              <div className={`role-badge role-${session.role.toLowerCase()}`}>
-                {isSuperAdmin
-                  ? 'SUPER ADMIN'
-                  : isAdmissionOfficer
-                  ? 'ADMISSION OFFICER'
-                  : 'FINANCE OFFICER'}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Navigation Menu by Role */}
-        <nav className="sidebar-nav">
-          {/* Universal Overview */}
-          <button
-            type="button"
-            className={`nav-item ${activeView === 'overview' ? 'active' : ''}`}
-            data-testid="admin-tab-dashboard"
-            onClick={() => setActiveView('overview')}
-            title="Live Capacity & Overview"
-          >
-            <LayoutDashboard size={19} />
-            {!isSidebarCollapsed && <span>Live Seats & Stats</span>}
-          </button>
-
-          <button
-            type="button"
-            className={`nav-item ${activeView === 'alerts' ? 'active' : ''}`}
-            data-testid="admin-tab-alerts"
-            onClick={() => setActiveView('alerts')}
-            title="Real-Time Alerts & User Activity Stream"
-          >
-            <Bell size={19} />
-            {!isSidebarCollapsed && <span>Alerts & Live Feed</span>}
-            {!isSidebarCollapsed && unreadNotifCount > 0 && (
-              <span className="nav-badge-alert">{unreadNotifCount}</span>
-            )}
-          </button>
-
-          {/* Admission Officer / Super Admin sections */}
-          {(isSuperAdmin || isAdmissionOfficer) && (
-            <>
-              <div className="nav-group-label">{!isSidebarCollapsed && 'ADMISSIONS WORKSPACE'}</div>
-              <button
-                type="button"
-                className={`nav-item ${activeView === 'applications' ? 'active' : ''}`}
-                data-testid="admin-tab-applications"
-                onClick={() => setActiveView('applications')}
-                title="Applications Review Queue"
-              >
-                <Users size={19} />
-                {!isSidebarCollapsed && <span>Applications Queue</span>}
-                {!isSidebarCollapsed && applications.length > 0 && (
-                  <span className="nav-badge">{applications.length}</span>
-                )}
-              </button>
-
-              <button
-                type="button"
-                className={`nav-item ${activeView === 'doc_verification' ? 'active' : ''}`}
-                onClick={() => setActiveView('doc_verification')}
-                title="Document Verification Desk"
-              >
-                <FileCheck2 size={19} />
-                {!isSidebarCollapsed && <span>Document Verification</span>}
-              </button>
-
-              <button
-                type="button"
-                className={`nav-item ${activeView === 'waitlist' ? 'active' : ''}`}
-                onClick={() => setActiveView('waitlist')}
-                title="Waitlist Management"
-              >
-                <Clock size={19} />
-                {!isSidebarCollapsed && <span>Waitlist Queue</span>}
-                {!isSidebarCollapsed && waitlist.length > 0 && (
-                  <span className="nav-badge">{waitlist.length}</span>
-                )}
-              </button>
-            </>
-          )}
-
-          {/* Finance Officer / Super Admin sections */}
-          {(isSuperAdmin || isAccountant) && (
-            <>
-              <div className="nav-group-label">{!isSidebarCollapsed && 'FINANCE & BILLING'}</div>
-              <button
-                type="button"
-                className={`nav-item ${activeView === 'finance' ? 'active' : ''}`}
-                data-testid="admin-tab-finance"
-                onClick={() => setActiveView('finance')}
-                title="Payments & Revenue Collections"
-              >
-                <DollarSign size={19} />
-                {!isSidebarCollapsed && <span>Payments & Collections</span>}
-              </button>
-
-              <button
-                type="button"
-                className={`nav-item ${activeView === 'refunds' ? 'active' : ''}`}
-                onClick={() => setActiveView('refunds')}
-                title="Refunds Desk"
-              >
-                <CreditCard size={19} />
-                {!isSidebarCollapsed && <span>Refunds Processing</span>}
-              </button>
-            </>
-          )}
-
-          {/* Classes & Fee Builder (Super Admin or viewable) */}
-          <div className="nav-group-label">{!isSidebarCollapsed && 'ACADEMICS & SYSTEM'}</div>
-          <button
-            type="button"
-            className={`nav-item ${activeView === 'classes' ? 'active' : ''}`}
-            data-testid="admin-tab-classes"
-            onClick={() => setActiveView('classes')}
-            title="Class-Shifts & Fee Structures"
-          >
-            <GraduationCap size={19} />
-            {!isSidebarCollapsed && <span>Classes & Fee Builder</span>}
-          </button>
-
-          <button
-            type="button"
-            className={`nav-item ${activeView === 'routines' ? 'active' : ''}`}
-            data-testid="admin-tab-routines"
-            onClick={() => setActiveView('routines')}
-            title="Class Timetables & Fixed Operating Hours"
-          >
-            <Clock size={19} />
-            {!isSidebarCollapsed && <span>Class Routines & Hours</span>}
-          </button>
-
-          {isSuperAdmin && (
-            <>
-              <button
-                type="button"
-                className={`nav-item ${activeView === 'settings' ? 'active' : ''}`}
-                data-testid="admin-tab-settings"
-                onClick={() => setActiveView('settings')}
-                title="Academic Window & System Settings"
-              >
-                <Settings size={19} />
-                {!isSidebarCollapsed && <span>Window & Rules</span>}
-              </button>
-
-              <button
-                type="button"
-                className={`nav-item ${activeView === 'audit' ? 'active' : ''}`}
-                onClick={() => setActiveView('audit')}
-                title="Immutable Audit Log"
-              >
-                <Shield size={19} />
-                {!isSidebarCollapsed && <span>Audit Trail</span>}
-              </button>
-            </>
-          )}
-        </nav>
-
-        {/* Sidebar Footer Controls */}
-        <div className="sidebar-footer">
-          {/* Quick Role Tester Switcher */}
-          {!isSidebarCollapsed && (
-            <div className="role-simulator-widget">
-              <span className="sim-label">Simulate Officer View:</span>
-              <div className="sim-buttons">
-                <button
-                  type="button"
-                  className={`sim-btn ${isSuperAdmin ? 'active' : ''}`}
-                  onClick={() => void handleSwitchRoleSimulation('admin', 'admin123')}
-                  title="Switch to Super Admin"
-                >
-                  Principal
-                </button>
-                <button
-                  type="button"
-                  className={`sim-btn ${isAdmissionOfficer ? 'active' : ''}`}
-                  onClick={() => void handleSwitchRoleSimulation('officer', 'officer123')}
-                  title="Switch to Admission Officer"
-                >
-                  Admissions
-                </button>
-                <button
-                  type="button"
-                  className={`sim-btn ${isAccountant ? 'active' : ''}`}
-                  onClick={() => void handleSwitchRoleSimulation('accountant', 'accountant123')}
-                  title="Switch to Finance Officer"
-                >
-                  Finance
-                </button>
-              </div>
-            </div>
-          )}
-
-          <div className="sidebar-action-links">
+      {/* Top Navbar (Executive Slate theme - 50% compact height 52px) */}
+      <header className="bg-slate-950 text-white border-b border-slate-800 sticky top-0 z-40">
+        <div className="px-3 sm:px-4 h-13 flex items-center justify-between gap-3">
+          {/* Left Brand & Sidebar Hamburger */}
+          <div className="flex items-center gap-2.5">
             <button
-              type="button"
-              className="sidebar-link-btn"
-              data-testid="back-to-parent-btn"
-              onClick={onNavigateToParent}
-            >
-              <ArrowLeft size={16} />
-              {!isSidebarCollapsed && <span>Parent Portal</span>}
-            </button>
-
-            <button
-              type="button"
-              className="sidebar-link-btn text-rose"
-              data-testid="admin-logout-btn"
-              onClick={() => void handleLogout()}
-            >
-              <LogOut size={16} />
-              {!isSidebarCollapsed && <span>Sign Out</span>}
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* --- Main Content Area --- */}
-      <main className="app-main">
-        {/* Top Navbar */}
-        <header className="app-topbar">
-          <div className="topbar-left">
-            <button
-              type="button"
-              className="btn-icon"
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className="p-1.5 rounded-lg bg-slate-900 text-slate-300 hover:text-white border border-slate-800"
               aria-label="Toggle Sidebar"
             >
-              <Menu size={20} />
+              <Menu size={16} />
+            </button>
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-400/40 flex items-center justify-center text-emerald-400 shrink-0">
+              <School size={18} />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold tracking-tight text-xs sm:text-sm text-white">
+                  ONNOROKOM PROJUKTI SCHOOL
+                </span>
+                <span className="px-1.5 py-0.2 text-[9px] font-extrabold uppercase tracking-wider bg-amber-400 text-slate-950 rounded-full">
+                  ADMIN
+                </span>
+              </div>
+              <p className="text-[10px] text-slate-400 hidden sm:block">
+                Administrative Control Center & Live K8s Seat Management
+              </p>
+            </div>
+          </div>
+
+          {/* Right Action & Active Admin Pill */}
+          <div className="flex items-center gap-2">
+            <div className="hidden md:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-800 text-[10px] text-emerald-400 font-mono" title="Connected to PostgreSQL Database">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>PostgreSQL Active</span>
+            </div>
+
+            <button
+              type="button"
+              className="p-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition"
+              onClick={() => void refreshAdminData(false)}
+              title="Refresh Data"
+            >
+              <RefreshCw size={14} />
             </button>
 
-            <div className="topbar-breadcrumbs">
+            <NotificationCenter
+              unreadCount={unreadNotifCount}
+              notifications={notifications}
+              onMarkRead={handleMarkAdminNotificationRead}
+              onMarkAllRead={handleMarkAllAdminNotificationsRead}
+              onRefresh={() => void refreshAdminData(true)}
+              titleLabel="School System & Officer Alerts"
+            />
+
+            <div className="hidden sm:flex items-center gap-1.5 bg-slate-900 border border-slate-800 px-2 py-1 rounded-lg text-xs">
+              <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[9px] font-bold">
+                {session.role}
+              </span>
+              <span className="font-semibold text-white text-xs truncate max-w-[120px]">
+                {session.fullName}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              data-testid="back-to-parent-btn"
+              onClick={onNavigateToParent}
+              className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white text-[11px] font-semibold"
+            >
+              <ArrowLeft size={12} />
+              <span>Parent Portal</span>
+            </button>
+
+            <button
+              type="button"
+              data-testid="admin-logout-btn"
+              onClick={() => void handleLogout()}
+              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-[11px] font-semibold transition"
+            >
+              <LogOut size={12} />
+              <span className="hidden sm:inline">Sign Out</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Container with Sticky Left Sidebar */}
+      <div className="flex-1 flex relative">
+        {/* Left Sidebar Navigation (Compact High-Density) */}
+        <aside
+          className={`bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 transition-all duration-200 h-[calc(100vh-3.25rem)] sticky top-13 overflow-y-auto ${
+            isSidebarCollapsed ? 'w-16 p-2' : 'w-60 p-2.5'
+          }`}
+        >
+          <div className="space-y-3">
+            {/* User Identity Mini Card */}
+            {!isSidebarCollapsed && (
+              <div className="p-2.5 rounded-xl bg-slate-900 text-white space-y-1.5 border border-slate-800 shadow-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white font-extrabold flex items-center justify-center text-xs shrink-0">
+                    {isSuperAdmin ? 'SA' : isAdmissionOfficer ? 'AO' : 'FO'}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-bold text-white truncate">{session.fullName}</div>
+                    <div className="text-[10px] font-semibold text-emerald-400 truncate">
+                      {isSuperAdmin
+                        ? 'SUPER ADMIN'
+                        : isAdmissionOfficer
+                        ? 'ADMISSION OFFICER'
+                        : 'FINANCE OFFICER'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Menu by Role */}
+            <nav className="space-y-0.5">
+              <div className="px-2 mb-1 text-[9px] font-extrabold uppercase tracking-widest text-slate-400">
+                {!isSidebarCollapsed ? 'General Console' : '•••'}
+              </div>
+
+              {/* Universal Overview */}
+              <button
+                type="button"
+                className={`w-full flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs font-semibold transition ${
+                  activeView === 'overview'
+                    ? 'bg-emerald-50 text-emerald-800 font-bold border-l-2 border-emerald-600'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+                data-testid="admin-tab-dashboard"
+                onClick={() => setActiveView('overview')}
+                title="Live Seats & Stats"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <LayoutDashboard size={15} className={activeView === 'overview' ? 'text-emerald-700' : 'text-slate-400'} />
+                  {!isSidebarCollapsed && <span className="truncate">Live Seats & Stats</span>}
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className={`w-full flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs font-semibold transition ${
+                  activeView === 'alerts'
+                    ? 'bg-emerald-50 text-emerald-800 font-bold border-l-2 border-emerald-600'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+                data-testid="admin-tab-alerts"
+                onClick={() => setActiveView('alerts')}
+                title="Alerts & Live Feed"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <Bell size={15} className={activeView === 'alerts' ? 'text-emerald-700' : 'text-slate-400'} />
+                  {!isSidebarCollapsed && <span className="truncate">Alerts & Feed</span>}
+                </div>
+                {!isSidebarCollapsed && unreadNotifCount > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-amber-500 text-white">
+                    {unreadNotifCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Admission Officer / Super Admin sections */}
+              {(isSuperAdmin || isAdmissionOfficer) && (
+                <>
+                  <div className="px-2 pt-2.5 mb-1 text-[9px] font-extrabold uppercase tracking-widest text-slate-400">
+                    {!isSidebarCollapsed ? 'Admissions' : '•••'}
+                  </div>
+
+                  <button
+                    type="button"
+                    className={`w-full flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs font-semibold transition ${
+                      activeView === 'applications'
+                        ? 'bg-emerald-50 text-emerald-800 font-bold border-l-2 border-emerald-600'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                    data-testid="admin-tab-applications"
+                    onClick={() => setActiveView('applications')}
+                    title="Applications Queue"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <Users size={15} className={activeView === 'applications' ? 'text-emerald-700' : 'text-slate-400'} />
+                      {!isSidebarCollapsed && <span className="truncate">Applications Queue</span>}
+                    </div>
+                    {!isSidebarCollapsed && applications.length > 0 && (
+                      <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-slate-200 text-slate-700">
+                        {applications.length}
+                      </span>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`w-full flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs font-semibold transition ${
+                      activeView === 'doc_verification'
+                        ? 'bg-emerald-50 text-emerald-800 font-bold border-l-2 border-emerald-600'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                    onClick={() => setActiveView('doc_verification')}
+                    title="Document Verification"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <FileCheck2 size={15} className={activeView === 'doc_verification' ? 'text-emerald-700' : 'text-slate-400'} />
+                      {!isSidebarCollapsed && <span className="truncate">Doc Verification</span>}
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`w-full flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs font-semibold transition ${
+                      activeView === 'waitlist'
+                        ? 'bg-emerald-50 text-emerald-800 font-bold border-l-2 border-emerald-600'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                    onClick={() => setActiveView('waitlist')}
+                    title="Waitlist Queue"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <Clock size={15} className={activeView === 'waitlist' ? 'text-emerald-700' : 'text-slate-400'} />
+                      {!isSidebarCollapsed && <span className="truncate">Waitlist Queue</span>}
+                    </div>
+                    {!isSidebarCollapsed && waitlist.length > 0 && (
+                      <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-slate-200 text-slate-700">
+                        {waitlist.length}
+                      </span>
+                    )}
+                  </button>
+                </>
+              )}
+
+              {/* Finance Officer / Super Admin sections */}
+              {(isSuperAdmin || isAccountant) && (
+                <>
+                  <div className="px-2 pt-2.5 mb-1 text-[9px] font-extrabold uppercase tracking-widest text-slate-400">
+                    {!isSidebarCollapsed ? 'Finance & Billing' : '•••'}
+                  </div>
+
+                  <button
+                    type="button"
+                    className={`w-full flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs font-semibold transition ${
+                      activeView === 'finance'
+                        ? 'bg-emerald-50 text-emerald-800 font-bold border-l-2 border-emerald-600'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                    data-testid="admin-tab-finance"
+                    onClick={() => setActiveView('finance')}
+                    title="Payments & Collections"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <DollarSign size={15} className={activeView === 'finance' ? 'text-emerald-700' : 'text-slate-400'} />
+                      {!isSidebarCollapsed && <span className="truncate">Payments & Revenue</span>}
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`w-full flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs font-semibold transition ${
+                      activeView === 'refunds'
+                        ? 'bg-emerald-50 text-emerald-800 font-bold border-l-2 border-emerald-600'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                    onClick={() => setActiveView('refunds')}
+                    title="Refunds Desk"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <CreditCard size={15} className={activeView === 'refunds' ? 'text-emerald-700' : 'text-slate-400'} />
+                      {!isSidebarCollapsed && <span className="truncate">Refunds Desk</span>}
+                    </div>
+                  </button>
+                </>
+              )}
+
+              {/* Classes & Fee Builder */}
+              <div className="px-2 pt-2.5 mb-1 text-[9px] font-extrabold uppercase tracking-widest text-slate-400">
+                {!isSidebarCollapsed ? 'Academics & System' : '•••'}
+              </div>
+
+              <button
+                type="button"
+                className={`w-full flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs font-semibold transition ${
+                  activeView === 'classes'
+                    ? 'bg-emerald-50 text-emerald-800 font-bold border-l-2 border-emerald-600'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+                data-testid="admin-tab-classes"
+                onClick={() => setActiveView('classes')}
+                title="Classes & Fee Builder"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <GraduationCap size={15} className={activeView === 'classes' ? 'text-emerald-700' : 'text-slate-400'} />
+                  {!isSidebarCollapsed && <span className="truncate">Classes & Fee Builder</span>}
+                </div>
+              </button>
+
+              <button
+                type="button"
+                className={`w-full flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs font-semibold transition ${
+                  activeView === 'routines'
+                    ? 'bg-emerald-50 text-emerald-800 font-bold border-l-2 border-emerald-600'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+                data-testid="admin-tab-routines"
+                onClick={() => setActiveView('routines')}
+                title="Class Routines & Hours"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <Clock size={15} className={activeView === 'routines' ? 'text-emerald-700' : 'text-slate-400'} />
+                  {!isSidebarCollapsed && <span className="truncate">Class Routines & Hours</span>}
+                </div>
+              </button>
+
+              {isSuperAdmin && (
+                <>
+                  <button
+                    type="button"
+                    className={`w-full flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs font-semibold transition ${
+                      activeView === 'settings'
+                        ? 'bg-emerald-50 text-emerald-800 font-bold border-l-2 border-emerald-600'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                    data-testid="admin-tab-settings"
+                    onClick={() => setActiveView('settings')}
+                    title="Window & Rules"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <Settings size={15} className={activeView === 'settings' ? 'text-emerald-700' : 'text-slate-400'} />
+                      {!isSidebarCollapsed && <span className="truncate">Window & Rules</span>}
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`w-full flex items-center justify-between py-1.5 px-2.5 rounded-lg text-xs font-semibold transition ${
+                      activeView === 'audit'
+                        ? 'bg-emerald-50 text-emerald-800 font-bold border-l-2 border-emerald-600'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                    onClick={() => setActiveView('audit')}
+                    title="Audit Trail"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <Shield size={15} className={activeView === 'audit' ? 'text-emerald-700' : 'text-slate-400'} />
+                      {!isSidebarCollapsed && <span className="truncate">Audit Trail</span>}
+                    </div>
+                  </button>
+                </>
+              )}
+            </nav>
+          </div>
+
+          {/* Sidebar Footer Controls */}
+          <div className="pt-2 border-t border-slate-100 space-y-2">
+            {!isSidebarCollapsed && (
+              <div className="space-y-1">
+                <span className="block text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                  Simulate Role View:
+                </span>
+                <div className="grid grid-cols-3 gap-1">
+                  <button
+                    type="button"
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold border transition truncate ${
+                      isSuperAdmin ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                    }`}
+                    onClick={() => void handleSwitchRoleSimulation('admin', 'admin123')}
+                  >
+                    Principal
+                  </button>
+                  <button
+                    type="button"
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold border transition truncate ${
+                      isAdmissionOfficer ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                    }`}
+                    onClick={() => void handleSwitchRoleSimulation('officer', 'officer123')}
+                  >
+                    Admissions
+                  </button>
+                  <button
+                    type="button"
+                    className={`px-1.5 py-0.5 rounded text-[10px] font-bold border transition truncate ${
+                      isAccountant ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                    }`}
+                    onClick={() => void handleSwitchRoleSimulation('accountant', 'accountant123')}
+                  >
+                    Finance
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-1">
+              <button
+                type="button"
+                className="w-full flex items-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition"
+                data-testid="back-to-parent-btn"
+                onClick={onNavigateToParent}
+              >
+                <ArrowLeft size={14} />
+                {!isSidebarCollapsed && <span>Parent Portal</span>}
+              </button>
+
+              <button
+                type="button"
+                className="w-full flex items-center gap-1.5 py-1.5 px-2 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 transition"
+                data-testid="admin-logout-btn"
+                onClick={() => void handleLogout()}
+              >
+                <LogOut size={14} />
+                {!isSidebarCollapsed && <span>Sign Out</span>}
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        {/* Main Content Area (Compact 50% density) */}
+        <main className="flex-1 p-3 sm:p-4.5 space-y-3.5 max-w-7xl mx-auto w-full overflow-y-auto">
+          {/* Breadcrumb Navigation */}
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
               <span>Admin Console</span>
-              <ChevronRight size={14} className="crumb-sep" />
-              <strong className="crumb-current">
+              <ChevronRight size={12} className="text-slate-400" />
+              <strong className="text-slate-900 font-bold">
                 {activeView === 'overview' && 'Live Seats & Performance'}
                 {activeView === 'alerts' && 'Live Activity & Urgent Alert Center'}
                 {activeView === 'applications' && 'Admission Applications Queue'}
@@ -1136,205 +1304,179 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             </div>
           </div>
 
-          <div className="topbar-right">
-            <div className="sync-status-indicator" title="Connected to PostgreSQL Database">
-              <span className="pulse-dot" />
-              <span className="sync-text">PostgreSQL Active</span>
+          {/* Global Alert Banners */}
+          {errorMessage && (
+            <div className="bg-rose-50 border border-rose-200 text-rose-900 px-3.5 py-2 rounded-xl flex items-center justify-between text-xs font-semibold" role="alert" data-testid="error-banner">
+              <div className="flex items-center gap-2">
+                <AlertCircle size={16} className="text-rose-600 shrink-0" />
+                <span>{errorMessage}</span>
+              </div>
+              <button
+                type="button"
+                className="text-rose-500 hover:text-rose-800 text-base font-bold"
+                onClick={() => setErrorMessage(null)}
+                aria-label="Dismiss error"
+              >
+                ×
+              </button>
             </div>
+          )}
 
-            <button
-              type="button"
-              className="btn-icon"
-              onClick={() => void refreshAdminData(false)}
-              title="Refresh Data"
-            >
-              <RefreshCw size={17} />
-            </button>
-
-            <NotificationCenter
-              unreadCount={unreadNotifCount}
-              notifications={notifications}
-              onMarkRead={handleMarkAdminNotificationRead}
-              onMarkAllRead={handleMarkAllAdminNotificationsRead}
-              onRefresh={() => void refreshAdminData(true)}
-              titleLabel="School System & Officer Alerts"
-            />
-
-            <div className="topbar-user-pill">
-              <span className="user-role-tag">{session.role}</span>
-              <span className="user-display-name">{session.fullName}</span>
+          {successMessage && (
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-900 px-3.5 py-2 rounded-xl flex items-center justify-between text-xs font-semibold" role="status" data-testid="success-banner">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
+                <span>{successMessage}</span>
+              </div>
+              <button
+                type="button"
+                className="text-emerald-500 hover:text-emerald-800 text-base font-bold"
+                onClick={() => setSuccessMessage(null)}
+                aria-label="Dismiss success"
+              >
+                ×
+              </button>
             </div>
-          </div>
-        </header>
+          )}
 
-        {/* Global Alert Banners */}
-        {errorMessage && (
-          <div className="alert alert-error" role="alert" data-testid="error-banner">
-            <AlertCircle size={18} />
-            <span>{errorMessage}</span>
-            <button
-              type="button"
-              className="alert-close"
-              onClick={() => setErrorMessage(null)}
-              aria-label="Dismiss error"
-            >
-              ×
-            </button>
-          </div>
-        )}
-
-        {successMessage && (
-          <div className="alert alert-success" role="status" data-testid="success-banner">
-            <CheckCircle2 size={18} />
-            <span>{successMessage}</span>
-            <button
-              type="button"
-              className="alert-close"
-              onClick={() => setSuccessMessage(null)}
-              aria-label="Dismiss success"
-            >
-              ×
-            </button>
-          </div>
-        )}
-
-        <div className="content-container">
           {/* ================================================================= */}
           {/* VIEW: OVERVIEW & LIVE SEAT DASHBOARD                              */}
           {/* ================================================================= */}
           {activeView === 'overview' && dashboard && (
-            <div className="view-section">
+            <div className="space-y-3.5">
               {/* Metric Stat Cards */}
-              <div className="kpi-grid-modern">
-                <div className="kpi-stat-card">
-                  <div className="kpi-icon-box bg-blue-subtle text-blue">
-                    <GraduationCap size={22} />
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+                <div className="p-3 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center shrink-0">
+                    <GraduationCap size={18} />
                   </div>
-                  <div className="kpi-stat-body">
-                    <span className="kpi-caption">Total Seat Capacity</span>
-                    <strong className="kpi-number">{dashboard.totalSeats}</strong>
-                    <span className="kpi-subtext">Across all class-shifts</span>
-                  </div>
-                </div>
-
-                <div className="kpi-stat-card">
-                  <div className="kpi-icon-box bg-amber-subtle text-amber">
-                    <Clock size={22} />
-                  </div>
-                  <div className="kpi-stat-body">
-                    <span className="kpi-caption">Active Temporary Holds</span>
-                    <strong className="kpi-number text-amber">{dashboard.totalHeld}</strong>
-                    <span className="kpi-subtext">Expiring in 600s fast-lane</span>
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Total Capacity</span>
+                    <strong className="text-lg font-black text-slate-900 leading-none">{dashboard.totalSeats}</strong>
+                    <span className="text-[10px] text-slate-400 block mt-0.5 truncate">All class-shifts</span>
                   </div>
                 </div>
 
-                <div className="kpi-stat-card">
-                  <div className="kpi-icon-box bg-emerald-subtle text-emerald">
-                    <CheckCircle2 size={22} />
+                <div className="p-3 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shrink-0">
+                    <Clock size={18} />
                   </div>
-                  <div className="kpi-stat-body">
-                    <span className="kpi-caption">Confirmed Admissions</span>
-                    <strong className="kpi-number text-emerald">{dashboard.totalConfirmed}</strong>
-                    <span className="kpi-subtext">Fee paid & confirmed</span>
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Temporary Holds</span>
+                    <strong className="text-lg font-black text-amber-600 leading-none">{dashboard.totalHeld}</strong>
+                    <span className="text-[10px] text-slate-400 block mt-0.5 truncate">Expiring in 600s</span>
                   </div>
                 </div>
 
-                <div className="kpi-stat-card">
-                  <div className="kpi-icon-box bg-indigo-subtle text-indigo">
-                    <TrendingUp size={22} />
+                <div className="p-3 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
+                    <CheckCircle2 size={18} />
                   </div>
-                  <div className="kpi-stat-body">
-                    <span className="kpi-caption">Net Collections</span>
-                    <strong className="kpi-number text-indigo">৳{dashboard.totalRevenueBdt.toLocaleString()}</strong>
-                    <span className="kpi-subtext">BDT via Simulated Gateway</span>
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Confirmed Admissions</span>
+                    <strong className="text-lg font-black text-emerald-600 leading-none">{dashboard.totalConfirmed}</strong>
+                    <span className="text-[10px] text-slate-400 block mt-0.5 truncate">Fee paid & confirmed</span>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center shrink-0">
+                    <TrendingUp size={18} />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Net Collections</span>
+                    <strong className="text-lg font-black text-indigo-600 leading-none">৳{dashboard.totalRevenueBdt.toLocaleString()}</strong>
+                    <span className="text-[10px] text-slate-400 block mt-0.5 truncate">BDT Gateway</span>
                   </div>
                 </div>
               </div>
 
               {/* Class-Shift Live Utilization Table */}
-              <div className="panel-card">
-                <div className="panel-header">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                <div className="p-3 sm:p-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
-                    <h3 className="panel-title">Class-Shifts & Live Seat Pools</h3>
-                    <p className="panel-subtitle">
+                    <h3 className="text-sm font-extrabold text-slate-900">Class-Shifts & Live Seat Pools</h3>
+                    <p className="text-[11px] text-slate-500">
                       Zero over-selling guarantee enforced in PostgreSQL via row locks and DB clock.
                     </p>
                   </div>
                   {isSuperAdmin && (
                     <button
                       type="button"
-                      className="btn btn-primary btn-sm"
+                      className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1 shadow-xs transition"
                       onClick={() => setActiveView('classes')}
                     >
-                      <PlusCircle size={15} /> Add New Class-Shift
+                      <PlusCircle size={13} /> Add New Class-Shift
                     </button>
                   )}
                 </div>
 
-                <div className="table-responsive">
-                  <table className="table-modern" data-testid="admin-classes-table">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse" data-testid="admin-classes-table">
                     <thead>
-                      <tr>
-                        <th>Class / Shift ID</th>
-                        <th>Class & Shift Name</th>
-                        <th>Academic Year</th>
-                        <th>Status</th>
-                        <th>Total Seats</th>
-                        <th>Active Holds</th>
-                        <th>Confirmed Seats</th>
-                        <th>Available Seats</th>
-                        <th>Payable at Admission</th>
-                        <th>Action</th>
+                      <tr className="bg-slate-50 text-[10px] font-extrabold uppercase tracking-wider text-slate-600 border-b border-slate-200">
+                        <th className="py-2 px-3">Class / Shift ID</th>
+                        <th className="py-2 px-3">Class & Shift Name</th>
+                        <th className="py-2 px-3">Academic Year</th>
+                        <th className="py-2 px-3">Status</th>
+                        <th className="py-2 px-3">Total Seats</th>
+                        <th className="py-2 px-3">Active Holds</th>
+                        <th className="py-2 px-3">Confirmed Seats</th>
+                        <th className="py-2 px-3">Available Seats</th>
+                        <th className="py-2 px-3">Payable at Admission</th>
+                        <th className="py-2 px-3 text-right">Action</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-slate-100 text-xs">
                       {dashboard.classes
                         .slice((classPage - 1) * PAGE_SIZE, classPage * PAGE_SIZE)
                         .map((cls) => (
-                        <tr key={cls.id}>
-                          <td className="mono font-semibold">{cls.id}</td>
-                          <td>
-                            <strong>{cls.name}</strong>{' '}
-                            <span className="badge-shift">{cls.shift}</span>
+                        <tr key={cls.id} className="hover:bg-slate-50/70">
+                          <td className="py-1.5 px-3 font-mono font-semibold text-slate-700">{cls.id}</td>
+                          <td className="py-1.5 px-3">
+                            <strong className="text-slate-900">{cls.name}</strong>{' '}
+                            <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 ml-1">
+                              {cls.shift}
+                            </span>
                           </td>
-                          <td className="mono">{cls.academicYear}</td>
-                          <td>
-                            <span className={`status-pill status-${cls.status.toLowerCase()}`}>
+                          <td className="py-1.5 px-3 font-mono text-slate-600">{cls.academicYear}</td>
+                          <td className="py-1.5 px-3">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                              cls.status === 'OPEN' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'
+                            }`}>
                               {cls.status}
                             </span>
                           </td>
-                          <td className="font-semibold">{cls.totalSeats}</td>
-                          <td className="text-amber font-semibold">{cls.heldSeats}</td>
-                          <td className="text-emerald font-semibold">{cls.confirmedSeats}</td>
-                          <td>
-                            <span
-                              className={`seat-counter ${
-                                cls.availableSeats > 0 ? 'seat-open' : 'seat-full'
-                              }`}
-                            >
+                          <td className="py-1.5 px-3 font-semibold text-slate-800">{cls.totalSeats}</td>
+                          <td className="py-1.5 px-3 text-amber-600 font-semibold">{cls.heldSeats}</td>
+                          <td className="py-1.5 px-3 text-emerald-600 font-semibold">{cls.confirmedSeats}</td>
+                          <td className="py-1.5 px-3">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                              cls.availableSeats > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
+                            }`}>
                               {cls.availableSeats} Left
                             </span>
                           </td>
-                          <td className="mono font-semibold">৳{cls.payableAtAdmissionTotal.toLocaleString()}</td>
-                          <td>
-                            <div className="button-group">
+                          <td className="py-1.5 px-3 font-mono font-semibold text-slate-900">৳{cls.payableAtAdmissionTotal.toLocaleString()}</td>
+                          <td className="py-1.5 px-3 text-right">
+                            <div className="flex items-center justify-end gap-1">
                               <button
                                 type="button"
-                                className="btn btn-outline btn-xs"
+                                className="px-2 py-0.5 rounded border border-slate-300 text-slate-700 hover:bg-slate-100 text-[11px] font-semibold transition"
                                 onClick={() => startEditClass(cls)}
                                 title="Edit class and fee configuration"
                               >
-                                <Edit2 size={12} className="inline mr-1" />
+                                <Edit2 size={11} className="inline mr-0.5" />
                                 Edit
                               </button>
                               {isSuperAdmin && (
                                 <button
                                   type="button"
-                                  className="btn btn-danger btn-xs"
+                                  className="px-2 py-0.5 rounded border border-rose-200 text-rose-600 hover:bg-rose-50 text-[11px] font-semibold transition"
                                   onClick={() => void handleDeleteClass(cls)}
                                   title="Permanently delete class"
                                 >
-                                  <Trash2 size={12} className="inline mr-1" />
+                                  <Trash2 size={11} className="inline mr-0.5" />
                                   Delete
                                 </button>
                               )}
@@ -1346,13 +1488,15 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                   </table>
                 </div>
 
-                <Pagination
-                  currentPage={classPage}
-                  totalItems={dashboard.classes.length}
-                  pageSize={PAGE_SIZE}
-                  onPageChange={setClassPage}
-                  itemLabel="classes"
-                />
+                <div className="p-2 border-t border-slate-100">
+                  <Pagination
+                    currentPage={classPage}
+                    totalItems={dashboard.classes.length}
+                    pageSize={PAGE_SIZE}
+                    onPageChange={setClassPage}
+                    itemLabel="classes"
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -1361,39 +1505,43 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
           {/* VIEW: APPLICATION REVIEW QUEUE & DOSSIER INSPECTOR               */}
           {/* ================================================================= */}
           {(activeView === 'applications' || activeView === 'doc_verification') && (
-            <div className="view-section">
-              <div className="panel-card">
-                <div className="panel-header">
+            <div className="space-y-3.5">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                <div className="p-3 sm:p-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
-                    <h3 className="panel-title">
+                    <h3 className="text-sm font-extrabold text-slate-900">
                       {isAdmissionOfficer
                         ? 'Admission Officer — Applications & Document Verification'
                         : 'Application Dossier Verification Queue'}
                     </h3>
-                    <p className="panel-subtitle">
+                    <p className="text-[11px] text-slate-500">
                       Verify child profile details, inspect uploaded certificates, recommend concessions, and assign student rolls.
                     </p>
                   </div>
-                  <button type="button" className="btn btn-outline btn-sm" onClick={handleExportCsv}>
-                    <Download size={15} /> Export CSV Roster
+                  <button
+                    type="button"
+                    className="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1 self-start sm:self-center transition"
+                    onClick={handleExportCsv}
+                  >
+                    <Download size={13} /> Export CSV Roster
                   </button>
                 </div>
 
                 {/* Filter and Search Bar */}
-                <div className="search-filter-grid">
-                  <div className="search-box">
-                    <Search size={16} className="search-icon" />
+                <div className="p-2.5 sm:p-3 bg-slate-50 border-b border-slate-200 grid grid-cols-1 sm:grid-cols-4 gap-2">
+                  <div className="relative">
+                    <Search size={14} className="absolute left-2.5 top-2.5 text-slate-400" />
                     <input
                       type="text"
-                      className="input input-search"
-                      placeholder="Search by 17-digit ID, child name, or hold ID..."
+                      className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      placeholder="Search ID, name, or hold ID..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
 
                   <select
-                    className="input select-filter"
+                    className="px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     value={filterClassId}
                     onChange={(e) => setFilterClassId(e.target.value)}
                   >
@@ -1406,7 +1554,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                   </select>
 
                   <select
-                    className="input select-filter"
+                    className="px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     value={filterHoldStatus}
                     onChange={(e) => setFilterHoldStatus(e.target.value)}
                   >
@@ -1418,7 +1566,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                   </select>
 
                   <select
-                    className="input select-filter"
+                    className="px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     value={filterAppStatus}
                     onChange={(e) => setFilterAppStatus(e.target.value)}
                   >
@@ -1435,90 +1583,111 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
 
                 {/* Applications Table */}
                 {applications.length === 0 ? (
-                  <div className="empty-state-modern">
-                    <Users size={48} className="empty-icon" />
-                    <h4>No Applications Found</h4>
-                    <p>No student applications match the specified criteria.</p>
+                  <div className="p-8 text-center text-slate-400">
+                    <Users size={36} className="mx-auto mb-2 opacity-50" />
+                    <h4 className="font-bold text-slate-700 text-sm">No Applications Found</h4>
+                    <p className="text-xs text-slate-500">No student applications match the specified criteria.</p>
                   </div>
                 ) : (
-                  <div className="table-responsive">
-                    <table className="table-modern">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr>
-                          <th>Hold ID</th>
-                          <th>Birth Reg No (17-digit)</th>
-                          <th>Child Full Name</th>
-                          <th>Class & Shift</th>
-                          <th>Seat Status</th>
-                          <th>Dossier Review</th>
-                          <th>Dossier Completeness</th>
-                          <th>Receipt / Paid</th>
-                          <th>Action</th>
+                        <tr className="bg-slate-50 text-[10px] font-extrabold uppercase tracking-wider text-slate-600 border-b border-slate-200">
+                          <th className="py-2 px-3">Hold ID</th>
+                          <th className="py-2 px-3">Birth Reg No (17-digit)</th>
+                          <th className="py-2 px-3">Child Full Name</th>
+                          <th className="py-2 px-3">Class & Shift</th>
+                          <th className="py-2 px-3">Seat Status</th>
+                          <th className="py-2 px-3">Dossier Review</th>
+                          <th className="py-2 px-3">Dossier Completeness</th>
+                          <th className="py-2 px-3">Receipt / Paid</th>
+                          <th className="py-2 px-3 text-right">Action</th>
                         </tr>
                       </thead>
-                      <tbody>
+                      <tbody className="divide-y divide-slate-100 text-xs">
                         {applications
                           .slice((appPage - 1) * PAGE_SIZE, appPage * PAGE_SIZE)
                           .map((app) => (
                           <tr
                             key={app.holdId}
-                            className={selectedStudentId === app.studentId ? 'row-selected' : ''}
+                            className={`hover:bg-slate-50/70 transition ${
+                              selectedStudentId === app.studentId ? 'bg-emerald-50/80 border-l-2 border-emerald-600' : ''
+                            }`}
                           >
-                            <td className="mono font-semibold">{app.holdId}</td>
-                            <td className="mono">{app.studentId}</td>
-                            <td>
-                              <strong>{app.fullNameEn || '— Incomplete —'}</strong>
-                              {app.fullNameBn && <div className="text-muted text-xs">{app.fullNameBn}</div>}
+                            <td className="py-1.5 px-3 font-mono font-bold text-slate-900">{app.holdId}</td>
+                            <td className="py-1.5 px-3 font-mono text-slate-700">{app.studentId}</td>
+                            <td className="py-1.5 px-3">
+                              <strong className="text-slate-900">{app.fullNameEn || '— Incomplete —'}</strong>
+                              {app.fullNameBn && <div className="text-[10px] text-slate-500">{app.fullNameBn}</div>}
                             </td>
-                            <td>
-                              {app.className} <span className="badge-shift">{app.shift}</span>
+                            <td className="py-1.5 px-3">
+                              {app.className}{' '}
+                              <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 ml-1">
+                                {app.shift}
+                              </span>
                             </td>
-                            <td>
-                              <span className={`status-pill status-${app.holdStatus.toLowerCase()}`}>
+                            <td className="py-1.5 px-3">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                                app.holdStatus === 'CONFIRMED'
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : app.holdStatus === 'HELD'
+                                  ? 'bg-amber-100 text-amber-800'
+                                  : 'bg-slate-200 text-slate-700'
+                              }`}>
                                 {app.holdStatus}
                               </span>
                             </td>
-                            <td>
-                              <span className={`status-pill status-review-${app.applicationStatus.toLowerCase()}`}>
+                            <td className="py-1.5 px-3">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                                app.applicationStatus === 'APPROVED' || app.applicationStatus === 'ENROLLED'
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : app.applicationStatus === 'UNDER_REVIEW'
+                                  ? 'bg-blue-100 text-blue-800'
+                                  : app.applicationStatus === 'REJECTED'
+                                  ? 'bg-rose-100 text-rose-800'
+                                  : 'bg-slate-100 text-slate-700'
+                              }`}>
                                 {app.applicationStatus}
                               </span>
                             </td>
-                            <td>
-                              <div className="progress-compact">
-                                <div
-                                  className="progress-fill"
-                                  style={{ width: `${app.completenessPercent}%` }}
-                                />
-                                <span className="text-xs">{app.completenessPercent}%</span>
+                            <td className="py-1.5 px-3">
+                              <div className="flex items-center gap-1.5">
+                                <div className="w-16 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-emerald-600"
+                                    style={{ width: `${app.completenessPercent}%` }}
+                                  />
+                                </div>
+                                <span className="text-[10px] font-bold text-slate-600">{app.completenessPercent}%</span>
                               </div>
                             </td>
-                            <td className="mono text-xs">
+                            <td className="py-1.5 px-3 font-mono text-xs">
                               {app.receiptNo ? (
-                                <span className="text-emerald font-semibold">
+                                <span className="text-emerald-700 font-semibold">
                                   {app.receiptNo} (৳{app.netPaidAmount?.toLocaleString()})
                                 </span>
                               ) : (
-                                <span className="text-muted">Unpaid</span>
+                                <span className="text-slate-400">Unpaid</span>
                               )}
                             </td>
-                            <td>
-                              <div className="button-group">
+                            <td className="py-1.5 px-3 text-right">
+                              <div className="flex items-center justify-end gap-1">
                                 <button
                                   type="button"
-                                  className="btn btn-primary btn-xs"
+                                  className="px-2 py-0.5 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-xs transition flex items-center gap-1"
                                   data-testid={`inspect-student-${app.studentId}`}
                                   onClick={() => void openInspectionModal(app)}
                                 >
-                                  <Eye size={13} /> Inspect & Verify
+                                  <Eye size={11} /> Inspect & Verify
                                 </button>
                                 {isSuperAdmin && (
                                   <button
                                     type="button"
-                                    className="btn btn-danger btn-xs"
+                                    className="p-1 rounded-md border border-rose-200 text-rose-600 hover:bg-rose-50 text-[11px] transition"
                                     onClick={() => void handleDeleteApplication(app.studentId)}
                                     title="Delete student application record"
                                   >
-                                    <Trash2 size={13} />
+                                    <Trash2 size={12} />
                                   </button>
                                 )}
                               </div>
@@ -1530,39 +1699,47 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                   </div>
                 )}
 
-                <Pagination
-                  currentPage={appPage}
-                  totalItems={applications.length}
-                  pageSize={PAGE_SIZE}
-                  onPageChange={setAppPage}
-                  itemLabel="applications"
-                />
+                <div className="p-2 border-t border-slate-100">
+                  <Pagination
+                    currentPage={appPage}
+                    totalItems={applications.length}
+                    pageSize={PAGE_SIZE}
+                    onPageChange={setAppPage}
+                    itemLabel="applications"
+                  />
+                </div>
               </div>
 
               {/* Selected Student Dossier Inspector Panel */}
               {selectedDetail && (
-                <div className="panel-card dossier-inspector" data-testid="admin-dossier-panel">
-                  <div className="dossier-header">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-3.5 space-y-3" data-testid="admin-dossier-panel">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-2.5">
                     <div>
-                      <div className="dossier-badge-row">
-                        <span className="badge-student-id mono">{selectedDetail.profile.studentId}</span>
-                        <span className={`status-pill status-review-${selectedDetail.profile.applicationStatus.toLowerCase()}`}>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="font-mono text-xs font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">
+                          {selectedDetail.profile.studentId}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                          selectedDetail.profile.applicationStatus === 'APPROVED' || selectedDetail.profile.applicationStatus === 'ENROLLED'
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-slate-100 text-slate-700'
+                        }`}>
                           Status: {selectedDetail.profile.applicationStatus}
                         </span>
                         {selectedDetail.profile.concessionRequested && (
-                          <span className="badge-concession">
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800">
                             Need-Based Concession: {selectedDetail.profile.concessionStatus}
                           </span>
                         )}
                       </div>
-                      <h3 className="dossier-title">
+                      <h3 className="text-sm font-extrabold text-slate-900 mt-1">
                         {selectedDetail.profile.fullNameEn || 'Unnamed Student'}{' '}
                         {selectedDetail.profile.fullNameBn && `(${selectedDetail.profile.fullNameBn})`}
                       </h3>
                     </div>
                     <button
                       type="button"
-                      className="btn btn-outline btn-sm"
+                      className="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs self-start sm:self-center transition"
                       onClick={() => {
                         setSelectedStudentId(null);
                         setSelectedDetail(null);
@@ -1572,96 +1749,81 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                     </button>
                   </div>
 
-                  <div className="dossier-grid">
-                    {/* Column 1: Student & Guardian Profile */}
-                    <div className="dossier-card">
-                      <h4 className="dossier-card-title">
-                        <Users size={16} /> Student & Guardian Record
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 text-xs">
+                    {/* Column 1: Student & Guardian Record */}
+                    <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+                      <h4 className="font-bold text-slate-800 flex items-center gap-1.5 text-xs border-b border-slate-200 pb-1">
+                        <Users size={14} className="text-emerald-600" /> Student & Guardian Record
                       </h4>
-                      <dl className="property-list">
-                        <div className="prop-row">
-                          <dt>Date of Birth:</dt>
-                          <dd className="font-semibold">{selectedDetail.profile.dob || '—'}</dd>
+                      <div className="grid grid-cols-2 gap-1.5 text-[11px] pt-1">
+                        <div>
+                          <span className="text-slate-500 block">Date of Birth:</span>
+                          <span className="font-semibold text-slate-800">{selectedDetail.profile.dob || '—'}</span>
                         </div>
-                        <div className="prop-row">
-                          <dt>Gender / Blood Group:</dt>
-                          <dd>{selectedDetail.profile.gender || '—'} / {selectedDetail.profile.bloodGroup || '—'}</dd>
+                        <div>
+                          <span className="text-slate-500 block">Gender / Blood:</span>
+                          <span className="font-semibold text-slate-800">{selectedDetail.profile.gender || '—'} / {selectedDetail.profile.bloodGroup || '—'}</span>
                         </div>
-                        <div className="prop-row">
-                          <dt>Father&apos;s Name & NID:</dt>
-                          <dd>{selectedDetail.profile.fatherName || '—'} (NID: {selectedDetail.profile.fatherNid || '—'})</dd>
+                        <div className="col-span-2">
+                          <span className="text-slate-500 block">Father Name & NID:</span>
+                          <span className="font-semibold text-slate-800">{selectedDetail.profile.fatherName || '—'} (NID: {selectedDetail.profile.fatherNid || '—'})</span>
                         </div>
-                        <div className="prop-row">
-                          <dt>Father Phone:</dt>
-                          <dd className="mono">{selectedDetail.profile.fatherPhone || '—'}</dd>
+                        <div>
+                          <span className="text-slate-500 block">Father Phone:</span>
+                          <span className="font-mono font-semibold text-slate-800">{selectedDetail.profile.fatherPhone || '—'}</span>
                         </div>
-                        <div className="prop-row">
-                          <dt>Mother&apos;s Name & NID:</dt>
-                          <dd>{selectedDetail.profile.motherName || '—'} (NID: {selectedDetail.profile.motherNid || '—'})</dd>
+                        <div>
+                          <span className="text-slate-500 block">Mother Name:</span>
+                          <span className="font-semibold text-slate-800">{selectedDetail.profile.motherName || '—'}</span>
                         </div>
-                        <div className="prop-row">
-                          <dt>Present Address:</dt>
-                          <dd>{selectedDetail.profile.presentAddress || '—'}</dd>
+                        <div className="col-span-2">
+                          <span className="text-slate-500 block">Present Address:</span>
+                          <span className="text-slate-800">{selectedDetail.profile.presentAddress || '—'}</span>
                         </div>
-                        <div className="prop-row">
-                          <dt>Previous School / Result:</dt>
-                          <dd>{selectedDetail.profile.previousSchool || '—'} ({selectedDetail.profile.lastResult || '—'})</dd>
+                        <div className="col-span-2">
+                          <span className="text-slate-500 block">Previous School / Result:</span>
+                          <span className="text-slate-800">{selectedDetail.profile.previousSchool || '—'} ({selectedDetail.profile.lastResult || '—'})</span>
                         </div>
-                        <div className="prop-row">
-                          <dt>Sibling Studying Here:</dt>
-                          <dd>
-                            {selectedDetail.profile.hasSibling ? (
-                              <span className="text-emerald font-semibold">
-                                Yes: {selectedDetail.profile.siblingName} ({selectedDetail.profile.siblingClass})
-                              </span>
-                            ) : (
-                              'No'
-                            )}
-                          </dd>
-                        </div>
-                      </dl>
+                      </div>
                     </div>
 
                     {/* Column 2: Document Verification Table */}
-                    <div className="dossier-card">
-                      <div className="card-header-flex">
-                        <h4 className="dossier-card-title">
-                          <FileCheck2 size={16} /> Document Verification Desk
+                    <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+                      <div className="flex items-center justify-between border-b border-slate-200 pb-1">
+                        <h4 className="font-bold text-slate-800 flex items-center gap-1.5 text-xs">
+                          <FileCheck2 size={14} className="text-emerald-600" /> Document Verification Desk
                         </h4>
-                        <span className="doc-count-badge">
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">
                           {selectedDetail.profile.documents.filter((d) => d.status === 'APPROVED').length} of {selectedDetail.profile.documents.length} Approved
                         </span>
                       </div>
 
-                      <div className="table-responsive">
-                        <table className="table-mini">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-[11px]">
                           <thead>
-                            <tr>
-                              <th>Document Type</th>
-                              <th>File Uploaded</th>
-                              <th>Status</th>
-                              <th>Action</th>
+                            <tr className="border-b border-slate-200 text-slate-500 uppercase font-bold text-[9px]">
+                              <th className="py-1 px-1.5">Type</th>
+                              <th className="py-1 px-1.5">File</th>
+                              <th className="py-1 px-1.5">Status</th>
+                              <th className="py-1 px-1.5 text-right">Action</th>
                             </tr>
                           </thead>
-                          <tbody>
+                          <tbody className="divide-y divide-slate-200">
                             {selectedDetail.profile.documents.map((doc) => (
                               <tr key={doc.type}>
-                                <td>
-                                  <strong>{doc.label}</strong>
-                                  {doc.reviewerComment && (
-                                    <div className="text-rose text-xs mt-1">Note: {doc.reviewerComment}</div>
-                                  )}
-                                </td>
-                                <td className="mono text-xs">{doc.fileName || 'Not uploaded'}</td>
-                                <td>
-                                  <span className={`status-pill status-${doc.status.toLowerCase()}`}>
+                                <td className="py-1 px-1.5 font-semibold text-slate-800">{doc.label}</td>
+                                <td className="py-1 px-1.5 font-mono text-[10px] text-slate-500 truncate max-w-[80px]">{doc.fileName || 'Not uploaded'}</td>
+                                <td className="py-1 px-1.5">
+                                  <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
+                                    doc.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'
+                                  }`}>
                                     {doc.status}
                                   </span>
                                 </td>
-                                <td>
+                                <td className="py-1 px-1.5 text-right">
                                   <button
                                     type="button"
-                                    className="btn btn-secondary btn-xs"
+                                    className="px-1.5 py-0.5 rounded bg-slate-200 hover:bg-slate-300 text-slate-800 text-[10px] font-bold transition inline-flex items-center gap-0.5"
                                     onClick={() =>
                                       setInspectingDoc({
                                         doc,
@@ -1669,7 +1831,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                                       })
                                     }
                                   >
-                                    <Eye size={12} /> Inspect & Verify
+                                    <Eye size={10} /> Inspect
                                   </button>
                                 </td>
                               </tr>
@@ -1680,36 +1842,36 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
 
                       {/* Concession Recommendation */}
                       {selectedDetail.profile.concessionRequested && (
-                        <div className="concession-box-modern">
-                          <div className="flex-between">
-                            <strong>Need-Based Tuition Concession Review</strong>
-                            <span className="status-pill status-amber">
+                        <div className="p-2 rounded-lg bg-amber-50 border border-amber-200 mt-2 space-y-1">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <strong className="text-amber-950">Tuition Concession Review</strong>
+                            <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-200 text-amber-900">
                               {selectedDetail.profile.concessionStatus}
                             </span>
                           </div>
-                          <p className="text-xs text-muted mt-1">
+                          <p className="text-[10px] text-amber-800">
                             Declared Monthly Income: ৳{selectedDetail.profile.monthlyIncome.toLocaleString()} BDT ({selectedDetail.profile.incomeBracket})
                           </p>
-                          <div className="input-group-inline mt-2">
+                          <div className="flex items-center gap-1.5 pt-1">
                             <input
                               type="number"
                               min={5}
                               max={100}
-                              className="input input-sm w-24"
+                              className="px-2 py-0.5 text-xs rounded border border-amber-300 bg-white w-20"
                               placeholder="Discount %"
                               value={concessionPercentInput}
                               onChange={(e) => setConcessionPercentInput(e.target.value)}
                             />
                             <button
                               type="button"
-                              className="btn btn-success btn-xs"
+                              className="px-2 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold hover:bg-emerald-700 transition"
                               onClick={() => void handleConcessionDecision('APPROVED')}
                             >
-                              Approve Concession
+                              Approve
                             </button>
                             <button
                               type="button"
-                              className="btn btn-danger btn-xs"
+                              className="px-2 py-0.5 rounded bg-rose-600 text-white text-[10px] font-bold hover:bg-rose-700 transition"
                               onClick={() => void handleConcessionDecision('DECLINED')}
                             >
                               Decline
@@ -1721,35 +1883,35 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                   </div>
 
                   {/* Officer Final Decision Actions */}
-                  <div className="officer-decision-bar">
-                    <div className="decision-inputs">
+                  <div className="p-2.5 rounded-lg bg-slate-900 text-white space-y-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <input
                         type="text"
-                        className="input input-sm"
-                        placeholder="Officer remarks / instructions for parents..."
+                        className="px-2.5 py-1 text-xs rounded bg-slate-800 border border-slate-700 text-white placeholder-slate-400 focus:outline-none"
+                        placeholder="Officer remarks / instructions..."
                         value={reviewNote}
                         onChange={(e) => setReviewNote(e.target.value)}
                       />
                       <input
                         type="text"
-                        className="input input-sm w-36"
-                        placeholder="Section (e.g. A)"
+                        className="px-2.5 py-1 text-xs rounded bg-slate-800 border border-slate-700 text-white placeholder-slate-400 focus:outline-none"
+                        placeholder="Section (e.g. Section A)"
                         value={assignedSection}
                         onChange={(e) => setAssignedSection(e.target.value)}
                       />
                       <input
                         type="text"
-                        className="input input-sm w-44 mono"
+                        className="px-2.5 py-1 text-xs rounded bg-slate-800 border border-slate-700 text-amber-300 font-mono placeholder-slate-400 focus:outline-none"
                         placeholder="Student Roll No"
                         value={enrolledStudentNo}
                         onChange={(e) => setEnrolledStudentNo(e.target.value)}
                       />
                     </div>
 
-                    <div className="decision-actions">
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
                       <button
                         type="button"
-                        className="btn btn-secondary btn-sm"
+                        className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition"
                         disabled={isSubmittingReview}
                         onClick={() => void handleReviewAction('UNDER_REVIEW')}
                       >
@@ -1757,7 +1919,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                       </button>
                       <button
                         type="button"
-                        className="btn btn-amber btn-sm"
+                        className="px-2.5 py-1 rounded bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition"
                         disabled={isSubmittingReview}
                         onClick={() => void handleReviewAction('REQUEST_CORRECTION')}
                       >
@@ -1765,7 +1927,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                       </button>
                       <button
                         type="button"
-                        className="btn btn-success btn-sm"
+                        className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition"
                         disabled={isSubmittingReview}
                         onClick={() => void handleReviewAction('APPROVE')}
                       >
@@ -1773,19 +1935,19 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                       </button>
                       <button
                         type="button"
-                        className="btn btn-primary btn-sm"
+                        className="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition flex items-center gap-1"
                         disabled={isSubmittingReview}
                         onClick={() => void handleReviewAction('ENROLL')}
                       >
-                        <UserCheck size={14} /> Finalize Enrollment
+                        <UserCheck size={12} /> Finalize Enrollment
                       </button>
                       <button
                         type="button"
-                        className="btn btn-danger btn-sm"
+                        className="px-2.5 py-1 rounded bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold transition flex items-center gap-1"
                         disabled={isSubmittingReview}
                         onClick={() => void handleReviewAction('REJECT')}
                       >
-                        <UserX size={14} /> Reject Application
+                        <UserX size={12} /> Reject Application
                       </button>
                     </div>
                   </div>
@@ -1798,69 +1960,69 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
           {/* VIEW: FINANCE & COLLECTIONS                                       */}
           {/* ================================================================= */}
           {(activeView === 'finance' || activeView === 'refunds') && (
-            <div className="view-section">
-              <div className="panel-card">
-                <div className="panel-header">
-                  <div>
-                    <h3 className="panel-title">
-                      {isAccountant ? 'Finance Officer — Collections & Refunds Desk' : 'Admission Payments & Invoices'}
-                    </h3>
-                    <p className="panel-subtitle">
-                      Reconcile payments received, download audit-ready receipts, and process refunds.
-                    </p>
-                  </div>
+            <div className="space-y-3.5">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                <div className="p-3 sm:p-3.5 border-b border-slate-200">
+                  <h3 className="text-sm font-extrabold text-slate-900">
+                    {isAccountant ? 'Finance Officer — Collections & Refunds Desk' : 'Admission Payments & Invoices'}
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Reconcile payments received, download audit-ready receipts, and process refunds.
+                  </p>
                 </div>
 
                 {payments.length === 0 ? (
-                  <div className="empty-state-modern">
-                    <DollarSign size={48} className="empty-icon" />
-                    <h4>No Payments Recorded</h4>
-                    <p>When guardians confirm their seat holds, payment records appear here in real-time.</p>
+                  <div className="p-8 text-center text-slate-400">
+                    <DollarSign size={36} className="mx-auto mb-2 opacity-50" />
+                    <h4 className="font-bold text-slate-700 text-sm">No Payments Recorded</h4>
+                    <p className="text-xs text-slate-500">When guardians confirm their seat holds, payment records appear here in real-time.</p>
                   </div>
                 ) : (
-                  <div className="table-responsive">
-                    <table className="table-modern">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr>
-                          <th>Receipt No</th>
-                          <th>Student Registration No</th>
-                          <th>Class-Shift</th>
-                          <th>Gross Total</th>
-                          <th>Concession Discount</th>
-                          <th>Net Paid (BDT)</th>
-                          <th>Gateway / Status</th>
-                          <th>Paid Timestamp</th>
-                          <th>Action</th>
+                        <tr className="bg-slate-50 text-[10px] font-extrabold uppercase tracking-wider text-slate-600 border-b border-slate-200">
+                          <th className="py-2 px-3">Receipt No</th>
+                          <th className="py-2 px-3">Student Registration No</th>
+                          <th className="py-2 px-3">Class-Shift</th>
+                          <th className="py-2 px-3">Gross Total</th>
+                          <th className="py-2 px-3">Concession Discount</th>
+                          <th className="py-2 px-3">Net Paid (BDT)</th>
+                          <th className="py-2 px-3">Gateway / Status</th>
+                          <th className="py-2 px-3">Paid Timestamp</th>
+                          <th className="py-2 px-3 text-right">Action</th>
                         </tr>
                       </thead>
-                      <tbody>
+                      <tbody className="divide-y divide-slate-100 text-xs">
                         {payments
                           .slice((paymentPage - 1) * PAGE_SIZE, paymentPage * PAGE_SIZE)
                           .map((p) => (
-                          <tr key={p.id}>
-                            <td className="mono font-semibold">{p.receiptNo}</td>
-                            <td className="mono">{p.studentId}</td>
-                            <td>{p.className}</td>
-                            <td className="mono">৳{p.grossAmount.toLocaleString()}</td>
-                            <td className="mono text-emerald">
+                          <tr key={p.id} className="hover:bg-slate-50/70">
+                            <td className="py-1.5 px-3 font-mono font-bold text-slate-900">{p.receiptNo}</td>
+                            <td className="py-1.5 px-3 font-mono text-slate-700">{p.studentId}</td>
+                            <td className="py-1.5 px-3">{p.className}</td>
+                            <td className="py-1.5 px-3 font-mono">৳{p.grossAmount.toLocaleString()}</td>
+                            <td className="py-1.5 px-3 font-mono text-emerald-700">
                               {p.discountAmount > 0 ? `-৳${p.discountAmount.toLocaleString()}` : '—'}
-                              {p.discountReason && <div className="text-xs text-muted">{p.discountReason}</div>}
+                              {p.discountReason && <div className="text-[10px] text-slate-500">{p.discountReason}</div>}
                             </td>
-                            <td className="mono font-semibold">৳{p.netAmount.toLocaleString()}</td>
-                            <td>
-                              <span className={`status-pill status-${p.status.toLowerCase()}`}>
+                            <td className="py-1.5 px-3 font-mono font-bold text-slate-900">৳{p.netAmount.toLocaleString()}</td>
+                            <td className="py-1.5 px-3">
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                                p.status === 'SUCCESS' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'
+                              }`}>
                                 {p.status}
                               </span>
                             </td>
-                            <td className="mono text-xs">{new Date(p.paidAt).toLocaleString()}</td>
-                            <td>
+                            <td className="py-1.5 px-3 font-mono text-[11px] text-slate-500">{new Date(p.paidAt).toLocaleString()}</td>
+                            <td className="py-1.5 px-3 text-right">
                               {p.status === 'SUCCESS' && (isSuperAdmin || isAccountant) && (
                                 <button
                                   type="button"
-                                  className="btn btn-danger btn-xs"
+                                  className="px-2 py-0.5 rounded border border-rose-200 text-rose-600 hover:bg-rose-50 text-[11px] font-semibold transition"
                                   onClick={() => void handleIssueRefund(p)}
                                 >
-                                  Issue Full Refund
+                                  Issue Refund
                                 </button>
                               )}
                             </td>
@@ -1871,13 +2033,15 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                   </div>
                 )}
 
-                <Pagination
-                  currentPage={paymentPage}
-                  totalItems={payments.length}
-                  pageSize={PAGE_SIZE}
-                  onPageChange={setPaymentPage}
-                  itemLabel="payments"
-                />
+                <div className="p-2 border-t border-slate-100">
+                  <Pagination
+                    currentPage={paymentPage}
+                    totalItems={payments.length}
+                    pageSize={PAGE_SIZE}
+                    onPageChange={setPaymentPage}
+                    itemLabel="payments"
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -1886,22 +2050,21 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
           {/* VIEW: CLASSES & FEE BUILDER                                       */}
           {/* ================================================================= */}
           {activeView === 'classes' && (
-            <div className="view-section">
-              {/* Class Creation / Modification Form */}
-              <div className="panel-card" data-testid="create-class-section">
-                <div className="panel-header">
+            <div className="space-y-3.5">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-3.5 space-y-3" data-testid="create-class-section">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-2.5">
                   <div>
-                    <h3 className="panel-title">
+                    <h3 className="text-sm font-extrabold text-slate-900">
                       {editingClass ? `Edit Class-Shift (${editingClass.id})` : 'Class-Shift & Fee Structure Builder'}
                     </h3>
-                    <p className="panel-subtitle">
+                    <p className="text-[11px] text-slate-500">
                       Configure capacity, admission fee, session charge, and monthly tuition.
                     </p>
                   </div>
                   {editingClass && (
                     <button
                       type="button"
-                      className="btn btn-outline btn-sm"
+                      className="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs transition"
                       onClick={() => {
                         setEditingClass(null);
                         setNewClassName('');
@@ -1913,16 +2076,16 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                   )}
                 </div>
 
-                <form onSubmit={handleCreateOrUpdateClass} className="form-modern-grid" noValidate>
-                  <div className="form-field">
-                    <label htmlFor="class-name-input" className="form-label">
+                <form onSubmit={handleCreateOrUpdateClass} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs" noValidate>
+                  <div>
+                    <label htmlFor="class-name-input" className="block text-slate-700 font-bold mb-1">
                       {STRINGS.classNameLabel} *
                     </label>
                     <input
                       id="class-name-input"
                       data-testid="class-name-input"
                       type="text"
-                      className="input"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
                       placeholder="e.g. Class 6 - Morning Shift"
                       value={newClassName}
                       onChange={(e) => setNewClassName(e.target.value)}
@@ -1930,13 +2093,13 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                     />
                   </div>
 
-                  <div className="form-field">
-                    <label htmlFor="class-shift-select" className="form-label">
+                  <div>
+                    <label htmlFor="class-shift-select" className="block text-slate-700 font-bold mb-1">
                       Shift
                     </label>
                     <select
                       id="class-shift-select"
-                      className="input"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
                       value={newClassShift}
                       onChange={(e) => setNewClassShift(e.target.value)}
                     >
@@ -1945,8 +2108,8 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                     </select>
                   </div>
 
-                  <div className="form-field">
-                    <label htmlFor="total-seats-input" className="form-label">
+                  <div>
+                    <label htmlFor="total-seats-input" className="block text-slate-700 font-bold mb-1">
                       {STRINGS.totalSeatsLabel} *
                     </label>
                     <input
@@ -1955,7 +2118,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                       type="number"
                       min={1}
                       step={1}
-                      className="input"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
                       placeholder="e.g. 120"
                       value={newClassSeats}
                       onChange={(e) => setNewClassSeats(e.target.value)}
@@ -1963,10 +2126,10 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                     />
                   </div>
 
-                  <div className="form-field">
-                    <label className="form-label">Admission Status</label>
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">Admission Status</label>
                     <select
-                      className="input"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
                       value={newClassStatus}
                       onChange={(e) => setNewClassStatus(e.target.value)}
                     >
@@ -1976,70 +2139,70 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                     </select>
                   </div>
 
-                  <div className="form-field">
-                    <label className="form-label">Admission Fee (BDT)</label>
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">Admission Fee (BDT)</label>
                     <input
                       type="number"
-                      className="input"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
                       value={newAdmissionFee}
                       onChange={(e) => setNewAdmissionFee(e.target.value)}
                     />
                   </div>
 
-                  <div className="form-field">
-                    <label className="form-label">Session Charge (BDT)</label>
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">Session Charge (BDT)</label>
                     <input
                       type="number"
-                      className="input"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
                       value={newSessionCharge}
                       onChange={(e) => setNewSessionCharge(e.target.value)}
                     />
                   </div>
 
-                  <div className="form-field">
-                    <label className="form-label">Development Fee (BDT)</label>
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">Development Fee (BDT)</label>
                     <input
                       type="number"
-                      className="input"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
                       value={newDevelopmentFee}
                       onChange={(e) => setNewDevelopmentFee(e.target.value)}
                     />
                   </div>
 
-                  <div className="form-field">
-                    <label className="form-label">Security Deposit (Refundable)</label>
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">Security Deposit (Refundable)</label>
                     <input
                       type="number"
-                      className="input"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
                       value={newSecurityDeposit}
                       onChange={(e) => setNewSecurityDeposit(e.target.value)}
                     />
                   </div>
 
-                  <div className="form-field">
-                    <label className="form-label">1st Month Tuition (BDT)</label>
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">1st Month Tuition (BDT)</label>
                     <input
                       type="number"
-                      className="input"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
                       value={newFirstMonthTuition}
                       onChange={(e) => setNewFirstMonthTuition(e.target.value)}
                     />
                   </div>
 
-                  <div className="form-field">
-                    <label className="form-label">Monthly Tuition (Month 2+)</label>
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">Monthly Tuition (Month 2+)</label>
                     <input
                       type="number"
-                      className="input"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
                       value={newMonthlyTuition}
                       onChange={(e) => setNewMonthlyTuition(e.target.value)}
                     />
                   </div>
 
-                  <div className="form-actions-full">
+                  <div className="sm:col-span-2 lg:col-span-4 pt-2">
                     <button
                       type="submit"
-                      className="btn btn-primary"
+                      className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition"
                       data-testid="create-class-btn"
                       disabled={isSavingClass}
                     >
@@ -2059,47 +2222,47 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
           {/* VIEW: WAITLIST QUEUE                                              */}
           {/* ================================================================= */}
           {activeView === 'waitlist' && (
-            <div className="view-section">
-              <div className="panel-card">
-                <div className="panel-header">
-                  <div>
-                    <h3 className="panel-title">Class Waitlist Queue</h3>
-                    <p className="panel-subtitle">
-                      Ordered first-come, first-served queue for students applying to fully occupied classes.
-                    </p>
-                  </div>
+            <div className="space-y-3.5">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                <div className="p-3 sm:p-3.5 border-b border-slate-200">
+                  <h3 className="text-sm font-extrabold text-slate-900">Class Waitlist Queue</h3>
+                  <p className="text-[11px] text-slate-500">
+                    Ordered first-come, first-served queue for students applying to fully occupied classes.
+                  </p>
                 </div>
 
                 {waitlist.length === 0 ? (
-                  <div className="empty-state-modern">
-                    <Clock size={48} className="empty-icon" />
-                    <h4>Waitlist Empty</h4>
-                    <p>No applicants currently waiting in queue.</p>
+                  <div className="p-8 text-center text-slate-400">
+                    <Clock size={36} className="mx-auto mb-2 opacity-50" />
+                    <h4 className="font-bold text-slate-700 text-sm">Waitlist Empty</h4>
+                    <p className="text-xs text-slate-500">No applicants currently waiting in queue.</p>
                   </div>
                 ) : (
-                  <div className="table-responsive">
-                    <table className="table-modern">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr>
-                          <th>Queue Position</th>
-                          <th>Class-Shift</th>
-                          <th>Student Registration ID</th>
-                          <th>Child Name</th>
-                          <th>Joined Timestamp</th>
+                        <tr className="bg-slate-50 text-[10px] font-extrabold uppercase tracking-wider text-slate-600 border-b border-slate-200">
+                          <th className="py-2 px-3">Queue Position</th>
+                          <th className="py-2 px-3">Class-Shift</th>
+                          <th className="py-2 px-3">Student Registration ID</th>
+                          <th className="py-2 px-3">Child Name</th>
+                          <th className="py-2 px-3">Joined Timestamp</th>
                         </tr>
                       </thead>
-                      <tbody>
+                      <tbody className="divide-y divide-slate-100 text-xs">
                         {waitlist
                           .slice((waitlistPage - 1) * PAGE_SIZE, waitlistPage * PAGE_SIZE)
                           .map((w) => (
-                          <tr key={w.id}>
-                            <td>
-                              <span className="badge-position">#{w.position}</span>
+                          <tr key={w.id} className="hover:bg-slate-50/70">
+                            <td className="py-1.5 px-3">
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                #{w.position}
+                              </span>
                             </td>
-                            <td>{w.className}</td>
-                            <td className="mono">{w.studentId}</td>
-                            <td>{w.studentName || '—'}</td>
-                            <td className="mono text-xs">{new Date(w.createdAt).toLocaleString()}</td>
+                            <td className="py-1.5 px-3 font-semibold text-slate-900">{w.className}</td>
+                            <td className="py-1.5 px-3 font-mono text-slate-700">{w.studentId}</td>
+                            <td className="py-1.5 px-3">{w.studentName || '—'}</td>
+                            <td className="py-1.5 px-3 font-mono text-[11px] text-slate-500">{new Date(w.createdAt).toLocaleString()}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -2107,13 +2270,15 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                   </div>
                 )}
 
-                <Pagination
-                  currentPage={waitlistPage}
-                  totalItems={waitlist.length}
-                  pageSize={PAGE_SIZE}
-                  onPageChange={setWaitlistPage}
-                  itemLabel="waitlist entries"
-                />
+                <div className="p-2 border-t border-slate-100">
+                  <Pagination
+                    currentPage={waitlistPage}
+                    totalItems={waitlist.length}
+                    pageSize={PAGE_SIZE}
+                    onPageChange={setWaitlistPage}
+                    itemLabel="waitlist entries"
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -2122,40 +2287,40 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
           {/* VIEW: CLASS ROUTINES & FIXED OPERATING HOURS                      */}
           {/* ================================================================= */}
           {activeView === 'routines' && (
-            <div className="view-section" data-testid="admin-routines-view">
-              <div className="panel-card mb-4">
-                <div className="panel-header">
+            <div className="space-y-3.5" data-testid="admin-routines-view">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-3 sm:p-3.5 space-y-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-2">
                   <div>
-                    <h3 className="panel-title flex items-center gap-2">
-                      <Clock className="text-indigo-600" size={20} />
+                    <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                      <Clock className="text-emerald-600" size={16} />
                       Class Routines & Fixed Operating Hours
                     </h3>
-                    <p className="panel-subtitle">
+                    <p className="text-[11px] text-slate-500">
                       Inspect weekly timetable schedules, period breakdowns, teacher assignments, and classroom allocations.
                     </p>
                   </div>
-                  <div className="panel-actions">
-                    <button
-                      type="button"
-                      className="btn btn-outline btn-sm flex items-center gap-1.5"
-                      onClick={() => void loadAllRoutines()}
-                      disabled={isLoadingRoutines}
-                    >
-                      <RefreshCw size={14} className={isLoadingRoutines ? 'animate-spin' : ''} />
-                      <span>Refresh Routines</span>
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    className="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1.5 self-start sm:self-center transition"
+                    onClick={() => void loadAllRoutines()}
+                    disabled={isLoadingRoutines}
+                  >
+                    <RefreshCw size={13} className={isLoadingRoutines ? 'animate-spin' : ''} />
+                    <span>Refresh Routines</span>
+                  </button>
                 </div>
 
                 {routines.length > 0 && (
-                  <div className="routine-class-selector flex flex-wrap gap-2 mt-2 pt-2 border-t border-slate-100">
-                    <span className="text-xs font-bold text-slate-500 self-center mr-1">Select Class:</span>
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span className="text-[11px] font-bold text-slate-500 mr-1">Select Class:</span>
                     {routines.map((r) => (
                       <button
                         key={r.classId}
                         type="button"
-                        className={`btn btn-xs ${
-                          selectedRoutine?.classId === r.classId ? 'btn-primary' : 'btn-outline text-slate-700'
+                        className={`px-2 py-0.5 rounded text-xs font-semibold border transition ${
+                          selectedRoutine?.classId === r.classId
+                            ? 'bg-slate-900 text-white border-slate-900'
+                            : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
                         }`}
                         onClick={() => setSelectedRoutine(r)}
                       >
@@ -2171,9 +2336,9 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
               ) : selectedRoutine ? (
                 <ClassRoutineView routine={selectedRoutine} />
               ) : (
-                <div className="panel-card text-center p-8 text-slate-400">
-                  <Clock size={40} className="mx-auto mb-2 opacity-50" />
-                  <p>No class routines available yet. Create classes first to initialize default shift schedules.</p>
+                <div className="bg-white rounded-xl border border-slate-200 shadow-xs text-center p-8 text-slate-400">
+                  <Clock size={36} className="mx-auto mb-2 opacity-50" />
+                  <p className="text-xs">No class routines available yet. Create classes first to initialize default shift schedules.</p>
                 </div>
               )}
             </div>
@@ -2183,68 +2348,66 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
           {/* VIEW: ACADEMIC WINDOW & SETTINGS                                  */}
           {/* ================================================================= */}
           {activeView === 'settings' && isSuperAdmin && (
-            <div className="view-section">
-              <div className="panel-card">
-                <div className="panel-header">
-                  <div>
-                    <h3 className="panel-title">Academic Year & Admission Window Policy</h3>
-                    <p className="panel-subtitle">Global settings governing hold deadlines and automatic concession rules.</p>
-                  </div>
+            <div className="space-y-3.5">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-3.5 space-y-3">
+                <div className="border-b border-slate-200 pb-2">
+                  <h3 className="text-sm font-extrabold text-slate-900">Academic Year & Admission Window Policy</h3>
+                  <p className="text-[11px] text-slate-500">Global settings governing hold deadlines and automatic concession rules.</p>
                 </div>
 
-                <form onSubmit={handleSaveSettings} className="form-modern-grid">
-                  <div className="form-field">
-                    <label className="form-label">Academic Year</label>
+                <form onSubmit={handleSaveSettings} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs">
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">Academic Year</label>
                     <input
                       type="text"
-                      className="input"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs"
                       value={academicYearInput}
                       onChange={(e) => setAcademicYearInput(e.target.value)}
                     />
                   </div>
 
-                  <div className="form-field">
-                    <label className="form-label">Admission Opens (UTC ISO)</label>
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">Admission Opens (UTC ISO)</label>
                     <input
                       type="text"
-                      className="input mono"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       value={opensAtInput}
                       onChange={(e) => setOpensAtInput(e.target.value)}
                     />
                   </div>
 
-                  <div className="form-field">
-                    <label className="form-label">Admission Closes (UTC ISO)</label>
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">Admission Closes (UTC ISO)</label>
                     <input
                       type="text"
-                      className="input mono"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       value={closesAtInput}
                       onChange={(e) => setClosesAtInput(e.target.value)}
                     />
                   </div>
 
-                  <div className="form-field">
-                    <label className="form-label">Paperwork Deadline (Days)</label>
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">Paperwork Deadline (Days)</label>
                     <input
                       type="number"
-                      className="input"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       value={deadlineDaysInput}
                       onChange={(e) => setDeadlineDaysInput(e.target.value)}
                     />
                   </div>
 
-                  <div className="form-field">
-                    <label className="form-label">Automatic Sibling Discount (%)</label>
+                  <div>
+                    <label className="block text-slate-700 font-bold mb-1">Automatic Sibling Discount (%)</label>
                     <input
                       type="number"
-                      className="input"
+                      className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       value={siblingDiscountInput}
                       onChange={(e) => setSiblingDiscountInput(e.target.value)}
                     />
                   </div>
 
-                  <div className="form-actions-full">
-                    <button type="submit" className="btn btn-primary">
+                  <div className="sm:col-span-2 lg:col-span-3 pt-2">
+                    <button type="submit" className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition">
                       Save Window Configuration
                     </button>
                   </div>
@@ -2257,48 +2420,46 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
           {/* VIEW: ALERTS & LIVE ACTIVITY FEED                                 */}
           {/* ================================================================= */}
           {activeView === 'alerts' && (
-            <div className="view-section" data-testid="admin-alerts-feed-view">
+            <div className="space-y-3.5" data-testid="admin-alerts-feed-view">
               {/* Broadcast Urgent Notice Tool */}
-              <div className="panel-card mb-4 highlight-border">
-                <div className="panel-header">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-3.5 space-y-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-2">
                   <div>
-                    <h3 className="panel-title flex items-center gap-2">
-                      <Radio className="text-rose-500 animate-pulse" size={20} />
+                    <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                      <Radio className="text-rose-500 animate-pulse" size={16} />
                       Live Activity Stream & Urgent Alert Dispatch
                     </h3>
-                    <p className="panel-subtitle">
+                    <p className="text-[11px] text-slate-500">
                       Broadcast urgent announcements across the platform or stream real-time events triggered by parents and staff.
                     </p>
                   </div>
-                  <div className="panel-actions">
-                    {unreadNotifCount > 0 && (
-                      <button
-                        type="button"
-                        className="btn btn-outline btn-sm"
-                        onClick={handleMarkAllAdminNotificationsRead}
-                      >
-                        <CheckCheck size={16} /> Mark All Read
-                      </button>
-                    )}
-                  </div>
+                  {unreadNotifCount > 0 && (
+                    <button
+                      type="button"
+                      className="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center gap-1 self-start sm:self-center transition"
+                      onClick={handleMarkAllAdminNotificationsRead}
+                    >
+                      <CheckCheck size={13} /> Mark All Read
+                    </button>
+                  )}
                 </div>
 
-                <form className="broadcast-box mt-3" onSubmit={handleBroadcastAlert}>
-                  <div className="broadcast-header">
-                    <Megaphone size={16} className="text-amber-500" />
-                    <span className="font-semibold text-sm">Dispatch School Notice / Alert Broadcast</span>
+                <form className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-2" onSubmit={handleBroadcastAlert}>
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                    <Megaphone size={14} className="text-amber-500" />
+                    <span>Dispatch School Notice / Alert Broadcast</span>
                   </div>
-                  <div className="broadcast-inputs grid grid-cols-1 md:grid-cols-5 gap-3 mt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-xs">
                     <input
                       type="text"
-                      className="form-input col-span-2"
+                      className="sm:col-span-2 px-2.5 py-1.5 text-xs rounded border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       placeholder="Notice Title (e.g. Admission Morning Shift 95% Filled)"
                       value={broadcastTitle}
                       onChange={(e) => setBroadcastTitle(e.target.value)}
                       required
                     />
                     <select
-                      className="form-select"
+                      className="px-2.5 py-1.5 text-xs rounded border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       value={broadcastCategory}
                       onChange={(e) => setBroadcastCategory(e.target.value)}
                     >
@@ -2310,7 +2471,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                       <option value="REFUND">Refund Notice</option>
                     </select>
                     <select
-                      className="form-select"
+                      className="px-2.5 py-1.5 text-xs rounded border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       value={broadcastSeverity}
                       onChange={(e) => setBroadcastSeverity(e.target.value as any)}
                     >
@@ -2320,7 +2481,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                       <option value="DANGER">Urgent Alert (Red)</option>
                     </select>
                     <select
-                      className="form-select"
+                      className="px-2.5 py-1.5 text-xs rounded border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       value={broadcastRecipientType}
                       onChange={(e) => setBroadcastRecipientType(e.target.value)}
                     >
@@ -2328,10 +2489,10 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                       <option value="ALL_ADMINS">Staff Only</option>
                     </select>
                   </div>
-                  <div className="flex gap-2 mt-2">
+                  <div className="flex gap-2 text-xs">
                     <input
                       type="text"
-                      className="form-input flex-1"
+                      className="flex-1 px-2.5 py-1.5 text-xs rounded border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                       placeholder="Detailed alert announcement or instructions..."
                       value={broadcastMessage}
                       onChange={(e) => setBroadcastMessage(e.target.value)}
@@ -2339,43 +2500,45 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                     />
                     <button
                       type="submit"
-                      className="btn btn-primary btn-sm flex items-center gap-1.5"
+                      className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1 shadow-xs transition disabled:opacity-50"
                       disabled={isBroadcasting}
                     >
-                      <Send size={14} />
-                      {isBroadcasting ? 'Sending...' : 'Broadcast Alert'}
+                      <Send size={12} />
+                      <span>{isBroadcasting ? 'Sending...' : 'Broadcast'}</span>
                     </button>
                   </div>
                 </form>
               </div>
 
               {/* Activity Stream Feed */}
-              <div className="panel-card">
-                <div className="panel-header border-b pb-3 mb-3">
-                  <div className="flex flex-wrap items-center justify-between gap-3 w-full">
-                    <div className="notif-filter-bar mb-0">
-                      {['ALL', 'SEAT_HOLD', 'PAYMENT', 'DOCUMENT', 'REVIEW', 'REFUND', 'SYSTEM'].map((cat) => (
-                        <button
-                          key={cat}
-                          type="button"
-                          className={`notif-filter-btn ${alertFilterCategory === cat ? 'active' : ''}`}
-                          onClick={() => setAlertFilterCategory(cat)}
-                        >
-                          {cat === 'ALL' ? 'All Activity' : cat.replace('_', ' ')}
-                        </button>
-                      ))}
-                    </div>
+              <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-3.5 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2.5">
+                  <div className="flex flex-wrap items-center gap-1">
+                    {['ALL', 'SEAT_HOLD', 'PAYMENT', 'DOCUMENT', 'REVIEW', 'REFUND', 'SYSTEM'].map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        className={`px-2 py-0.5 rounded text-[11px] font-bold border transition ${
+                          alertFilterCategory === cat
+                            ? 'bg-slate-900 text-white border-slate-900'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                        }`}
+                        onClick={() => setAlertFilterCategory(cat)}
+                      >
+                        {cat === 'ALL' ? 'All Activity' : cat.replace('_', ' ')}
+                      </button>
+                    ))}
+                  </div>
 
-                    <div className="relative">
-                      <input
-                        type="text"
-                        className="form-input text-xs py-1.5 pl-8"
-                        placeholder="Search alerts or Student ID..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                      <Search size={14} className="absolute left-2.5 top-2.5 text-slate-400" />
-                    </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      className="pl-7 pr-2.5 py-1 text-xs rounded border border-slate-300 bg-white text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      placeholder="Search alerts or Student ID..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <Search size={12} className="absolute left-2 top-2 text-slate-400" />
                   </div>
                 </div>
 
@@ -2392,13 +2555,13 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                   }
                   return true;
                 }).length === 0 ? (
-                  <div className="notif-empty-state py-8">
-                    <Bell size={36} className="text-slate-300 mb-2" />
-                    <p className="font-semibold text-slate-700">No activity matching filter</p>
-                    <span className="text-xs text-slate-500">Live events will stream here automatically as actions occur.</span>
+                  <div className="p-8 text-center text-slate-400">
+                    <Bell size={32} className="mx-auto mb-2 opacity-50" />
+                    <p className="font-bold text-slate-700 text-xs">No activity matching filter</p>
+                    <span className="text-[11px] text-slate-500">Live events will stream here automatically as actions occur.</span>
                   </div>
                 ) : (
-                  <div className="activity-timeline">
+                  <div className="space-y-2">
                     {notifications.filter((n) => {
                       if (alertFilterCategory !== 'ALL' && n.category !== alertFilterCategory) return false;
                       if (searchQuery.trim()) {
@@ -2413,59 +2576,61 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                     }).map((notif) => (
                       <div
                         key={notif.id}
-                        className={`timeline-item ${notif.isRead ? 'read' : 'unread'}`}
+                        className={`p-2.5 rounded-lg border transition cursor-pointer ${
+                          notif.isRead ? 'bg-slate-50/50 border-slate-200 opacity-80' : 'bg-emerald-50/40 border-emerald-200'
+                        }`}
                         onClick={() => {
                           if (!notif.isRead) void handleMarkAdminNotificationRead(notif.id);
                         }}
                       >
-                        <div className="timeline-marker">
-                          <span className={`marker-dot severity-${notif.severity?.toLowerCase()}`} />
-                        </div>
-                        <div className="timeline-card">
-                          <div className="timeline-header">
-                            <div className="flex items-center gap-2">
-                              <span className={`status-pill status-${notif.severity?.toLowerCase()}`}>
-                                {notif.category?.replace('_', ' ')}
-                              </span>
-                              <strong className="timeline-title">{notif.title}</strong>
-                            </div>
-                            <span className="timeline-time mono text-xs text-slate-400">
-                              {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5">
+                            <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
+                              notif.severity === 'DANGER'
+                                ? 'bg-rose-100 text-rose-800'
+                                : notif.severity === 'WARNING'
+                                ? 'bg-amber-100 text-amber-800'
+                                : notif.severity === 'SUCCESS'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {notif.category?.replace('_', ' ')}
                             </span>
+                            <strong className="text-xs text-slate-900 font-bold">{notif.title}</strong>
                           </div>
-                          <p className="timeline-msg">{notif.message}</p>
-                          <div className="timeline-footer">
-                            <span className="text-xs text-slate-500">Actor: <strong>{notif.actor}</strong></span>
-                            {notif.recipientId && (
-                              <span className="text-xs text-indigo-600 font-mono">Student: {notif.recipientId}</span>
+                          <span className="font-mono text-[10px] text-slate-400">
+                            {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-700 mt-1">{notif.message}</p>
+                        <div className="flex items-center justify-between text-[10px] text-slate-500 mt-1 pt-1 border-t border-slate-200/60">
+                          <span>Actor: <strong className="text-slate-800">{notif.actor}</strong> {notif.recipientId && <span className="font-mono text-indigo-700 ml-2">ID: {notif.recipientId}</span>}</span>
+                          <div className="flex items-center gap-1">
+                            {!notif.isRead && (
+                              <button
+                                type="button"
+                                className="px-1.5 py-0.2 rounded bg-slate-200 hover:bg-slate-300 text-slate-700 text-[10px] font-bold"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  void handleMarkAdminNotificationRead(notif.id);
+                                }}
+                              >
+                                Mark Read
+                              </button>
                             )}
-                            <div className="ml-auto flex items-center gap-1.5">
-                              {!notif.isRead && (
-                                <button
-                                  type="button"
-                                  className="btn btn-outline btn-xs"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    void handleMarkAdminNotificationRead(notif.id);
-                                  }}
-                                >
-                                  Mark Read
-                                </button>
-                              )}
-                              {isSuperAdmin && (
-                                <button
-                                  type="button"
-                                  className="btn btn-outline btn-xs text-rose-600 hover:bg-rose-50"
-                                  title="Delete alert from feed"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    void handleDeleteNotification(notif.id);
-                                  }}
-                                >
-                                  <Trash2 size={12} />
-                                </button>
-                              )}
-                            </div>
+                            {isSuperAdmin && (
+                              <button
+                                type="button"
+                                className="p-0.5 rounded text-rose-600 hover:bg-rose-100"
+                                title="Delete alert from feed"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  void handleDeleteNotification(notif.id);
+                                }}
+                              >
+                                <Trash2 size={11} />
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -2480,47 +2645,43 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
           {/* VIEW: IMMUTABLE AUDIT TRAIL                                       */}
           {/* ================================================================= */}
           {activeView === 'audit' && isSuperAdmin && (
-            <div className="view-section">
-              <div className="panel-card">
-                <div className="panel-header">
-                  <div>
-                    <h3 className="panel-title">Immutable System & Staff Audit Trail</h3>
-                    <p className="panel-subtitle">Every administrative decision, verification action, and payment update is recorded.</p>
-                  </div>
+            <div className="space-y-3.5">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                <div className="p-3 sm:p-3.5 border-b border-slate-200">
+                  <h3 className="text-sm font-extrabold text-slate-900">Immutable System & Staff Audit Trail</h3>
+                  <p className="text-[11px] text-slate-500">Every administrative decision, verification action, and payment update is recorded.</p>
                 </div>
 
                 {auditLogs.length === 0 ? (
-                  <p className="empty-state">No audit events recorded yet.</p>
+                  <p className="p-8 text-center text-xs text-slate-400">No audit events recorded yet.</p>
                 ) : (
-                  <div className="table-responsive">
-                    <table className="table-modern">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr>
-                          <th>Timestamp (UTC)</th>
-                          <th>Staff Actor</th>
-                          <th>Role</th>
-                          <th>Action</th>
-                          <th>Entity Ref</th>
-                          <th>Details</th>
+                        <tr className="bg-slate-50 text-[10px] font-extrabold uppercase tracking-wider text-slate-600 border-b border-slate-200">
+                          <th className="py-2 px-3">Timestamp (UTC)</th>
+                          <th className="py-2 px-3">Staff Actor</th>
+                          <th className="py-2 px-3">Role</th>
+                          <th className="py-2 px-3">Action</th>
+                          <th className="py-2 px-3">Entity Ref</th>
+                          <th className="py-2 px-3">Details</th>
                         </tr>
                       </thead>
-                      <tbody>
+                      <tbody className="divide-y divide-slate-100 text-xs">
                         {auditLogs
                           .slice((auditPage - 1) * PAGE_SIZE, auditPage * PAGE_SIZE)
                           .map((log) => (
-                          <tr key={log.id}>
-                            <td className="mono text-xs">{log.createdAt}</td>
-                            <td>
-                              <strong>{log.actor}</strong>
+                          <tr key={log.id} className="hover:bg-slate-50/70">
+                            <td className="py-1.5 px-3 font-mono text-[11px] text-slate-500">{log.createdAt}</td>
+                            <td className="py-1.5 px-3 font-bold text-slate-800">{log.actor}</td>
+                            <td className="py-1.5 px-3">
+                              <span className="px-1.5 py-0.2 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                {log.role}
+                              </span>
                             </td>
-                            <td>
-                              <span className="badge-shift">{log.role}</span>
-                            </td>
-                            <td>
-                              <span className="mono font-semibold">{log.action}</span>
-                            </td>
-                            <td className="mono text-xs">{log.entity}: {log.entityId}</td>
-                            <td>{log.details}</td>
+                            <td className="py-1.5 px-3 font-mono font-semibold text-slate-900">{log.action}</td>
+                            <td className="py-1.5 px-3 font-mono text-[11px] text-slate-600">{log.entity}: {log.entityId}</td>
+                            <td className="py-1.5 px-3 text-slate-700">{log.details}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -2528,19 +2689,20 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                   </div>
                 )}
 
-                <Pagination
-                  currentPage={auditPage}
-                  totalItems={auditLogs.length}
-                  pageSize={PAGE_SIZE}
-                  onPageChange={setAuditPage}
-                  itemLabel="audit logs"
-                />
+                <div className="p-2 border-t border-slate-100">
+                  <Pagination
+                    currentPage={auditPage}
+                    totalItems={auditLogs.length}
+                    pageSize={PAGE_SIZE}
+                    onPageChange={setAuditPage}
+                    itemLabel="audit logs"
+                  />
+                </div>
               </div>
             </div>
           )}
-        </div>
-        <ToastContainer />
-      </main>
+        </main>
+      </div>
 
       {/* --- Application Inspection & Verification Modal --- */}
       {inspectingApp && session && (

@@ -963,49 +963,49 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
       />
 
       {/* =========================================================================
-          TOP APPLICANT IDENTITY BAR
+          TOP APPLICANT IDENTITY BAR (Compact Executive Density)
           ========================================================================= */}
       <header className="bg-slate-950 text-white border-b border-slate-800 sticky top-0 z-40">
-        <div className="px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+        <div className="px-3 sm:px-4 h-13 flex items-center justify-between gap-3">
           {/* Left Brand & Mobile Hamburger */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <button
               onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-              className="lg:hidden p-2 rounded-lg bg-slate-900 text-slate-300 hover:text-white border border-slate-800"
+              className="lg:hidden p-1.5 rounded-lg bg-slate-900 text-slate-300 hover:text-white border border-slate-800"
               aria-label="Toggle Sidebar"
             >
-              {mobileSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileSidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-400/40 flex items-center justify-center text-emerald-400 shrink-0">
-              <GraduationCap className="w-6 h-6" />
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-400/40 flex items-center justify-center text-emerald-400 shrink-0">
+              <GraduationCap className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold tracking-tight text-sm sm:text-base text-white">
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold tracking-tight text-xs sm:text-sm text-white">
                   ONNOROKOM PROJUKTI SCHOOL
                 </span>
-                <span className="hidden md:inline-block px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider bg-amber-400 text-slate-950 rounded-full">
-                  ONLINE ADMISSION 2027
+                <span className="hidden md:inline-block px-1.5 py-0.2 text-[9px] font-extrabold uppercase tracking-wider bg-amber-400 text-slate-950 rounded-full">
+                  2027
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">
-                Smart Fast-Lane Seat Booking & Digital Enrollment System
+              <p className="text-[10px] text-slate-400 hidden sm:block">
+                Smart Fast-Lane Seat Booking & Digital Enrollment
               </p>
             </div>
           </div>
 
           {/* Right Action & Active Student Identity Pill */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {/* Top Developer & Simulation Controls */}
             {onOpenLanding && (
               <button
                 type="button"
                 onClick={onOpenLanding}
                 data-testid="header-school-home-btn"
-                className="hidden xl:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white text-xs font-semibold"
+                className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white text-[11px] font-semibold"
                 title="School Home Overview"
               >
-                <Home size={13} className="text-emerald-400" />
+                <Home size={12} className="text-emerald-400" />
                 <span>School Home</span>
               </button>
             )}
@@ -1013,26 +1013,26 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             <button
               type="button"
               onClick={() => setIsK8sSpikeModalOpen(true)}
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/40 text-amber-300 text-xs font-semibold"
+              className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-amber-500/40 text-amber-300 text-[11px] font-semibold"
               title="Simulate 100 simultaneous users competing for 50 seats"
             >
-              <Bolt size={13} className="text-amber-400" />
+              <Bolt size={12} className="text-amber-400" />
               <span>Simulate 100 Users Spike</span>
             </button>
 
             <button
               type="button"
               onClick={() => setIsSystemSpecModalOpen(true)}
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-sky-500/40 text-sky-300 text-xs font-semibold"
+              className="hidden lg:flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-sky-500/40 text-sky-300 text-[11px] font-semibold"
               title="View Markdown Architecture Specification"
             >
-              <FileCode2 size={13} className="text-sky-400" />
+              <FileCode2 size={12} className="text-sky-400" />
               <span>System .MD Spec</span>
             </button>
 
             {/* Active Student Registration Identity Box */}
             {!isEditingStudentId && savedStudentId ? (
-              <div className="flex items-center gap-2.5 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs" data-testid="student-id-section">
+              <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-lg text-xs" data-testid="student-id-section">
                 <span className="text-slate-400 hidden sm:inline">{STRINGS.applyingAsPrefix}</span>
                 <span className="font-mono font-bold text-amber-300 bg-slate-950 px-2 py-0.5 rounded border border-slate-800" data-testid="active-student-id">
                   {savedStudentId}
@@ -1157,48 +1157,48 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
           />
         )}
 
-        {/* Left Sidebar Navigation */}
+        {/* Left Sidebar Navigation (Compact High-Density) */}
         <aside
-          className={`fixed lg:sticky top-16 left-0 z-30 w-72 bg-white border-r border-slate-200 flex flex-col justify-between transition-transform duration-200 h-[calc(100vh-4rem)] overflow-y-auto shrink-0 ${
+          className={`fixed lg:sticky top-13 left-0 z-30 w-60 bg-white border-r border-slate-200 flex flex-col justify-between transition-transform duration-200 h-[calc(100vh-3.25rem)] overflow-y-auto shrink-0 ${
             mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
         >
-          <div className="p-4 space-y-6">
-            {/* Student Mini-Card in Sidebar */}
-            <div className="p-3.5 rounded-2xl bg-slate-900 text-white space-y-2.5 border border-slate-800 shadow-md">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 font-extrabold flex items-center justify-center text-sm shrink-0">
+          <div className="p-2.5 space-y-3">
+            {/* Student Mini-Card in Sidebar (Compact) */}
+            <div className="p-2.5 rounded-xl bg-slate-900 text-white space-y-1.5 border border-slate-800 shadow-xs">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-emerald-500 text-slate-950 font-extrabold flex items-center justify-center text-xs shrink-0">
                   {profileForm.fullNameEn ? profileForm.fullNameEn.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() : 'DK'}
                 </div>
                 <div className="min-w-0">
                   <div className="text-xs font-bold text-white truncate">
                     {profileForm.fullNameEn || profile?.fullNameEn || 'Dip Kundu'}
                   </div>
-                  <div className="text-[11px] font-mono text-amber-300 truncate">
+                  <div className="text-[10px] font-mono text-amber-300 truncate">
                     {savedStudentId || '12345678912345678'}
                   </div>
                 </div>
               </div>
-              <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px]">
-                <span className="text-slate-400">Roll Number:</span>
+              <div className="pt-1.5 border-t border-slate-800 flex items-center justify-between text-[10px]">
+                <span className="text-slate-400">Roll No:</span>
                 <span className="font-mono font-bold text-emerald-400">
-                  {profile?.enrolledStudentNo || (confirmedHold ? 'STU-2027-5678' : 'Pending Enrollment')}
+                  {profile?.enrolledStudentNo || (confirmedHold ? 'STU-2027-5678' : 'Pending')}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-[11px]">
-                <span className="text-slate-400">Assigned Section:</span>
-                <span className="font-bold text-amber-300 truncate max-w-[120px]">
-                  {profile?.assignedSection || (confirmedHold ? `Section A (${confirmedHold.className})` : (focusedHold ? focusedHold.className : 'Not Assigned'))}
+              <div className="flex items-center justify-between text-[10px]">
+                <span className="text-slate-400">Section:</span>
+                <span className="font-bold text-amber-300 truncate max-w-[100px]">
+                  {profile?.assignedSection || (confirmedHold ? `Sec A (${confirmedHold.className})` : (focusedHold ? focusedHold.className : 'Not Assigned'))}
                 </span>
               </div>
             </div>
 
             {/* Sidebar Navigation Menu */}
             <div>
-              <div className="px-3 mb-2 text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
-                Admission Portal Menu
+              <div className="px-2 mb-1 text-[9px] font-extrabold uppercase tracking-widest text-slate-400">
+                Menu
               </div>
-              <nav className="space-y-1">
+              <nav className="space-y-0.5">
                 {onOpenLanding && (
                   <button
                     type="button"
@@ -1207,11 +1207,11 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                       onOpenLanding();
                     }}
                     data-testid="nav-school-home-btn"
-                    className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all"
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all"
                   >
-                    <div className="flex items-center gap-3">
-                      <Home className="w-4 h-4 text-emerald-600" />
-                      <span>School Home (Overview)</span>
+                    <div className="flex items-center gap-2">
+                      <Home className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>School Home</span>
                     </div>
                   </button>
                 )}
@@ -1234,19 +1234,19 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                         setActiveNav(item.id as ParentNavTab);
                         setMobileSidebarOpen(false);
                       }}
-                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                         isActive
-                          ? 'bg-slate-900 text-white shadow-sm'
+                          ? 'bg-slate-900 text-white shadow-xs'
                           : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                       }`}
                     >
-                      <div className="flex items-center gap-3">
-                        <Icon className={`w-4 h-4 ${isActive ? 'text-amber-400' : 'text-slate-400'}`} />
-                        <span>{item.label}</span>
+                      <div className="flex items-center gap-2">
+                        <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-amber-400' : 'text-slate-400'}`} />
+                        <span className="truncate">{item.label}</span>
                       </div>
                       {item.badge && (
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                          className={`px-1.5 py-0.2 rounded-full text-[9px] font-extrabold ${
                             isActive
                               ? 'bg-amber-400 text-slate-950'
                               : item.badge === 'PAID' || item.badge === 'Live'
@@ -1263,66 +1263,66 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               </nav>
             </div>
 
-            {/* Sidebar Dossier Progress Widget */}
-            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200/80 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-amber-950">Dossier Progress</span>
-                <span className="text-xs font-extrabold text-amber-800">{completeness}%</span>
+            {/* Sidebar Dossier Progress Widget (Compact) */}
+            <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200/80 space-y-1.5">
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="font-extrabold text-amber-950">Dossier Progress</span>
+                <span className="font-extrabold text-amber-800">{completeness}%</span>
               </div>
-              <div className="w-full h-2 bg-amber-200/70 rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-amber-200/70 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-amber-600 transition-all duration-300"
                   style={{ width: `${completeness}%` }}
                 />
               </div>
-              <p className="text-[11px] text-amber-900 leading-relaxed">
+              <p className="text-[10px] text-amber-900 leading-snug">
                 {isMandatoryComplete
-                  ? 'All mandatory student & guardian fields are verified!'
-                  : `${missingFields.length} mandatory fields still missing for seat changes.`}
+                  ? 'Mandatory details verified!'
+                  : `${missingFields.length} mandatory fields missing.`}
               </p>
               {!isMandatoryComplete && (
                 <button
                   onClick={handleQuickFillMandatory}
-                  className="w-full py-1.5 rounded-lg bg-amber-600 text-white text-[11px] font-bold hover:bg-amber-700 transition"
+                  className="w-full py-1 rounded-md bg-amber-600 text-white text-[10px] font-bold hover:bg-amber-700 transition"
                 >
-                  Auto-Complete Profile Now
+                  Auto-Complete Demo
                 </button>
               )}
             </div>
           </div>
 
-          {/* Sidebar Footer Helpline Card */}
-          <div className="p-4 border-t border-slate-200 bg-slate-50 text-xs space-y-1.5">
+          {/* Sidebar Footer Helpline Card (Compact) */}
+          <div className="p-2.5 border-t border-slate-200 bg-slate-50 text-[11px] space-y-0.5">
             <div className="font-bold text-slate-800 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              Helpline & Support
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              Helpline
             </div>
-            <p className="text-[11px] text-slate-500">
-              Admission Desk: 09:00 AM – 05:00 PM (Sun–Thu)
+            <p className="text-[10px] text-slate-500">
+              09:00 AM – 05:00 PM (Sun–Thu)
             </p>
-            <div className="font-mono text-[11px] font-bold text-slate-700">+880 1700-002027</div>
+            <div className="font-mono text-[10px] font-bold text-slate-700">+880 1700-002027</div>
           </div>
         </aside>
 
-        {/* Main Content Workspace */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full space-y-8">
+        {/* Main Content Workspace (Compact 50%) */}
+        <main className="flex-1 p-3 sm:p-4.5 max-w-6xl mx-auto w-full space-y-4">
           {/* Top Enrollment Confirmed / Active Hold Banner */}
           {(confirmedHold || profile?.applicationStatus === 'ENROLLED' || profile?.applicationStatus === 'APPROVED') && (
-            <div className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white rounded-2xl p-5 sm:p-6 shadow-lg border border-emerald-700/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-400/20 border border-emerald-300/40 flex items-center justify-center text-emerald-300 shrink-0 mt-0.5">
-                  <CheckCircle2 className="w-7 h-7" />
+            <div className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white rounded-xl p-3 sm:p-3.5 shadow-md border border-emerald-700/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-400/20 border border-emerald-300/40 flex items-center justify-center text-emerald-300 shrink-0 mt-0.5">
+                  <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-emerald-400 text-slate-950">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-widest bg-emerald-400 text-slate-950">
                       Admission Confirmed & Enrolled!
                     </span>
-                    <span className="text-xs font-mono text-emerald-200">
+                    <span className="text-[11px] font-mono text-emerald-200">
                       Student Birth ID: {savedStudentId || '12345678912345678'}
                     </span>
                   </div>
-                  <h1 className="text-lg sm:text-xl font-extrabold mt-1 tracking-tight">
+                  <h1 className="text-sm sm:text-base font-extrabold mt-0.5 tracking-tight">
                     Congratulations! Assigned Section:{' '}
                     <span className="text-amber-300 underline decoration-amber-400/60">
                       {profile?.assignedSection || 'Section A'}
@@ -1335,7 +1335,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   </h1>
                 </div>
               </div>
-              <div className="flex items-center gap-2.5 shrink-0 self-stretch md:self-center">
+              <div className="flex items-center gap-2 shrink-0 self-stretch md:self-center">
                 <button
                   onClick={handleDownloadAdmitCard}
                   className="px-4 py-2.5 rounded-xl bg-white text-slate-950 font-bold text-xs hover:bg-emerald-50 transition flex items-center gap-2 shadow-sm"
@@ -1348,88 +1348,88 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
           )}
 
           {/* =========================================================
-              1. OVERVIEW DASHBOARD (STUDENT PROFILE & CURRENT INFO)
+              1. OVERVIEW DASHBOARD (Compact High-Density)
              ========================================================= */}
           {showOverview && (
-            <section className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <section className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                 <div>
-                  <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
-                    <LayoutDashboard className="w-5 h-5 text-emerald-600" />
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-1.5">
+                    <LayoutDashboard className="w-4 h-4 text-emerald-600" />
                     Student Admission Overview Dashboard
                   </h2>
-                  <p className="text-xs sm:text-sm text-slate-500">
+                  <p className="text-[11px] text-slate-500">
                     Real-time summary of student profile, confirmed enrollment, fee payment status, and dossier verification.
                   </p>
                 </div>
                 <button
                   onClick={() => setActiveNav(activeNav === 'full_portal' ? 'dashboard' : 'full_portal')}
-                  className="self-start sm:self-auto px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-1.5 shadow-2xs"
+                  className="self-start sm:self-auto px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-1 shadow-2xs"
                 >
-                  <Layers className="w-3.5 h-3.5 text-amber-600" />
+                  <Layers className="w-3 h-3 text-amber-600" />
                   {activeNav === 'full_portal' ? 'Collapse to Overview' : 'Expand All Portal Sections'}
                 </button>
               </div>
 
-              {/* 4 Key Status KPI Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
+              {/* 4 Key Status KPI Cards (Compact) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Enrollment Status</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Enrollment</span>
+                    <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-emerald-100 text-emerald-800">
                       {confirmedHold ? 'CONFIRMED' : (focusedHold?.status === 'HELD' ? 'HOLD ACTIVE' : 'UNENROLLED')}
                     </span>
                   </div>
-                  <div className="text-lg font-extrabold text-slate-900 truncate">
+                  <div className="text-sm font-extrabold text-slate-900 truncate">
                     {confirmedHold?.className || focusedHold?.className || 'Test 3 (Day Shift)'}
                   </div>
-                  <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-                    <span>Section: <strong className="text-slate-800">{profile?.assignedSection || 'Section A'}</strong></span>
+                  <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                    <span>Sec: <strong className="text-slate-800">{profile?.assignedSection || 'Section A'}</strong></span>
                     <span className="font-mono font-bold text-emerald-700">
                       {profile?.enrolledStudentNo || 'STU-2027-5678'}
                     </span>
                   </div>
                 </div>
 
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
+                <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Admission Fee</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Admission Fee</span>
+                    <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-emerald-100 text-emerald-800">
                       {confirmedHold ? 'PAID' : (focusedHold ? 'DUE' : 'READY')}
                     </span>
                   </div>
-                  <div className="text-lg font-extrabold text-slate-900">৳{netPayable.toLocaleString()} BDT</div>
-                  <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                  <div className="text-sm font-extrabold text-slate-900">৳{netPayable.toLocaleString()} BDT</div>
+                  <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
                     <span>Ref: <strong className="font-mono text-slate-800">{focusedHold?.holdId || 'h_40'}</strong></span>
-                    <span className="font-mono text-[11px] text-slate-600">
+                    <span className="font-mono text-[10px] text-slate-600">
                       {payments[0]?.receiptNo || 'RCP-2027-00040'}
                     </span>
                   </div>
                 </div>
 
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
+                <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Child Dossier</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-800">{completeness}% Done</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Child Dossier</span>
+                    <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-amber-100 text-amber-800">{completeness}% Done</span>
                   </div>
-                  <div className="text-lg font-extrabold text-slate-900">
-                    {isMandatoryComplete ? 'Ready for Verification' : `${missingFields.length} Fields Pending`}
+                  <div className="text-sm font-extrabold text-slate-900 truncate">
+                    {isMandatoryComplete ? 'Ready for Verification' : `${missingFields.length} Pending`}
                   </div>
-                  <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                  <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
                     <span>Eligibility: <strong className="text-emerald-700">Unlocked</strong></span>
                     <button onClick={() => setActiveNav('dossier')} className="text-indigo-600 font-bold hover:underline">
-                      Edit Dossier →
+                      Edit →
                     </button>
                   </div>
                 </div>
 
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-2">
+                <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">School Hours</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-indigo-100 text-indigo-800">SUN–THU</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">School Hours</span>
+                    <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-indigo-100 text-indigo-800">SUN–THU</span>
                   </div>
-                  <div className="text-lg font-extrabold text-slate-900">12:30 – 17:00</div>
-                  <div className="text-xs text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                  <div className="text-sm font-extrabold text-slate-900">12:30 – 17:00</div>
+                  <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
                     <span>Room: <strong className="text-slate-800">Room 102</strong></span>
                     <button onClick={() => setActiveNav('routines')} className="text-indigo-600 font-bold hover:underline">
                       Routine →
@@ -1439,27 +1439,27 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               </div>
 
               {/* Student Profile & Current Information Grid */}
-              <div className="grid lg:grid-cols-12 gap-6">
+              <div className="grid lg:grid-cols-12 gap-3.5">
                 {/* Left Column: Detailed Student Profile Card */}
-                <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-                  <div className="p-5 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-600 text-slate-950 font-extrabold text-2xl flex items-center justify-center shadow-md border-2 border-white/20 shrink-0">
+                <div className="lg:col-span-7 bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                  <div className="p-3.5 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-slate-950 font-extrabold text-lg flex items-center justify-center shadow-md border-2 border-white/20 shrink-0">
                         {profileForm.fullNameEn ? profileForm.fullNameEn.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() : 'DK'}
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-lg font-extrabold">{profileForm.fullNameEn || profile?.fullNameEn || 'Dip Kundu'}</h3>
-                          <span className="text-xs text-amber-300 font-medium">({profileForm.fullNameBn || 'দীপ কুন্ডু'})</span>
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="text-sm font-extrabold">{profileForm.fullNameEn || profile?.fullNameEn || 'Dip Kundu'}</h3>
+                          <span className="text-[11px] text-amber-300 font-medium">({profileForm.fullNameBn || 'দীপ কুন্ডু'})</span>
                         </div>
-                        <p className="text-xs font-mono text-slate-300 mt-0.5">
+                        <p className="text-[11px] font-mono text-slate-300 mt-0.5">
                           Birth Reg ID: <strong className="text-white">{savedStudentId || '12345678912345678'}</strong>
                         </p>
-                        <div className="flex flex-wrap items-center gap-2 mt-2">
-                          <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[10px] font-bold uppercase">
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                          <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[9px] font-bold uppercase">
                             Roll: {profile?.enrolledStudentNo || 'STU-2027-5678'}
                           </span>
-                          <span className="px-2.5 py-0.5 rounded-md bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[10px] font-bold uppercase">
+                          <span className="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[9px] font-bold uppercase">
                             {profile?.assignedSection || 'Section A'} • {confirmedHold?.className || focusedHold?.className || 'Test 3'}
                           </span>
                         </div>
@@ -1467,7 +1467,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     </div>
                     <button
                       onClick={() => setActiveNav('dossier')}
-                      className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold border border-white/15 flex items-center gap-1.5 self-start sm:self-center"
+                      className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-bold border border-white/15 flex items-center gap-1 self-start sm:self-center"
                     >
                       <Edit3 className="w-3.5 h-3.5 text-amber-400" />
                       Update Profile
@@ -1475,22 +1475,22 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   </div>
 
                   {/* Student Information Grid */}
-                  <div className="p-5 sm:p-6 space-y-5">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
-                        <span className="text-slate-400 block font-semibold">Date of Birth</span>
+                  <div className="p-3 sm:p-3.5 space-y-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                      <div className="p-2 rounded-lg bg-slate-50 border border-slate-200/70">
+                        <span className="text-slate-400 block font-semibold text-[10px]">Date of Birth</span>
                         <span className={`font-bold mt-0.5 block ${profileForm.dob || profile?.dob ? 'text-slate-900' : 'text-rose-600'}`}>
                           {profileForm.dob || profile?.dob || 'Not Provided *'}
                         </span>
                       </div>
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
-                        <span className="text-slate-400 block font-semibold">Gender</span>
+                      <div className="p-2 rounded-lg bg-slate-50 border border-slate-200/70">
+                        <span className="text-slate-400 block font-semibold text-[10px]">Gender</span>
                         <span className={`font-bold mt-0.5 block ${profileForm.gender || profile?.gender ? 'text-slate-900' : 'text-rose-600'}`}>
                           {profileForm.gender || profile?.gender || 'Not Provided *'}
                         </span>
                       </div>
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
-                        <span className="text-slate-400 block font-semibold">Blood Group</span>
+                      <div className="p-2 rounded-lg bg-slate-50 border border-slate-200/70">
+                        <span className="text-slate-400 block font-semibold text-[10px]">Blood Group</span>
                         <span className="font-bold text-slate-900 mt-0.5 block">{profileForm.bloodGroup || 'B+'}</span>
                       </div>
                       <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
@@ -1662,45 +1662,45 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               2. AVAILABLE CLASSES & SHIFTS (FAST-LANE SEAT BOOKING)
              ========================================================= */}
           {showClasses && (
-            <section className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-              <div className="p-5 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <section className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+              <div className="p-3 sm:p-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
+                    <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
                       Available Classes & Shifts (Fast-Lane Seat Booking)
                     </h2>
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-slate-100 text-slate-800">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-100 text-slate-800">
                       {classes.length || 29} Classes
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-[11px] text-slate-500 mt-0.5">
                     Zero-lottery first-come, first-served admission. Reserving a seat temporarily holds it for 600 seconds. Seat counts update automatically every few seconds.
                   </p>
                 </div>
               </div>
 
               {/* 3 Compliance & Eligibility Banners */}
-              <div className="p-5 sm:p-6 bg-slate-50 border-b border-slate-200 space-y-3">
+              <div className="p-2.5 sm:p-3 bg-slate-50 border-b border-slate-200 space-y-2">
                 {/* Alert 1: Eligibility Verified */}
-                <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2" data-testid="active-hold-notice-banner">
-                  <div className="flex items-start gap-2.5">
+                <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2" data-testid="active-hold-notice-banner">
+                  <div className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <div className="text-xs text-emerald-950">
+                    <div className="text-[11px] text-emerald-950">
                       <strong>Admission Eligibility Verified & Confirmed!</strong> Student{' '}
                       <span className="font-mono font-bold">{savedStudentId || '12345678912345678'}</span> is officially approved for enrollment. Select your preferred class-shift below to place a 10-minute seat hold.
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 rounded-md bg-emerald-600 text-white text-[10px] font-extrabold uppercase tracking-wider shrink-0 self-start sm:self-center">
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[9px] font-extrabold uppercase tracking-wider shrink-0 self-start sm:self-center">
                     ENROLLMENT UNLOCKED
                   </span>
                 </div>
 
                 {/* Alert 2: Mandatory Profile Info */}
                 {!isMandatoryComplete && (
-                  <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3" data-testid="mandatory-fields-gate-banner">
-                    <div className="flex items-start gap-2.5">
+                  <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2" data-testid="mandatory-fields-gate-banner">
+                    <div className="flex items-start gap-2">
                       <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                      <div className="text-xs text-amber-950 space-y-0.5">
+                      <div className="text-[11px] text-amber-950 space-y-0.5">
                         <div className="font-bold">Mandatory Profile Information Required Before Reserving Seats</div>
                         <div>School regulations require completion of mandatory student and guardian details before seat selection:</div>
                         <div className="font-semibold text-rose-700">
@@ -1736,20 +1736,20 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 )}
               </div>
 
-              {/* Classes Table */}
+              {/* Classes Table (Compact High-Density) */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-100 text-[11px] font-extrabold uppercase tracking-wider text-slate-600 border-b border-slate-200">
-                      <th className="py-3.5 px-5">Class / Shift</th>
-                      <th className="py-3.5 px-4 text-center">Total</th>
-                      <th className="py-3.5 px-4 text-center">Held</th>
-                      <th className="py-3.5 px-4 text-center">Confirmed</th>
-                      <th className="py-3.5 px-4 text-center">Available</th>
-                      <th className="py-3.5 px-5 text-right">Action</th>
+                    <tr className="bg-slate-100 text-[10px] font-extrabold uppercase tracking-wider text-slate-600 border-b border-slate-200">
+                      <th className="py-2 px-3.5">Class / Shift</th>
+                      <th className="py-2 px-2.5 text-center">Total</th>
+                      <th className="py-2 px-2.5 text-center">Held</th>
+                      <th className="py-2 px-2.5 text-center">Confirmed</th>
+                      <th className="py-2 px-2.5 text-center">Available</th>
+                      <th className="py-2 px-3.5 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200 text-xs sm:text-sm">
+                  <tbody className="divide-y divide-slate-100 text-xs">
                     {displayedClasses.map((cls) => {
                       const isHeldElsewhere = activeHoldElsewhere && activeHoldElsewhere.classId !== cls.id;
                       const isCurrentHold = activeHoldElsewhere && activeHoldElsewhere.classId === cls.id;
@@ -1758,20 +1758,20 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
 
                       return (
                         <tr key={cls.id} className="hover:bg-slate-50/80 transition">
-                          <td className="py-4 px-5 font-bold text-slate-900">
+                          <td className="py-2 px-3.5 font-bold text-slate-900">
                             {cls.name}
                           </td>
-                          <td className="py-4 px-4 text-center font-mono text-slate-700">{cls.totalSeats}</td>
-                          <td className="py-4 px-4 text-center font-mono text-amber-700" data-testid={`class-held-${cls.id}`}>
+                          <td className="py-2 px-2.5 text-center font-mono text-slate-700">{cls.totalSeats}</td>
+                          <td className="py-2 px-2.5 text-center font-mono text-amber-700" data-testid={`class-held-${cls.id}`}>
                             {cls.heldSeats}
                           </td>
-                          <td className="py-4 px-4 text-center font-mono text-emerald-700 font-semibold">
+                          <td className="py-2 px-2.5 text-center font-mono text-emerald-700 font-semibold">
                             {cls.confirmedSeats}
                           </td>
-                          <td className="py-4 px-4 text-center">
+                          <td className="py-2 px-2.5 text-center">
                             <span
                               data-testid={`class-available-${cls.id}`}
-                              className={`inline-flex px-2.5 py-1 rounded-full text-xs font-extrabold ${
+                              className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
                                 cls.availableSeats > 0
                                   ? 'bg-emerald-100 text-emerald-800'
                                   : 'bg-rose-100 text-rose-800'
@@ -1780,15 +1780,15 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                               {cls.availableSeats} Available
                             </span>
                           </td>
-                          <td className="py-4 px-5 text-right">
-                            <div className="flex flex-col items-end gap-1">
-                              <div className="flex items-center gap-2">
+                          <td className="py-2 px-3.5 text-right">
+                            <div className="flex flex-col items-end gap-0.5">
+                              <div className="flex items-center gap-1.5">
                                 <button
                                   type="button"
                                   data-testid={`apply-btn-${cls.id}`}
                                   disabled={!canApply || applyingClassId === cls.id}
                                   onClick={() => handleApply(cls)}
-                                  className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${
+                                  className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition ${
                                     canApply
                                       ? 'bg-slate-900 text-white hover:bg-slate-800'
                                       : 'bg-slate-200 text-slate-500 cursor-not-allowed'
@@ -1803,17 +1803,17 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                                     if (idx >= 0) setSelectedRoutineClassIndex(idx);
                                     setActiveNav('routines');
                                   }}
-                                  className="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-100 transition"
+                                  className="px-2 py-1 rounded-md border border-slate-300 text-slate-700 text-[11px] font-semibold hover:bg-slate-100 transition"
                                 >
                                   Routine
                                 </button>
                               </div>
                               {!isMandatoryComplete ? (
-                                <span className="text-[11px] text-amber-700 font-medium" data-testid={`apply-reason-${cls.id}`}>
+                                <span className="text-[10px] text-amber-700 font-medium" data-testid={`apply-reason-${cls.id}`}>
                                   Fill mandatory student details first
                                 </span>
                               ) : isHeldElsewhere ? (
-                                <span className="text-[11px] text-slate-500 font-medium" data-testid={`apply-reason-${cls.id}`}>
+                                <span className="text-[10px] text-slate-500 font-medium" data-testid={`apply-reason-${cls.id}`}>
                                   Already admitted/held in {activeHoldElsewhere.className || activeHoldElsewhere.classId}
                                 </span>
                               ) : null}
@@ -1826,18 +1826,18 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 </table>
               </div>
 
-              {/* Pagination Controls */}
-              <div className="p-4 sm:px-6 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-                <span className="text-slate-600 font-medium">
+              {/* Pagination Controls (Compact) */}
+              <div className="p-2.5 sm:px-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+                <span className="text-slate-600 font-medium text-[11px]">
                   Showing {(classPage - 1) * classesPerPage + 1} to {Math.min(classPage * classesPerPage, totalClassesCount)} of {totalClassesCount} classes
                 </span>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                   <button
                     onClick={() => setClassPage((p) => Math.max(1, p - 1))}
                     disabled={classPage === 1}
-                    className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-slate-700 font-semibold disabled:opacity-40 hover:bg-slate-100 flex items-center gap-1"
+                    className="px-2.5 py-1 rounded-md border border-slate-300 bg-white text-slate-700 text-xs font-semibold disabled:opacity-40 hover:bg-slate-100 flex items-center gap-1"
                   >
-                    <ChevronLeft className="w-3.5 h-3.5" /> Previous
+                    <ChevronLeft className="w-3.5 h-3.5" /> Prev
                   </button>
                   {Array.from({ length: totalPages }, (_, i) => i + 1).slice(0, 5).map((page) => (
                     <button
@@ -1868,47 +1868,47 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               3. CURRENT APPLICATION & FEE PAYMENT (BDT)
              ========================================================= */}
           {showPayment && (
-            <section className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-              <div className="p-5 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <section className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+              <div className="p-3 sm:p-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                  <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
                     Current Application & Fee Payment
                   </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-[11px] text-slate-500 mt-0.5">
                     Pay the admission fee before the countdown timer expires to confirm your seat.
                   </p>
                 </div>
-                <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold self-start sm:self-center">
+                <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold self-start sm:self-center">
                   Application Ref: {focusedHold?.holdId || 'h_40'}
                 </span>
               </div>
 
-              <div className="p-5 sm:p-6 grid lg:grid-cols-12 gap-6 items-start">
+              <div className="p-3 sm:p-3.5 grid lg:grid-cols-12 gap-3.5 items-start">
                 {/* Left Status Metadata */}
-                <div className="lg:col-span-5 space-y-4">
-                  <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                      <span className="text-xs text-slate-400">Application Ref</span>
+                <div className="lg:col-span-5 space-y-3">
+                  <div className="p-3.5 rounded-xl bg-slate-900 text-white space-y-2.5">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                      <span className="text-[11px] text-slate-400">Application Ref</span>
                       <span className="font-mono font-bold text-amber-300">
                         {focusedHold?.holdId || 'h_40'}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                      <span className="text-xs text-slate-400">Class / Shift</span>
-                      <span className="font-bold text-white">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                      <span className="text-[11px] text-slate-400">Class / Shift</span>
+                      <span className="font-bold text-white text-xs">
                         {focusedHold?.className || 'Test 3 (Day Shift)'}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                      <span className="text-xs text-slate-400">Seat Status</span>
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                      <span className="text-[11px] text-slate-400">Seat Status</span>
                       <div className="text-right">
                         <span
                           data-testid="focused-hold-status"
-                          className="px-2.5 py-0.5 rounded-full bg-emerald-400 text-slate-950 text-[10px] font-extrabold uppercase block"
+                          className="px-2 py-0.5 rounded-full bg-emerald-400 text-slate-950 text-[9px] font-extrabold uppercase block"
                         >
                           {focusedHold ? getEffectiveHoldStatus(focusedHold, nowMs) : 'CONFIRMED'}
                         </span>
-                        <span className="text-[11px] text-emerald-300 mt-1 block">
+                        <span className="text-[10px] text-emerald-300 mt-0.5 block">
                           {focusedHold?.status === 'CONFIRMED'
                             ? 'CONFIRMED (Admission Fee Paid)'
                             : focusedHold?.status === 'HELD'
@@ -1918,10 +1918,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-slate-400">Time Remaining</span>
+                      <span className="text-[11px] text-slate-400">Time Remaining</span>
                       <span
                         data-testid="focused-hold-countdown"
-                        className="font-mono text-xl font-extrabold text-emerald-400"
+                        className="font-mono text-lg font-extrabold text-emerald-400"
                       >
                         {focusedHold && getEffectiveHoldStatus(focusedHold, nowMs) === 'HELD'
                           ? formatRemainingSeconds(focusedRemainingSeconds)
@@ -1930,7 +1930,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 space-y-3">
+                  <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 space-y-2">
                     <div className="flex items-start gap-2.5">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                       <p className="font-medium leading-relaxed">
@@ -2008,44 +2008,44 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 </div>
 
                 {/* Right Official Admission Fee Breakdown (BDT) */}
-                <div className="lg:col-span-7 bg-slate-50 rounded-2xl p-5 sm:p-6 border border-slate-200 space-y-4">
-                  <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-700 border-b border-slate-200 pb-3">
+                <div className="lg:col-span-7 bg-slate-50 rounded-xl p-3 sm:p-3.5 border border-slate-200 space-y-2.5">
+                  <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-700 border-b border-slate-200 pb-2">
                     Official Admission Fee Breakdown (BDT)
                   </h3>
-                  <div className="space-y-2.5 text-xs sm:text-sm">
-                    <div className="flex justify-between py-1.5 border-b border-slate-200/70">
+                  <div className="space-y-1.5 text-xs">
+                    <div className="flex justify-between py-1 border-b border-slate-200/70">
                       <span className="text-slate-600">Admission fee (One-time):</span>
                       <span className="font-mono font-bold text-slate-900">৳{admissionFee.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between py-1.5 border-b border-slate-200/70">
+                    <div className="flex justify-between py-1 border-b border-slate-200/70">
                       <span className="text-slate-600">Session charge (Annual):</span>
                       <span className="font-mono font-bold text-slate-900">৳{sessionCharge.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between py-1.5 border-b border-slate-200/70">
+                    <div className="flex justify-between py-1 border-b border-slate-200/70">
                       <span className="text-slate-600">Development fee (One-time):</span>
                       <span className="font-mono font-bold text-slate-900">৳{developmentFee.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between py-1.5 border-b border-slate-200/70">
+                    <div className="flex justify-between py-1 border-b border-slate-200/70">
                       <span className="text-slate-600">Security deposit (One-time):</span>
                       <span className="font-mono font-bold text-slate-900">৳{securityDeposit.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between py-1.5 border-b border-slate-200">
+                    <div className="flex justify-between py-1 border-b border-slate-200">
                       <span className="text-slate-600">First month tuition (Monthly):</span>
                       <span className="font-mono font-bold text-slate-900">৳{firstMonthTuition.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between py-2 text-slate-800 font-bold">
+                    <div className="flex justify-between py-1 text-slate-800 font-bold">
                       <span>Gross Fee Payable at Confirmation:</span>
                       <span className="font-mono">৳{grossTotal.toLocaleString()}</span>
                     </div>
                     {siblingDiscount > 0 && (
-                      <div className="flex justify-between py-1.5 text-emerald-700 font-bold">
+                      <div className="flex justify-between py-1 text-emerald-700 font-bold">
                         <span>10% Sibling Concession on Admission Fee:</span>
                         <span className="font-mono">-৳{siblingDiscount.toLocaleString()}</span>
                       </div>
                     )}
-                    <div className="p-4 rounded-xl bg-slate-900 text-white flex items-center justify-between">
-                      <span className="font-bold text-sm">Total Net Payable Now:</span>
-                      <span className="font-mono text-xl font-extrabold text-amber-400">
+                    <div className="p-2.5 rounded-lg bg-slate-900 text-white flex items-center justify-between">
+                      <span className="font-bold text-xs">Total Net Payable Now:</span>
+                      <span className="font-mono text-base font-extrabold text-amber-400">
                         ৳{netPayable.toLocaleString()} BDT
                       </span>
                     </div>
@@ -2059,22 +2059,22 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               4. CHILD INFORMATION, GUARDIANS, INCOME & DOCUMENTS DOSSIER
              ========================================================= */}
           {showDossier && (
-            <section className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-              <div className="p-5 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <section className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+              <div className="p-3 sm:p-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                  <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
                     Child Information, Guardians, Income & Documents
                   </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-[11px] text-slate-500 mt-0.5">
                     Pre-fill or complete your child’s admission dossier. Fast-lane seat booking only requires the 17-digit Birth Registration Number.
                   </p>
                 </div>
-                <div className="flex items-center gap-3 self-start sm:self-center">
+                <div className="flex items-center gap-2.5 self-start sm:self-center">
                   <div className="text-right">
-                    <span className="text-xs font-extrabold text-slate-900 block">
+                    <span className="text-[11px] font-extrabold text-slate-900 block">
                       Dossier Completeness: {completeness}%
                     </span>
-                    <div className="w-32 h-2 bg-slate-200 rounded-full overflow-hidden mt-1">
+                    <div className="w-28 h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
                       <div
                         className="h-full bg-emerald-600 transition-all"
                         style={{ width: `${completeness}%` }}
@@ -2085,7 +2085,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               </div>
 
               {/* 4 Step Section Selector inside Dossier */}
-              <div className="px-5 sm:px-6 pt-4 bg-slate-50 border-b border-slate-200 flex flex-wrap gap-2">
+              <div className="px-3 sm:px-3.5 pt-2 bg-slate-50 border-b border-slate-200 flex flex-wrap gap-1.5">
                 {[
                   { id: 1, title: '1. Child Profile & Identity' },
                   { id: 2, title: '2. Father, Mother & Guardian' },
@@ -2095,7 +2095,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   <button
                     key={step.id}
                     onClick={() => setDossierSection(step.id)}
-                    className={`px-4 py-2.5 rounded-t-xl text-xs font-extrabold border-t border-x transition ${
+                    className={`px-3 py-1.5 rounded-t-lg text-xs font-extrabold border-t border-x transition ${
                       dossierSection === step.id
                         ? 'bg-white text-slate-900 border-slate-200'
                         : 'bg-slate-100 text-slate-600 border-transparent hover:bg-slate-200/70'
@@ -2107,43 +2107,43 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               </div>
 
               {/* Form Fields */}
-              <div className="p-5 sm:p-6 space-y-6">
+              <div className="p-3 sm:p-3.5 space-y-3">
                 {dossierSection === 1 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs">
                     <div>
-                      <label className="font-bold text-slate-700 block mb-1">Child Full Name (English) *</label>
+                      <label className="font-bold text-slate-700 block mb-0.5">Child Full Name (English) *</label>
                       <input
                         type="text"
                         data-testid="child-name-en-input"
                         value={profileForm.fullNameEn}
                         onChange={(e) => setProfileForm({ ...profileForm, fullNameEn: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-slate-900"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
                       />
                     </div>
                     <div>
-                      <label className="font-bold text-slate-700 block mb-1">Child Full Name (Bangla)</label>
+                      <label className="font-bold text-slate-700 block mb-0.5">Child Full Name (Bangla)</label>
                       <input
                         type="text"
                         value={profileForm.fullNameBn}
                         onChange={(e) => setProfileForm({ ...profileForm, fullNameBn: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-slate-900"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
                       />
                     </div>
                     <div>
-                      <label className="font-bold text-slate-700 block mb-1">Date of Birth *</label>
+                      <label className="font-bold text-slate-700 block mb-0.5">Date of Birth *</label>
                       <input
                         type="date"
                         value={profileForm.dob}
                         onChange={(e) => setProfileForm({ ...profileForm, dob: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-slate-900"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
                       />
                     </div>
                     <div>
-                      <label className="font-bold text-slate-700 block mb-1">Gender *</label>
+                      <label className="font-bold text-slate-700 block mb-0.5">Gender *</label>
                       <select
                         value={profileForm.gender}
                         onChange={(e) => setProfileForm({ ...profileForm, gender: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-slate-900"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-slate-900"
                       >
                         <option value="">Select Gender</option>
                         <option value="Male">Male</option>
@@ -2152,11 +2152,11 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                       </select>
                     </div>
                     <div>
-                      <label className="font-bold text-slate-700 block mb-1">Blood Group</label>
+                      <label className="font-bold text-slate-700 block mb-0.5">Blood Group</label>
                       <select
                         value={profileForm.bloodGroup}
                         onChange={(e) => setProfileForm({ ...profileForm, bloodGroup: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-slate-900"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-slate-900"
                       >
                         <option value="">Select Blood Group</option>
                         {['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'].map((bg) => (
@@ -2165,49 +2165,49 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                       </select>
                     </div>
                     <div>
-                      <label className="font-bold text-slate-700 block mb-1">Nationality</label>
+                      <label className="font-bold text-slate-700 block mb-0.5">Nationality</label>
                       <input
                         type="text"
                         value={profileForm.nationality}
                         onChange={(e) => setProfileForm({ ...profileForm, nationality: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-slate-900"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
                       />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="font-bold text-slate-700 block mb-1">Present Residential Address *</label>
+                      <label className="font-bold text-slate-700 block mb-0.5">Present Residential Address *</label>
                       <input
                         type="text"
                         data-testid="child-address-input"
                         value={profileForm.presentAddress}
                         onChange={(e) => setProfileForm({ ...profileForm, presentAddress: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-slate-900"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
                       />
                     </div>
                     <div>
-                      <label className="font-bold text-slate-700 block mb-1">Permanent Address</label>
+                      <label className="font-bold text-slate-700 block mb-0.5">Permanent Address</label>
                       <input
                         type="text"
                         value={profileForm.permanentAddress}
                         onChange={(e) => setProfileForm({ ...profileForm, permanentAddress: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-slate-900"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
                       />
                     </div>
                     <div>
-                      <label className="font-bold text-slate-700 block mb-1">Previous School (Class 2+)</label>
+                      <label className="font-bold text-slate-700 block mb-0.5">Previous School (Class 2+)</label>
                       <input
                         type="text"
                         value={profileForm.previousSchool}
                         onChange={(e) => setProfileForm({ ...profileForm, previousSchool: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-slate-900"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
                       />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="font-bold text-slate-700 block mb-1">Last Class Passed & Result</label>
+                      <label className="font-bold text-slate-700 block mb-0.5">Last Class Passed & Result</label>
                       <input
                         type="text"
                         value={profileForm.lastResult}
                         onChange={(e) => setProfileForm({ ...profileForm, lastResult: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-slate-900"
+                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
                       />
                     </div>
                   </div>
@@ -2323,14 +2323,14 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               5. MY APPLICATIONS & VERIFIED PAYMENT RECEIPTS
              ========================================================= */}
           {showReceipts && (
-            <section className="space-y-6">
+            <section className="space-y-3.5">
               {/* Applications History */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-                <div className="p-5 sm:p-6 border-b border-slate-200">
-                  <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                <div className="p-3 sm:p-3.5 border-b border-slate-200">
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
                     My Applications & Receipts
                   </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-[11px] text-slate-500 mt-0.5">
                     History of all seat holds and official fee payment receipts.
                   </p>
                 </div>
@@ -2338,15 +2338,15 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-slate-100 text-[11px] font-extrabold uppercase tracking-wider text-slate-600 border-b border-slate-200">
-                        <th className="py-3.5 px-5">Application ID</th>
-                        <th className="py-3.5 px-4">Class / Shift</th>
-                        <th className="py-3.5 px-4">Seat Status</th>
-                        <th className="py-3.5 px-4">Time Remaining</th>
-                        <th className="py-3.5 px-5 text-right">Action</th>
+                      <tr className="bg-slate-100 text-[10px] font-extrabold uppercase tracking-wider text-slate-600 border-b border-slate-200">
+                        <th className="py-2 px-3">Application ID</th>
+                        <th className="py-2 px-3">Class / Shift</th>
+                        <th className="py-2 px-3">Seat Status</th>
+                        <th className="py-2 px-3">Time Remaining</th>
+                        <th className="py-2 px-3 text-right">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200 text-xs sm:text-sm">
+                    <tbody className="divide-y divide-slate-100 text-xs">
                       {myHolds.length > 0 ? (
                         myHolds.map((app) => {
                           const status = getEffectiveHoldStatus(app, nowMs);
@@ -2358,12 +2358,12 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                               : '00:00';
 
                           return (
-                            <tr key={app.holdId} className="hover:bg-slate-50">
-                              <td className="py-3.5 px-5 font-mono font-bold text-slate-900">{app.holdId}</td>
-                              <td className="py-3.5 px-4 font-bold text-slate-800">{app.className || app.classId}</td>
-                              <td className="py-3.5 px-4">
+                            <tr key={app.holdId} className="hover:bg-slate-50/70">
+                              <td className="py-1.5 px-3 font-mono font-bold text-slate-900">{app.holdId}</td>
+                              <td className="py-1.5 px-3 font-bold text-slate-800">{app.className || app.classId}</td>
+                              <td className="py-1.5 px-3">
                                 <span
-                                  className={`px-2.5 py-0.5 rounded-full text-[11px] font-extrabold ${
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
                                     status === 'CONFIRMED'
                                       ? 'bg-emerald-100 text-emerald-800'
                                       : status === 'HELD'
@@ -2404,25 +2404,25 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                           );
                         })
                       ) : (
-                        <tr className="hover:bg-slate-50">
-                          <td className="py-3.5 px-5 font-mono font-bold text-slate-900">h_40</td>
-                          <td className="py-3.5 px-4 font-bold text-slate-800">Test 3 (Day Shift)</td>
-                          <td className="py-3.5 px-4">
-                            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800">
+                        <tr className="hover:bg-slate-50/70">
+                          <td className="py-1.5 px-3 font-mono font-bold text-slate-900">h_40</td>
+                          <td className="py-1.5 px-3 font-bold text-slate-800">Test 3 (Day Shift)</td>
+                          <td className="py-1.5 px-3">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
                               CONFIRMED
                             </span>
                           </td>
-                          <td className="py-3.5 px-4 font-mono text-slate-600">00:00</td>
-                          <td className="py-3.5 px-5 text-right space-x-2">
+                          <td className="py-1.5 px-3 font-mono text-slate-600">00:00</td>
+                          <td className="py-1.5 px-3 text-right space-x-1.5">
                             <button
                               disabled
-                              className="px-3 py-1 rounded-lg bg-slate-200 text-slate-500 font-bold text-xs cursor-not-allowed"
+                              className="px-2.5 py-1 rounded-md bg-slate-200 text-slate-500 font-bold text-[11px] cursor-not-allowed"
                             >
                               Pay admission fee
                             </button>
                             <button
                               disabled
-                              className="px-3 py-1 rounded-lg border border-slate-200 text-slate-400 font-bold text-xs cursor-not-allowed"
+                              className="px-2.5 py-1 rounded-md border border-slate-200 text-slate-400 font-bold text-[11px] cursor-not-allowed"
                             >
                               Cancel
                             </button>
@@ -2432,38 +2432,38 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     </tbody>
                   </table>
                 </div>
-                <div className="px-5 py-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500">
+                <div className="px-3 py-2 bg-slate-50 border-t border-slate-200 text-[11px] text-slate-500">
                   Showing 1 to {myHolds.length || 1} of {myHolds.length || 1} applications
                 </div>
               </div>
 
               {/* Verified Payment Receipts Table */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
-                <div className="p-5 sm:p-6 border-b border-slate-200">
-                  <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
+              <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                <div className="p-3 sm:p-3.5 border-b border-slate-200">
+                  <h3 className="text-sm font-extrabold text-slate-900">
                     Verified Payment Receipts
                   </h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-slate-100 text-[11px] font-extrabold uppercase tracking-wider text-slate-600 border-b border-slate-200">
-                        <th className="py-3.5 px-5">Receipt Voucher</th>
-                        <th className="py-3.5 px-4">Class-Shift</th>
-                        <th className="py-3.5 px-4">Gross Total</th>
-                        <th className="py-3.5 px-4">Concession Discount</th>
-                        <th className="py-3.5 px-4">Net Paid (BDT)</th>
-                        <th className="py-3.5 px-4">Payment Status</th>
-                        <th className="py-3.5 px-4">Timestamp</th>
-                        <th className="py-3.5 px-5 text-right">Official PDF</th>
+                      <tr className="bg-slate-100 text-[10px] font-extrabold uppercase tracking-wider text-slate-600 border-b border-slate-200">
+                        <th className="py-2 px-3">Receipt Voucher</th>
+                        <th className="py-2 px-3">Class-Shift</th>
+                        <th className="py-2 px-3">Gross Total</th>
+                        <th className="py-2 px-3">Concession Discount</th>
+                        <th className="py-2 px-3">Net Paid (BDT)</th>
+                        <th className="py-2 px-3">Payment Status</th>
+                        <th className="py-2 px-3">Timestamp</th>
+                        <th className="py-2 px-3 text-right">Official PDF</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200 text-xs">
+                    <tbody className="divide-y divide-slate-100 text-xs">
                       {payments.length > 0 ? (
                         payments.map((rcp) => (
-                          <tr key={rcp.receiptNo} className="hover:bg-slate-50">
-                            <td className="py-4 px-5 font-mono font-bold text-slate-900">{rcp.receiptNo}</td>
-                            <td className="py-4 px-4 font-bold text-slate-800">{rcp.className}</td>
+                          <tr key={rcp.receiptNo} className="hover:bg-slate-50/70">
+                            <td className="py-1.5 px-3 font-mono font-bold text-slate-900">{rcp.receiptNo}</td>
+                            <td className="py-1.5 px-3 font-bold text-slate-800">{rcp.className}</td>
                             <td className="py-4 px-4 font-mono">৳{rcp.grossAmount.toLocaleString()}</td>
                             <td className="py-4 px-4 text-center">{rcp.discountAmount ? `৳${rcp.discountAmount.toLocaleString()}` : '—'}</td>
                             <td className="py-4 px-4 font-mono font-extrabold text-slate-900">৳{rcp.netAmount.toLocaleString()}</td>
@@ -2540,19 +2540,19 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               6. CLASS TIMETABLES & FIXED SCHOOL OPERATING HOURS
              ========================================================= */}
           {showRoutines && (
-            <section className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden" data-testid="class-routines-section">
-              <div className="p-5 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <section className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden" data-testid="class-routines-section">
+              <div className="p-3 sm:p-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                  <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
+                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
                     Class Timetables & Fixed School Operating Hours
                   </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-[11px] text-slate-500 mt-0.5">
                     Inspect weekly class schedules, period timings (Morning: 07:30–12:00, Day: 12:30–17:00), subjects, and teacher assignments.
                   </p>
                 </div>
                 <button
                   onClick={() => triggerToast('Timetables synchronized with academic server.')}
-                  className="px-3.5 py-2 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-100 transition flex items-center gap-1.5 self-start sm:self-center"
+                  className="px-2.5 py-1.5 rounded-lg border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-100 transition flex items-center gap-1 self-start sm:self-center"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   Refresh Timetables
@@ -2560,13 +2560,13 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               </div>
 
               {/* Class Selector & Shift Mode Controls */}
-              <div className="p-5 sm:p-6 bg-slate-50 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
+              <div className="p-2.5 sm:p-3 bg-slate-50 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
                   <label className="text-xs font-extrabold text-slate-700 shrink-0">Select Class:</label>
                   <select
                     value={selectedRoutineClassIndex}
                     onChange={(e) => setSelectedRoutineClassIndex(Number(e.target.value))}
-                    className="px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 max-w-md w-full focus:outline-none"
+                    className="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-bold text-slate-900 max-w-md w-full focus:outline-none"
                   >
                     {classes.map((c, idx) => (
                       <option key={c.id} value={idx}>
@@ -2576,10 +2576,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   </select>
                 </div>
 
-                <div className="inline-flex p-1 rounded-xl bg-slate-200/80 border border-slate-300 self-start">
+                <div className="inline-flex p-0.5 rounded-lg bg-slate-200/80 border border-slate-300 self-start">
                   <button
                     onClick={() => setSelectedShiftTab('Morning')}
-                    className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${
+                    className={`px-2.5 py-1 rounded-md text-xs font-bold transition ${
                       selectedShiftTab === 'Morning' ? 'bg-slate-900 text-white' : 'text-slate-700'
                     }`}
                   >
@@ -2587,7 +2587,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   </button>
                   <button
                     onClick={() => setSelectedShiftTab('Standard')}
-                    className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${
+                    className={`px-2.5 py-1 rounded-md text-xs font-bold transition ${
                       selectedShiftTab === 'Standard' ? 'bg-slate-900 text-white' : 'text-slate-700'
                     }`}
                   >
@@ -2597,7 +2597,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               </div>
 
               {/* Active Routine Header */}
-              <div className="p-5 sm:p-6 space-y-6">
+              <div className="p-3 sm:p-3.5 space-y-3">
                 {(() => {
                   const activeRoutine =
                     routines.find((r) => r.classId === classes[selectedRoutineClassIndex]?.id) ||
@@ -2679,21 +2679,21 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                           DEFAULT_ROUTINE_BY_DAY[selectedDay]?.map((slot, index) => (
                             <div
                               key={index}
-                              className={`p-4 rounded-2xl border flex flex-col justify-between ${
+                              className={`p-2.5 rounded-lg border flex flex-col justify-between ${
                                 slot.isBreak
                                   ? 'bg-amber-50/90 border-amber-300 text-amber-950'
                                   : 'bg-slate-50 border-slate-200 text-slate-900'
                               }`}
                             >
                               <div>
-                                <div className="flex items-center justify-between text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                                <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
                                   <span>{slot.period}</span>
                                   <span className="font-mono text-slate-700">{slot.time}</span>
                                 </div>
-                                <div className="text-sm font-extrabold mt-2">{slot.subject}</div>
+                                <div className="text-xs font-extrabold mt-1">{slot.subject}</div>
                               </div>
                               {slot.room && (
-                                <div className="mt-3 pt-2 border-t border-slate-200/80 text-xs text-slate-600 font-medium">
+                                <div className="mt-2 pt-1 border-t border-slate-200/80 text-[11px] text-slate-600 font-medium">
                                   Room: <strong className="text-slate-900">{slot.room}</strong>
                                 </div>
                               )}
@@ -2706,9 +2706,9 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 })()}
 
                 {/* Punctuality & Assembly Notice */}
-                <div className="p-4 rounded-xl bg-slate-900 text-slate-200 text-xs flex items-start gap-3">
+                <div className="p-2.5 rounded-lg bg-slate-900 text-slate-200 text-xs flex items-start gap-2">
                   <Clock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <p>
+                  <p className="text-[11px]">
                     <strong className="text-white">Punctuality & Assembly:</strong> Students must arrive on school premises at least 15 minutes prior to the first period. The morning national anthem & assembly takes place before Period 1.
                   </p>
                 </div>
