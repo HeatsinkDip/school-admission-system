@@ -55,7 +55,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         { name: "Director's Welcome", desc: 'Vision for 21st century learners' },
         { name: 'Senior Leadership Team', desc: 'Internationally accredited educators' },
         { name: 'Mission, Vision and Values', desc: 'Integrity, curiosity and empathy' },
-        { name: 'Why OPS Dhaka?', desc: 'Ivy League & BUET placement track record' },
+        { name: 'Why Onnorokom School?', desc: 'Ivy League & BUET placement track record' },
         { name: 'Academic Performance', desc: 'Top distinction percentiles in Bangladesh' },
         { name: 'Campus & Facilities', desc: '7.5 acre eco-sustainable smart campus' },
         { name: 'School Policies & Safeguarding', desc: 'Comprehensive child protection' },
@@ -159,7 +159,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div
             className="flex items-center gap-3.5 cursor-pointer group"
             onClick={() => onOpenParentPortal()}
-            title="Go to Onnorokom Projukti School Admission Portal"
+            title="Go to Onnorokom School Admission Portal"
           >
             {/* Colorful Geometric Sunburst Emblem matching ISD Reference */}
             <div className="isd-sunburst-logo">
@@ -176,12 +176,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
             <div>
               <div className="font-serif text-xl sm:text-2xl font-black tracking-tight text-slate-900 group-hover:text-emerald-800 transition leading-none">
-                Onnorokom Projukti
+                Onnorokom School
               </div>
               <div className="text-[11px] font-bold uppercase tracking-widest text-emerald-700 mt-1 flex items-center gap-1.5">
-                <span>School Dhaka</span>
+                <span>Dhaka</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                <span className="text-slate-500 font-semibold">Future Tech Academy</span>
+                <span className="text-slate-500 font-semibold">Collegiate Academy</span>
               </div>
             </div>
           </div>
@@ -322,7 +322,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="flex items-center gap-3">
                 <School size={24} className="text-amber-400" />
                 <div>
-                  <div className="text-sm font-bold text-white">Onnorokom Projukti School Dhaka</div>
+                  <div className="text-sm font-bold text-white">Onnorokom School Dhaka</div>
                   <div className="text-xs text-emerald-200">First-Come, First-Served Admission System</div>
                 </div>
               </div>
@@ -349,7 +349,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="isd-hero-bg-media">
           <img
             src="https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=2000&q=80"
-            alt="Students performing on stage and collaborating in Onnorokom Projukti School"
+            alt="Students performing on stage and collaborating in Onnorokom School"
             className="isd-hero-img"
           />
           <div className="isd-hero-gradient-overlay" />
@@ -1223,7 +1223,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="rounded-xl overflow-hidden border border-emerald-700/60 shadow-md">
                 <img
                   src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=400&q=80"
-                  alt="Onnorokom Projukti School Pavilion Building"
+                  alt="Onnorokom School Pavilion Building"
                   className="w-full h-24 object-cover"
                 />
               </div>
@@ -1265,7 +1265,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           {/* Bottom Copyright Strip */}
           <div className="pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-emerald-300/80 gap-3">
             <div>
-              &copy; {new Date().getFullYear()} Onnorokom Projukti School Dhaka. All rights reserved.
+              &copy; {new Date().getFullYear()} Onnorokom School Dhaka. All rights reserved.
             </div>
             <div className="flex items-center gap-4">
               <span>Kubernetes Orchestrated</span>
@@ -1288,7 +1288,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="flex items-center gap-2">
                 <Play size={18} className="text-amber-500" />
                 <span className="font-serif font-bold text-slate-900">
-                  Onnorokom Projukti School — Campus Film & Life
+                  Onnorokom School — Campus Film & Life
                 </span>
               </div>
               <button
@@ -1338,7 +1338,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </div>
                 <div>
                   <h4 className="font-serif font-bold text-slate-900">Admissions Inquiry & Counselor Desk</h4>
-                  <div className="text-xs text-emerald-700 font-semibold">Onnorokom Projukti School Dhaka</div>
+                  <div className="text-xs text-emerald-700 font-semibold">Onnorokom School Dhaka</div>
                 </div>
               </div>
               <button
