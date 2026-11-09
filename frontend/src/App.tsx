@@ -18,10 +18,7 @@ import {
   Home,
   Download,
   Bolt,
-  Cpu,
-  ShieldCheck,
   FileCode2,
-  Users,
 } from 'lucide-react';
 import { ActionAlertModal } from './ActionAlertModal';
 import { AdminPortal } from './AdminPortal';
@@ -976,54 +973,6 @@ function ParentPortal({ onNavigateToAdmin: _onNavigateToAdmin }: ParentPortalPro
 
   return (
     <div className="portal-page-wrapper flex flex-col min-h-screen">
-      {/* =========================================================================
-          TOP KUBERNETES LIVE INFRASTRUCTURE BAR
-          ========================================================================= */}
-      <div className="k8s-live-bar">
-        <div className="landing-container flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <span className="k8s-status-pill">
-              <span className="k8s-pulse-dot"></span>
-              <span>K8s Cluster: ACTIVE</span>
-            </span>
-            <span className="hidden sm:inline text-slate-600">|</span>
-            <div className="flex items-center gap-1.5 text-slate-300 text-xs">
-              <Cpu size={13} className="text-sky-400" />
-              <span>Pods: <strong className="text-white font-mono">3/16</strong></span>
-            </div>
-            <div className="hidden md:flex items-center gap-1.5 text-slate-300 text-xs">
-              <Users size={13} className="text-amber-400" />
-              <span>Concurrent Velocity: <strong className="text-white font-mono">14 req/s</strong></span>
-            </div>
-            <div className="hidden lg:flex items-center gap-1.5 text-slate-300 text-xs">
-              <ShieldCheck size={13} className="text-purple-400" />
-              <span>Queue Policy: <strong className="text-purple-300">First-Come-First-Served Atomic Lock</strong></span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setIsK8sSpikeModalOpen(true)}
-              className="btn btn-xs k8s-sim-btn"
-              title="Simulate 100 simultaneous users competing for 50 seats"
-            >
-              <Bolt size={12} className="text-amber-400" />
-              <span>Simulate 100 Users Spike</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsSystemSpecModalOpen(true)}
-              className="btn btn-xs btn-outline text-slate-300 border-slate-700 hover:bg-slate-800"
-              title="View Markdown Architecture Specification"
-            >
-              <FileCode2 size={12} className="text-sky-400" />
-              <span>System .MD Spec</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div className="app-shell flex-1" data-testid="parent-portal-view">
       {/* --- Sidebar Navigation for Parent Portal --- */}
       <aside className={`app-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
@@ -1247,6 +1196,26 @@ function ParentPortal({ onNavigateToAdmin: _onNavigateToAdmin }: ParentPortalPro
             >
               <Home size={13} />
               <span>School Home</span>
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-outline btn-xs flex items-center gap-1 text-amber-700 border-amber-300 hover:bg-amber-50"
+              onClick={() => setIsK8sSpikeModalOpen(true)}
+              title="Simulate 100 simultaneous users competing for 50 seats"
+            >
+              <Bolt size={12} className="text-amber-600" />
+              <span>Simulate 100 Users Spike</span>
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-outline btn-xs flex items-center gap-1 text-sky-700 border-sky-300 hover:bg-sky-50"
+              onClick={() => setIsSystemSpecModalOpen(true)}
+              title="View Markdown Architecture Specification"
+            >
+              <FileCode2 size={12} className="text-sky-600" />
+              <span>System .MD Spec</span>
             </button>
 
             <div className="sync-status-indicator" title="First-come, first-served live seat engine">

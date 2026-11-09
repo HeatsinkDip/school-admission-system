@@ -8,9 +8,7 @@ import {
   GraduationCap,
   Layers,
   School,
-  ShieldCheck,
   Sparkles,
-  Users,
   Bolt,
   MapPin,
   Phone,
@@ -39,58 +37,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 }) => {
   return (
     <div className="landing-page-root">
-      {/* =========================================================================
-          TOP KUBERNETES LIVE INFRASTRUCTURE BAR
-          ========================================================================= */}
-      <div className="k8s-live-bar">
-        <div className="landing-container flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <span className="k8s-status-pill">
-              <span className="k8s-pulse-dot"></span>
-              <span>K8s Cluster: ACTIVE</span>
-            </span>
-            <span className="hidden sm:inline text-slate-500">|</span>
-            <div className="flex items-center gap-1.5 text-slate-300 text-xs">
-              <Cpu size={13} className="text-sky-400" />
-              <span>Pods: <strong className="text-white font-mono">3/16</strong></span>
-            </div>
-            <div className="hidden md:flex items-center gap-1.5 text-slate-300 text-xs">
-              <Users size={13} className="text-amber-400" />
-              <span>Concurrent Velocity: <strong className="text-white font-mono">14 req/s</strong></span>
-            </div>
-            <div className="hidden lg:flex items-center gap-1.5 text-slate-300 text-xs">
-              <ShieldCheck size={13} className="text-purple-400" />
-              <span>Queue Policy: <strong className="text-purple-300">First-Come-First-Served Atomic Lock</strong></span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {onOpenK8sSpikeModal && (
-              <button
-                type="button"
-                onClick={onOpenK8sSpikeModal}
-                className="btn btn-xs k8s-sim-btn"
-                title="Simulate 100 simultaneous users competing for 50 seats"
-              >
-                <Bolt size={12} className="text-amber-400" />
-                <span>Simulate 100 Users Spike</span>
-              </button>
-            )}
-            {onOpenSystemSpecModal && (
-              <button
-                type="button"
-                onClick={onOpenSystemSpecModal}
-                className="btn btn-xs btn-outline text-slate-200 border-slate-700 hover:bg-slate-800"
-                title="View Markdown Architecture Specification"
-              >
-                <FileCode2 size={12} className="text-sky-400" />
-                <span>System .MD Spec</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* =========================================================================
           ALL-WHITE INSTITUTIONAL HEADER (Zero Admin Buttons)
           ========================================================================= */}
@@ -713,7 +659,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                       className="footer-link-white"
                       onClick={onOpenK8sSpikeModal}
                     >
-                      <ChevronRight size={14} />
+                      <Bolt size={14} className="text-amber-500" />
                       <span>Simulate 100 Users Spike</span>
                     </button>
                   </li>
@@ -725,7 +671,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                       className="footer-link-white"
                       onClick={onOpenSystemSpecModal}
                     >
-                      <ChevronRight size={14} />
+                      <FileCode2 size={14} className="text-sky-500" />
                       <span>System .MD Spec</span>
                     </button>
                   </li>
