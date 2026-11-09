@@ -877,8 +877,8 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-              <span className="hidden sm:inline">Plot 19-21, Block D, Bashundhara R/A, Dhaka-1229</span>
-              <span className="sm:hidden">ISD Dhaka</span>
+              <span className="hidden sm:inline">Tejgaon, Dhaka-1208, Bangladesh</span>
+              <span className="sm:hidden">Onnorokom School</span>
             </span>
             <span className="hidden md:inline text-emerald-400/50">|</span>
             <span className="hidden md:flex items-center gap-1.5 font-mono text-[11px]">
@@ -925,7 +925,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-serif font-black tracking-tight text-xs sm:text-sm text-slate-900">
-                  International School Dhaka
+                  Onnorokom School, Bangladesh
                 </span>
                 <span className="px-1.5 py-0.2 text-[9px] font-extrabold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300 rounded-full">
                   Staff Admin
@@ -2750,7 +2750,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
             <div className="flex items-center gap-2">
-              <span className="font-serif font-black text-slate-800">International School Dhaka</span>
+              <span className="font-serif font-black text-slate-800">Onnorokom School, Bangladesh</span>
               <span>•</span>
               <span>Staff Administrative Console</span>
             </div>

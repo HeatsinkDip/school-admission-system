@@ -103,7 +103,7 @@ export const ClassStudentsModal: React.FC<ClassStudentsModalProps> = ({
         concessionStatus: i % 3 === 0 ? 'APPROVED' : 'NONE',
         concessionPercent: i % 3 === 0 ? 10 : 0,
         completenessPercent: 100,
-        receiptNo: isConfirmed ? `ISD-2027-REC-${String(1000 + i + 1)}` : null,
+        receiptNo: isConfirmed ? `OPS-2027-REC-${String(1000 + i + 1)}` : null,
         netPaidAmount: isConfirmed ? payableFee : null,
         assignedSection: `Sec A (${shift})`,
         enrolledStudentNo: isConfirmed ? rollNo : null,
@@ -174,7 +174,7 @@ export const ClassStudentsModal: React.FC<ClassStudentsModalProps> = ({
     link.href = url;
     link.setAttribute(
       'download',
-      `isd-students-${classData.name.replace(/\s+/g, '_')}-${shift}.csv`,
+      `onnorokom-students-${classData.name.replace(/\s+/g, '_')}-${shift}.csv`,
     );
     document.body.appendChild(link);
     link.click();

@@ -14,6 +14,7 @@ import {
 import { STRINGS } from './strings';
 import { isValidStudentId } from './ParentPortal';
 import { STUDENT_ID_STORAGE_KEY } from './config';
+import { loginWithGoogle } from './firebase';
 import './ParentPortal.css';
 import './LandingPage.css';
 
@@ -30,6 +31,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
   const [parentPhoneInput, setParentPhoneInput] = useState('');
   const [parentNameInput, setParentNameInput] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isFirebaseLoading, setIsFirebaseLoading] = useState(false);
 
   const handleQuickFill = () => {
     setStudentIdInput('20152691234567890');
@@ -66,7 +68,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5">
               <MapPin size={13} className="text-amber-400" />
-              <span>Plot 19-21, Block D, Bashundhara R/A, Dhaka-1229</span>
+              <span>Tejgaon, Dhaka-1208, Bangladesh</span>
             </span>
             <span className="hidden sm:inline text-emerald-400/50">|</span>
             <span className="hidden sm:flex items-center gap-1.5">
@@ -110,7 +112,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
             </div>
             <div>
               <div className="font-serif text-xl sm:text-2xl font-black tracking-tight text-slate-900 group-hover:text-emerald-800 transition leading-none">
-                International School Dhaka
+                Onnorokom School, Bangladesh
               </div>
               <div className="text-[11px] font-bold uppercase tracking-widest text-emerald-700 mt-1 flex items-center gap-1.5">
                 <span>Parent Portal</span>
@@ -240,6 +242,47 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
                 </div>
               )}
 
+              {/* Firebase Authentication Options */}
+              <div className="pt-1">
+                <div className="relative flex py-2 items-center">
+                  <div className="flex-grow border-t border-slate-200"></div>
+                  <span className="flex-shrink mx-3 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 bg-white px-2">
+                    Or Sign In with Firebase
+                  </span>
+                  <div className="flex-grow border-t border-slate-200"></div>
+                </div>
+
+                <div className="mt-1">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        setIsFirebaseLoading(true);
+                        const { user } = await loginWithGoogle();
+                        if (user.displayName) setParentNameInput(user.displayName);
+                        if (user.phoneNumber) setParentPhoneInput(user.phoneNumber);
+                        setError(null);
+                      } catch (err: unknown) {
+                        const message = err instanceof Error ? err.message : 'Firebase Google Sign-In cancelled or failed.';
+                        setError(message);
+                      } finally {
+                        setIsFirebaseLoading(false);
+                      }
+                    }}
+                    disabled={isFirebaseLoading}
+                    className="w-full py-2.5 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-2 shadow-2xs"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 24 24">
+                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                    </svg>
+                    <span>{isFirebaseLoading ? 'Connecting to Firebase...' : 'Sign in with Google (Firebase Auth)'}</span>
+                  </button>
+                </div>
+              </div>
+
               {/* Action Buttons Row (Matching Image 2) */}
               <div className="pt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100">
                 <button
@@ -309,19 +352,19 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
               <div className="flex items-center gap-3">
                 <GraduationCap className="text-[#014d33]" size={24} />
                 <span className="font-serif font-black text-lg text-slate-900">
-                  International School Dhaka
+                  Onnorokom School, Bangladesh
                 </span>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed max-w-sm">
-                Empowering ethical, inquisitive leaders with Cambridge, IB, and National curriculum excellence in Dhaka, Bangladesh.
+                Empowering ethical, inquisitive leaders with Cambridge, IB, and National curriculum excellence in Tejgaon, Dhaka, Bangladesh.
               </p>
             </div>
             <div className="md:col-span-4 space-y-2 text-xs text-slate-600">
               <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px]">
                 Admissions Contact
               </div>
-              <div>Plot 19-21, Block D, Bashundhara R/A, Dhaka-1229</div>
-              <div>Phone: +880 2 843 1101 | Email: admissions@isd.edu.bd</div>
+              <div>Tejgaon, Dhaka-1208, Bangladesh</div>
+              <div>Phone: +880 2 843 1101 | Email: admissions@onnorokomschool.edu.bd</div>
             </div>
             <div className="md:col-span-3 space-y-2 text-xs text-slate-600">
               <div className="font-bold text-slate-900 uppercase tracking-wider text-[11px]">
@@ -333,7 +376,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
             </div>
           </div>
           <div className="pt-4 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-2">
-            <div>&copy; {new Date().getFullYear()} International School Dhaka. All rights reserved.</div>
+            <div>&copy; {new Date().getFullYear()} Onnorokom School, Bangladesh. All rights reserved.</div>
             <div>Zero Lottery FCFS Admission • 17-Digit BRN Primary Key</div>
           </div>
         </div>

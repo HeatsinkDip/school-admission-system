@@ -28,7 +28,7 @@ const KNOWLEDGE_BASE: Array<{ keywords: string[]; answer: string }> = [
   {
     keywords: ['sibling', 'brother', 'sister', 'discount', 'concession', 'waiver'],
     answer:
-      'Yes! International School Dhaka offers an automated 10% Sibling Fee Concession on admission and tuition fees for the second and subsequent children enrolled under the same verified family account.',
+      'Yes! Onnorokom School, Bangladesh offers an automated 10% Sibling Fee Concession on admission and tuition fees for the second and subsequent children enrolled under the same verified family account.',
   },
   {
     keywords: ['shift', 'time', 'timing', 'hour', 'morning', 'day', 'schedule', 'routine'],
@@ -48,7 +48,7 @@ const KNOWLEDGE_BASE: Array<{ keywords: string[]; answer: string }> = [
   {
     keywords: ['curriculum', 'ib', 'cambridge', 'nctb', 'standard', 'board'],
     answer:
-      'ISD is an authorized IB World School (PYP, MYP, DP) and Cambridge International school, complemented by National Curriculum benchmarks. We emphasize inquiry-based learning, bilingual fluency in English & Bangla, robotics, and varsity sports.',
+      'Onnorokom School is an authorized IB World School and Cambridge International school in Tejgaon, complemented by National Curriculum benchmarks. We emphasize scientific inquiry, bilingual fluency in English & Bangla, robotics, and innovation labs.',
   },
 ];
 
@@ -62,7 +62,7 @@ export const TalkToHawkBotModal: React.FC<TalkToHawkBotModalProps> = ({
     {
       id: 'welcome-1',
       sender: 'hawk',
-      text: "Hello! I'm Hawk, your International School Dhaka admissions counselor. How can I assist your family today with admissions, seat availability, or enrollment requirements?",
+      text: "Hello! I'm Hawk, your Onnorokom School, Bangladesh admissions counselor. How can I assist your family today with admissions, seat availability, or enrollment requirements?",
       time: 'Just now',
     },
   ]);
@@ -95,7 +95,7 @@ export const TalkToHawkBotModal: React.FC<TalkToHawkBotModalProps> = ({
     setTimeout(() => {
       const lower = query.toLowerCase();
       let replyText =
-        "Thank you for asking! For detailed admission procedures and seat reservations, please proceed to the Parent Portal. You can also contact our Admissions Helpline at +880 2 843 1101 or email admissions@isd.edu.bd.";
+        "Thank you for asking! For detailed admission procedures and seat reservations, please proceed to the Parent Portal. You can also contact our Admissions Helpline at +880 2 843 1101 or email admissions@onnorokomschool.edu.bd.";
 
       for (const item of KNOWLEDGE_BASE) {
         if (item.keywords.some((k) => lower.includes(k))) {
@@ -144,7 +144,7 @@ export const TalkToHawkBotModal: React.FC<TalkToHawkBotModalProps> = ({
                 Talk to Hawk Admissions Desk
               </h3>
               <p className="text-xs font-bold text-emerald-700 tracking-wide">
-                International School Dhaka
+                Onnorokom School, Bangladesh
               </p>
             </div>
           </div>

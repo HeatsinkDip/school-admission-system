@@ -36,7 +36,7 @@ interface LandingPageProps {
 }
 
 // =========================================================================
-// MOCK DATA & CONTENT (Aligned with International School Dhaka Reference)
+// MOCK DATA & CONTENT (Aligned with Onnorokom School, Bangladesh)
 // =========================================================================
 
 // Mega Menu Data structured into Category -> Sub-links (matching Image 2)
@@ -92,8 +92,8 @@ const MEGA_MENU_SECTIONS: Record<
     { name: 'Graduation Commencement', desc: 'Celebrating academic milestones and leadership' },
   ],
   'CONTACT US': [
-    { name: 'Bashundhara Campus Address', desc: 'Plot 19-21, Block D, Bashundhara R/A, Dhaka' },
-    { name: 'Admissions Hotline & Email', desc: '+880 2 843 1101 / admissions@isd.edu.bd' },
+    { name: 'Tejgaon Campus Address', desc: 'Tejgaon, Dhaka-1208, Bangladesh' },
+    { name: 'Admissions Hotline & Email', desc: '+880 2 843 1101 / admissions@onnorokomschool.edu.bd' },
     { name: 'Schedule a Campus Visit', desc: 'Guided family tours Sunday through Thursday' },
   ],
 };
@@ -104,7 +104,7 @@ const FACILITIES_DATA = [
     id: 'pavilion',
     name: 'Central Academic Complex & Smart Campus',
     badge: 'CAMPUS COMPLEX',
-    subtitle: '7.5-Acre Eco-Sustainable Campus in Bashundhara R/A',
+    subtitle: 'Modern Eco-Sustainable Campus in Tejgaon, Dhaka',
     description:
       'Our campus was designed to provide the best facilities for our students, supporting our varied curriculum and helping our community stay healthy and active. Features climate-controlled smart classrooms, interactive displays, and acoustic learning zones.',
     photo: 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80',
@@ -251,7 +251,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <span className="flex items-center gap-1.5">
               <MapPin size={13} className="text-amber-400 shrink-0" />
               <span className="truncate max-w-[280px] sm:max-w-none">
-                Plot 19-21, Block D, Bashundhara R/A, Dhaka-1229, Bangladesh
+                Tejgaon, Dhaka-1208, Bangladesh
               </span>
             </span>
             <span className="hidden md:inline text-emerald-400/50">|</span>
@@ -318,12 +318,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
             <div>
               <div className="font-serif text-lg sm:text-2xl font-black tracking-tight text-slate-900 group-hover:text-emerald-800 transition leading-none">
-                International School Dhaka
+                Onnorokom School, Bangladesh
               </div>
               <div className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-emerald-700 mt-1 flex items-center gap-1.5">
-                <span>Bashundhara Campus</span>
+                <span>Tejgaon Campus</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                <span className="text-slate-500 font-semibold">Onnorokom Academic System</span>
+                <span className="text-slate-500 font-semibold">Online Admission System</span>
               </div>
             </div>
           </div>
@@ -539,7 +539,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         <div className="isd-hero-bg-media">
           <img
             src="https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=2000&q=80"
-            alt="International School Dhaka students performing and innovating"
+            alt="Onnorokom School, Bangladesh students performing and innovating"
             className="isd-hero-img"
           />
           <div className="isd-hero-gradient-overlay" />
@@ -1380,17 +1380,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </div>
                 <div>
                   <h3 className="font-serif font-black text-xl text-slate-900 leading-tight">
-                    International School Dhaka
+                    Onnorokom School, Bangladesh
                   </h3>
                   <p className="text-[11px] text-emerald-700 font-bold uppercase tracking-wider">
-                    Onnorokom Academic Admission System
+                    Online Admission & Academic System
                   </p>
                 </div>
               </div>
 
               <p className="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-sm">
-                International School Dhaka (ISD) offers an exemplary education to students aged 3-18.
-                Our state-of-the-art campus in Bashundhara empowers inquisitive minds with Cambridge, IB,
+                Onnorokom School, Bangladesh offers an exemplary education to students aged 3-18.
+                Our state-of-the-art campus in Tejgaon empowers inquisitive minds with Cambridge, IB,
                 and national curricula mastery.
               </p>
 
@@ -1414,7 +1414,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="text-slate-600 text-xs space-y-2.5">
                 <div className="flex items-start gap-2">
                   <MapPin size={16} className="text-emerald-700 shrink-0 mt-0.5" />
-                  <span>Plot 19-21, Block D, Bashundhara R/A, Dhaka-1229, Bangladesh</span>
+                  <span>Tejgaon, Dhaka-1208, Bangladesh</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone size={15} className="text-emerald-700 shrink-0" />
@@ -1422,7 +1422,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail size={15} className="text-emerald-700 shrink-0" />
-                  <span>admissions@isd.edu.bd</span>
+                  <span>admissions@onnorokomschool.edu.bd</span>
                 </div>
                 <div className="pt-1 text-[11px] text-slate-500">
                   Office Hours: Sunday – Thursday, 08:00 AM – 04:30 PM BST
@@ -1493,12 +1493,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="rounded-xl overflow-hidden border border-slate-200 shadow-md">
                 <img
                   src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=600&q=80"
-                  alt="International School Dhaka campus building facade"
+                  alt="Onnorokom School campus building facade"
                   className="w-full h-28 object-cover hover:scale-105 transition duration-500"
                 />
               </div>
               <div className="text-[11px] text-slate-500">
-                Main Academic Complex, Bashundhara R/A
+                Main Academic Complex, Tejgaon, Dhaka
               </div>
             </div>
           </div>
@@ -1535,7 +1535,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           {/* Bottom Copyright Strip */}
           <div className="pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 gap-3">
             <div>
-              &copy; {new Date().getFullYear()} International School Dhaka. All rights reserved.
+              &copy; {new Date().getFullYear()} Onnorokom School, Bangladesh. All rights reserved.
             </div>
             <div className="flex items-center gap-3">
               <span>Zero Lottery • FCFS Admission</span>
@@ -1556,7 +1556,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="flex items-center gap-2">
                 <Play size={18} className="text-amber-500" />
                 <span className="font-serif font-bold text-slate-900">
-                  International School Dhaka — Campus Film & Life
+                  Onnorokom School, Bangladesh — Campus Film & Life
                 </span>
               </div>
               <button
@@ -1577,7 +1577,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               />
             </div>
             <div className="pt-4 flex justify-between items-center text-xs text-slate-500">
-              <span>Experience scientific inquiry & campus vibrancy in Bashundhara, Dhaka.</span>
+              <span>Experience scientific inquiry & campus vibrancy in Tejgaon, Dhaka.</span>
               <button
                 type="button"
                 className="btn btn-primary btn-sm font-bold"

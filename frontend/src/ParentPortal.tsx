@@ -38,6 +38,7 @@ import { ActionAlertModal } from './ActionAlertModal';
 import { K8sSpikeModal } from './K8sSpikeModal';
 import { SystemSpecModal } from './SystemSpecModal';
 import { TalkToHawkBotModal } from './TalkToHawkBotModal';
+import { loginWithGoogle } from './firebase';
 import {
   api,
   ApiClientError,
@@ -302,6 +303,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
   const [isSystemSpecModalOpen, setIsSystemSpecModalOpen] = useState<boolean>(false);
   const [simulateRaceCondition, setSimulateRaceCondition] = useState<boolean>(false);
   const [isCounselorModalOpen, setIsCounselorModalOpen] = useState<boolean>(false);
+  const [isFirebaseLoading, setIsFirebaseLoading] = useState<boolean>(false);
 
   // --- Action Alert Modal State ---
   const [actionModal, setActionModal] = useState<{
@@ -1144,8 +1146,8 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
       </head>
       <body>
         <div class="header">
-          <h1 style="margin:0; font-size: 24px; color: #064e3b;">ONNOROKOM PROJUKTI SCHOOL</h1>
-          <div style="font-size: 12px; color: #475569; margin-top: 4px;">Plot 19-21, Block D, Bashundhara R/A, Dhaka-1229, Bangladesh</div>
+          <h1 style="margin:0; font-size: 24px; color: #064e3b;">ONNOROKOM SCHOOL, BANGLADESH</h1>
+          <div style="font-size: 12px; color: #475569; margin-top: 4px;">Tejgaon, Dhaka-1208, Bangladesh</div>
           <div class="badge">OFFICIAL ENROLLMENT ADMIT SLIP — ACADEMIC YEAR 2027</div>
         </div>
         <div class="grid">
@@ -1234,8 +1236,8 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
           <div className="flex items-center gap-3">
             <span className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-              <span className="hidden sm:inline">Plot 19-21, Block D, Bashundhara R/A, Dhaka-1229</span>
-              <span className="sm:hidden">ISD Dhaka</span>
+              <span className="hidden sm:inline">Tejgaon, Dhaka-1208, Bangladesh</span>
+              <span className="sm:hidden">Onnorokom School</span>
             </span>
             <span className="hidden md:inline text-emerald-400/50">|</span>
             <span className="hidden md:flex items-center gap-1.5">
@@ -1244,7 +1246,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             </span>
           </div>
           <div className="flex items-center gap-3">
-            {parentPhone && (
+            {parentPhone && savedStudentId && (
               <span className="text-[11px] font-mono text-emerald-200 hidden sm:inline">
                 Parent Account: <strong className="text-white">{parentPhone}</strong>
               </span>
@@ -1269,13 +1271,15 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
         <div className="px-3 sm:px-4 h-14 flex items-center justify-between gap-3">
           {/* Left Brand & Mobile Hamburger */}
           <div className="flex items-center gap-2.5">
-            <button
-              onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-              className="lg:hidden p-1.5 rounded-lg bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200"
-              aria-label="Toggle Sidebar"
-            >
-              {mobileSidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-            </button>
+            {savedStudentId && (
+              <button
+                onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+                className="lg:hidden p-1.5 rounded-lg bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200"
+                aria-label="Toggle Sidebar"
+              >
+                {mobileSidebarOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              </button>
+            )}
             <div className="isd-sunburst-logo">
               <svg viewBox="0 0 44 44" className="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22 4C23.1 4 24 4.9 24 6V10C24 11.1 23.1 12 22 12C20.9 12 20 10V6C20 4.9 20.9 4 22 4Z" fill="#10B981" />
@@ -1291,14 +1295,14 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-serif font-black tracking-tight text-xs sm:text-sm text-slate-900">
-                  International School Dhaka
+                  Onnorokom School, Bangladesh
                 </span>
                 <span className="hidden sm:inline-block px-1.5 py-0.2 text-[9px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 rounded-full border border-emerald-300">
                   Parent Portal
                 </span>
               </div>
               <p className="text-[10px] text-slate-500 hidden sm:block">
-                Online Admissions 2027 • High-Concurrency Seat Booking
+                Online Admissions 2027 • Tejgaon, Dhaka-1208
               </p>
             </div>
           </div>
@@ -1319,13 +1323,40 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               >
                 System .MD Spec
               </button>
+              {!savedStudentId && (
+                <>
+                  <button
+                    type="button"
+                    data-testid="nav-routines-btn"
+                    onClick={() => setActiveNav('routines')}
+                  >
+                    Class Routines & Hours
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="nav-dashboard-btn"
+                    onClick={() => setActiveNav('dashboard')}
+                  >
+                    Dashboard
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="nav-school-home-btn"
+                    onClick={() => (onOpenLanding ? onOpenLanding() : (window.location.href = '/'))}
+                  >
+                    School Home
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Family Account Mobile/Phone Pill */}
-            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-[11px] text-slate-600">
-              <Phone size={12} className="text-emerald-600" />
-              <span>Family Mobile: <strong className="text-slate-900 font-mono">{parentPhone || '01712-345678'}</strong></span>
-            </div>
+            {parentPhone && savedStudentId && (
+              <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-[11px] text-slate-600">
+                <Phone size={12} className="text-emerald-600" />
+                <span>Family Mobile: <strong className="text-slate-900 font-mono">{parentPhone}</strong></span>
+              </div>
+            )}
 
             {/* Active Student Registration Identity Box */}
             {!isEditingStudentId && savedStudentId ? (
@@ -1507,12 +1538,13 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
           />
         )}
 
-        {/* Left Sidebar Navigation (Compact High-Density) */}
-        <aside
-          className={`fixed lg:sticky top-13 left-0 z-30 w-60 bg-white border-r border-slate-200 flex flex-col justify-between transition-transform duration-200 h-[calc(100vh-3.25rem)] overflow-y-auto shrink-0 ${
-            mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-          }`}
-        >
+        {/* Left Sidebar Navigation (Compact High-Density) - Visible ONLY to authenticated parents */}
+        {savedStudentId && (
+          <aside
+            className={`fixed lg:sticky top-13 left-0 z-30 w-60 bg-white border-r border-slate-200 flex flex-col justify-between transition-transform duration-200 h-[calc(100vh-3.25rem)] overflow-y-auto shrink-0 ${
+              mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+            }`}
+          >
           <div className="p-2.5 space-y-3">
             {/* Student Mini-Card in Sidebar (Compact) */}
             <div className="p-2.5 rounded-xl bg-slate-900 text-white space-y-1.5 border border-slate-800 shadow-xs">
@@ -1539,7 +1571,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               <div className="pt-1.5 border-t border-slate-800 flex items-center justify-between text-[10px]">
                 <span className="text-slate-400">Roll No:</span>
                 <span className="font-mono font-bold text-emerald-400">
-                  {profile?.enrolledStudentNo || (confirmedHold ? 'STU-2027-5678' : 'Pending')}
+                  {profile?.enrolledStudentNo || 'Pending'}
                 </span>
               </div>
               <div className="flex items-center justify-between text-[10px]">
@@ -1670,11 +1702,12 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             <div className="font-mono text-[10px] font-bold text-slate-700">+880 1700-002027</div>
           </div>
         </aside>
+        )}
 
         {/* Main Content Workspace (Compact 50%) */}
-        <main className="flex-1 p-3 sm:p-4.5 max-w-6xl mx-auto w-full space-y-4">
+        <main className={`flex-1 p-3 sm:p-4.5 ${!savedStudentId ? 'max-w-4xl' : 'max-w-6xl'} mx-auto w-full space-y-4`}>
           {/* Top Enrollment Confirmed / Active Hold Banner */}
-          {(confirmedHold || profile?.applicationStatus === 'ENROLLED' || profile?.applicationStatus === 'APPROVED') && (
+          {savedStudentId && (confirmedHold || profile?.applicationStatus === 'ENROLLED' || profile?.applicationStatus === 'APPROVED') && (
             <div className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white rounded-xl p-3 sm:p-3.5 shadow-md border border-emerald-700/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-xl bg-emerald-400/20 border border-emerald-300/40 flex items-center justify-center text-emerald-300 shrink-0 mt-0.5">
@@ -1686,7 +1719,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                       Admission Confirmed & Enrolled!
                     </span>
                     <span className="text-[11px] font-mono text-emerald-200">
-                      Student Birth ID: {savedStudentId || '12345678912345678'}
+                      Student Birth ID: {savedStudentId}
                     </span>
                   </div>
                   <h1 className="text-sm sm:text-base font-extrabold mt-0.5 tracking-tight">
@@ -1696,7 +1729,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     </span>{' '}
                     | Student Roll No:{' '}
                     <span className="font-mono text-amber-300">
-                      {profile?.enrolledStudentNo || 'STU-2027-5678'}
+                      {profile?.enrolledStudentNo || 'Pending'}
                     </span>
                     . Welcome to the school!
                   </h1>
@@ -1726,7 +1759,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     Family Account: Registered Children in School
                   </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Parent Phone: <strong className="font-mono text-slate-800">{parentPhone || '01712-345678'}</strong> • {parentChildren.length || 1} Child(ren) Registered
+                    Parent Phone: <strong className="font-mono text-slate-800">{parentPhone || 'Not Provided'}</strong> • {parentChildren.length} Child(ren) Registered
                   </p>
                 </div>
                 <button
@@ -1910,6 +1943,47 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                         </div>
                       )}
 
+                      {/* Firebase Authentication Options */}
+                      <div className="pt-1">
+                        <div className="relative flex py-2 items-center">
+                          <div className="flex-grow border-t border-slate-200"></div>
+                          <span className="flex-shrink mx-3 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 bg-white px-2">
+                            Or Sign In with Firebase
+                          </span>
+                          <div className="flex-grow border-t border-slate-200"></div>
+                        </div>
+
+                        <div className="mt-1">
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              try {
+                                setIsFirebaseLoading(true);
+                                const { user } = await loginWithGoogle();
+                                if (user.displayName) setParentNameInput(user.displayName);
+                                if (user.phoneNumber) setParentPhoneInput(user.phoneNumber);
+                                setStudentIdError(null);
+                              } catch (err: unknown) {
+                                const msg = err instanceof Error ? err.message : 'Firebase Google Sign-In cancelled or failed.';
+                                setStudentIdError(msg);
+                              } finally {
+                                setIsFirebaseLoading(false);
+                              }
+                            }}
+                            disabled={isFirebaseLoading}
+                            className="w-full py-2.5 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-2 shadow-2xs"
+                          >
+                            <svg className="w-4 h-4" viewBox="0 0 24 24">
+                              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                            </svg>
+                            <span>{isFirebaseLoading ? 'Connecting to Firebase...' : 'Sign in with Google (Firebase Auth)'}</span>
+                          </button>
+                        </div>
+                      </div>
+
                       <div className="pt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100">
                         <button
                           type="button"
@@ -1985,7 +2059,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                       </h2>
                     </div>
                     <div className="text-[11px] text-slate-500 font-medium">
-                      Family Account: <strong className="font-mono text-slate-800">{parentPhone || '01712-345678'}</strong>
+                      Family Account: <strong className="font-mono text-slate-800">{parentPhone || 'Active Account'}</strong>
                     </div>
                   </div>
 
@@ -2112,12 +2186,12 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     </span>
                   </div>
                   <div className="text-sm font-extrabold text-slate-900 truncate">
-                    {confirmedHold?.className || focusedHold?.className || 'Test 3 (Day Shift)'}
+                    {confirmedHold?.className || focusedHold?.className || (confirmedHold ? 'Class Confirmed' : 'None Selected')}
                   </div>
                   <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-                    <span>Sec: <strong className="text-slate-800">{profile?.assignedSection || 'Section A'}</strong></span>
+                    <span>Sec: <strong className="text-slate-800">{profile?.assignedSection || 'Pending'}</strong></span>
                     <span className="font-mono font-bold text-emerald-700">
-                      {profile?.enrolledStudentNo || 'STU-2027-5678'}
+                      {profile?.enrolledStudentNo || 'Pending'}
                     </span>
                   </div>
                 </div>
@@ -2131,9 +2205,9 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   </div>
                   <div className="text-sm font-extrabold text-slate-900">৳{netPayable.toLocaleString()} BDT</div>
                   <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-                    <span>Ref: <strong className="font-mono text-slate-800">{focusedHold?.holdId || 'h_40'}</strong></span>
+                    <span>Ref: <strong className="font-mono text-slate-800">{focusedHold?.holdId || confirmedHold?.holdId || '—'}</strong></span>
                     <span className="font-mono text-[10px] text-slate-600">
-                      {payments[0]?.receiptNo || 'RCP-2027-00040'}
+                      {payments[0]?.receiptNo || (confirmedHold ? 'Receipt Verified' : '—')}
                     </span>
                   </div>
                 </div>
@@ -2197,10 +2271,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                         </p>
                         <div className="flex flex-wrap items-center gap-1.5 mt-1">
                           <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[9px] font-bold uppercase">
-                            Roll: {profile?.enrolledStudentNo || (confirmedHold ? 'STU-2027-5678' : 'Pending')}
+                            Roll: {profile?.enrolledStudentNo || 'Pending'}
                           </span>
                           <span className="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[9px] font-bold uppercase">
-                            {profile?.assignedSection || 'Section A'} • {confirmedHold?.className || focusedHold?.className || 'Not Enrolled'}
+                            {profile?.assignedSection || 'Section Pending'} • {confirmedHold?.className || focusedHold?.className || 'Not Enrolled'}
                           </span>
                         </div>
                       </div>
@@ -2307,7 +2381,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                           Current Seat Reservation
                         </span>
                         <h3 className="text-base font-extrabold text-slate-900">
-                          Application Ref: <span className="font-mono">{focusedHold?.holdId || 'h_40'}</span>
+                          Application Ref: <span className="font-mono">{focusedHold?.holdId || confirmedHold?.holdId || 'None'}</span>
                         </h3>
                       </div>
                       <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800 flex items-center gap-1">
@@ -2318,7 +2392,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     <div className="space-y-2.5 text-xs">
                       <div className="flex justify-between py-1 border-b border-slate-100">
                         <span className="text-slate-500">Assigned Class / Shift:</span>
-                        <span className="font-bold text-slate-900">{confirmedHold?.className || focusedHold?.className || 'Test 3 (Day Shift)'}</span>
+                        <span className="font-bold text-slate-900">{confirmedHold?.className || focusedHold?.className || 'Class Selection Pending'}</span>
                       </div>
                       <div className="flex justify-between py-1 border-b border-slate-100">
                         <span className="text-slate-500">Seat Hold Timer:</span>
@@ -2333,7 +2407,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                       <div className="flex justify-between py-1">
                         <span className="text-slate-500">Official Receipt Voucher:</span>
                         <span className="font-mono font-bold text-slate-800">
-                          {payments[0]?.receiptNo || 'RCP-2027-00040'}
+                          {payments[0]?.receiptNo || (confirmedHold ? 'Receipt Generated' : '—')}
                         </span>
                       </div>
                     </div>
@@ -2343,9 +2417,9 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                         onClick={() => {
                           generateAndDownloadPdfReceipt(
                             {
-                              receiptNo: payments[0]?.receiptNo || 'RCP-2027-00040',
-                              studentId: savedStudentId || '12345678912345678',
-                              className: confirmedHold?.className || focusedHold?.className || 'Test 3',
+                              receiptNo: payments[0]?.receiptNo || (confirmedHold ? `REC-${confirmedHold.holdId}` : 'REC-PENDING'),
+                              studentId: savedStudentId || 'STUDENT',
+                              className: confirmedHold?.className || focusedHold?.className || 'Class',
                               grossAmount: grossTotal,
                               discountAmount: siblingDiscount,
                               netAmount: netPayable,
@@ -2451,7 +2525,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <div className="text-[11px] text-emerald-950">
                       <strong>Admission Eligibility Verified & Confirmed!</strong> Student{' '}
-                      <span className="font-mono font-bold">{savedStudentId || '12345678912345678'}</span> is officially approved for enrollment. Select your preferred class-shift below to place a 10-minute seat hold.
+                      <span className="font-mono font-bold">{savedStudentId}</span> is officially approved for enrollment. Select your preferred class-shift below to place a 10-minute seat hold.
                     </div>
                   </div>
                   <span className="px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[9px] font-extrabold uppercase tracking-wider shrink-0 self-start sm:self-center">
@@ -2643,7 +2717,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   </p>
                 </div>
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-extrabold self-start sm:self-center">
-                  Application Ref: {focusedHold?.holdId || 'h_40'}
+                  Application Ref: {focusedHold?.holdId || '—'}
                 </span>
               </div>
 
@@ -2654,13 +2728,13 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                       <span className="text-[11px] text-slate-400">Application Ref</span>
                       <span className="font-mono font-bold text-amber-300">
-                        {focusedHold?.holdId || 'h_40'}
+                        {focusedHold?.holdId || '—'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                       <span className="text-[11px] text-slate-400">Class / Shift</span>
                       <span className="font-bold text-white text-xs">
-                        {focusedHold?.className || 'Test 3 (Day Shift)'}
+                        {focusedHold?.className || 'None Selected'}
                       </span>
                     </div>
                     <div className="flex items-center justify-between border-b border-slate-800 pb-2">
@@ -2721,9 +2795,9 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                         onClick={() => {
                           generateAndDownloadPdfReceipt(
                             {
-                              receiptNo: payments[0]?.receiptNo || 'RCP-2027-00040',
-                              studentId: savedStudentId || '12345678912345678',
-                              className: focusedHold?.className || 'Test 3',
+                              receiptNo: payments[0]?.receiptNo || (confirmedHold ? `REC-${confirmedHold.holdId}` : 'REC-PENDING'),
+                              studentId: savedStudentId || 'STUDENT',
+                              className: focusedHold?.className || confirmedHold?.className || 'Class',
                               grossAmount: grossTotal,
                               discountAmount: siblingDiscount,
                               netAmount: netPayable,
@@ -4113,28 +4187,9 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                           );
                         })
                       ) : (
-                        <tr className="hover:bg-slate-50/70">
-                          <td className="py-1.5 px-3 font-mono font-bold text-slate-900">h_40</td>
-                          <td className="py-1.5 px-3 font-bold text-slate-800">Test 3 (Day Shift)</td>
-                          <td className="py-1.5 px-3">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
-                              CONFIRMED
-                            </span>
-                          </td>
-                          <td className="py-1.5 px-3 font-mono text-slate-600">00:00</td>
-                          <td className="py-1.5 px-3 text-right space-x-1.5">
-                            <button
-                              disabled
-                              className="px-2.5 py-1 rounded-md bg-slate-200 text-slate-500 font-bold text-[11px] cursor-not-allowed"
-                            >
-                              Pay admission fee
-                            </button>
-                            <button
-                              disabled
-                              className="px-2.5 py-1 rounded-md border border-slate-200 text-slate-400 font-bold text-[11px] cursor-not-allowed"
-                            >
-                              Cancel
-                            </button>
+                        <tr>
+                          <td colSpan={5} className="py-8 text-center text-slate-400 text-xs font-medium">
+                            No seat applications or reservations recorded for this student.
                           </td>
                         </tr>
                       )}
@@ -4142,7 +4197,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   </table>
                 </div>
                 <div className="px-3 py-2 bg-slate-50 border-t border-slate-200 text-[11px] text-slate-500">
-                  Showing 1 to {myHolds.length || 1} of {myHolds.length || 1} applications
+                  Showing {myHolds.length} application(s)
                 </div>
               </div>
 
@@ -4202,39 +4257,9 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                           </tr>
                         ))
                       ) : (
-                        <tr className="hover:bg-slate-50">
-                          <td className="py-4 px-5 font-mono font-bold text-slate-900">RCP-2027-00040</td>
-                          <td className="py-4 px-4 font-bold text-slate-800">Test 3</td>
-                          <td className="py-4 px-4 font-mono">৳44,000</td>
-                          <td className="py-4 px-4 text-center">—</td>
-                          <td className="py-4 px-4 font-mono font-extrabold text-slate-900">৳44,000</td>
-                          <td className="py-4 px-4">
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800">
-                              SUCCESS
-                            </span>
-                          </td>
-                          <td className="py-4 px-4 text-slate-500 font-mono">11/9/2026, 11:17:52 AM</td>
-                          <td className="py-4 px-5 text-right">
-                            <button
-                              onClick={() => {
-                                generateAndDownloadPdfReceipt(
-                                  {
-                                    receiptNo: 'RCP-2027-00040',
-                                    studentId: savedStudentId || '12345678912345678',
-                                    className: 'Test 3',
-                                    grossAmount: 44000,
-                                    netAmount: 44000,
-                                    paidAt: new Date().toISOString(),
-                                    status: 'SUCCESS',
-                                  },
-                                  profile,
-                                );
-                              }}
-                              className="px-3 py-1.5 rounded-lg bg-slate-900 text-white font-bold hover:bg-slate-800 transition inline-flex items-center gap-1.5"
-                            >
-                              <Download className="w-3.5 h-3.5 text-amber-400" />
-                              Download PDF
-                            </button>
+                        <tr>
+                          <td colSpan={8} className="py-8 text-center text-slate-400 text-xs font-medium">
+                            No verified payment receipts found for this account.
                           </td>
                         </tr>
                       )}
@@ -4500,13 +4525,13 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               <div className="flex items-center gap-2.5">
                 <GraduationCap className="text-[#014d33]" size={22} />
                 <span className="font-serif font-black text-base text-slate-900">
-                  International School Dhaka
+                  Onnorokom School, Bangladesh
                 </span>
               </div>
               <p className="text-slate-600 leading-relaxed max-w-sm">
-                Plot 19-21, Block D, Bashundhara R/A, Dhaka-1229, Bangladesh.
+                Tejgaon, Dhaka-1208, Bangladesh.
                 <br />
-                Admissions Helpline: +880 2 843 1101 | Email: admissions@isd.edu.bd
+                Admissions Helpline: +880 2 843 1101 | Email: admissions@onnorokomschool.edu.bd
               </p>
             </div>
             <div className="md:col-span-4 space-y-1.5 text-slate-600">
@@ -4530,7 +4555,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             </div>
           </div>
           <div className="pt-4 flex flex-col sm:flex-row justify-between items-center text-[11px] text-slate-500 gap-2">
-            <div>&copy; {new Date().getFullYear()} International School Dhaka. All rights reserved.</div>
+            <div>&copy; {new Date().getFullYear()} Onnorokom School, Bangladesh. All rights reserved.</div>
             <div>Powered by Onnorokom High-Concurrency Admission Engine</div>
           </div>
         </div>
