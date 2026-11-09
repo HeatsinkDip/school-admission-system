@@ -105,6 +105,7 @@ export const STRINGS = {
   errors: {
     SEATS_FULL: 'All seats in this class are currently taken or held. If an unpaid hold expires, the seat will open automatically, or you may join the waitlist.',
     ALREADY_APPLIED: 'You already have an active hold or a confirmed admission in this class.',
+    ALREADY_ADMITTED_ELSEWHERE: 'This student already has an active hold or is already admitted to another class or shift. Under school regulations, a student cannot hold morning and day shifts or attend two different classes at the same time.',
     HOLD_EXPIRED: 'The hold time for this application has expired and the seat was released. Please apply again if seats are available.',
     HOLD_CANCELLED: 'This application has already been cancelled and cannot be confirmed.',
     ALREADY_CONFIRMED: 'This admission is already confirmed and cannot be cancelled online (contact the school office for refunds).',

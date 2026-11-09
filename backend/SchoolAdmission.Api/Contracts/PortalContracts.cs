@@ -326,4 +326,31 @@ public sealed record BroadcastNotificationRequest(
     string? RecipientType,
     string? RecipientId);
 
+// --- Class Routine (weekly timetable per class-shift) ---
+
+public sealed record RoutinePeriodDto(
+    string Day,
+    int Period,
+    string StartTime,
+    string EndTime,
+    string Subject,
+    string Teacher,
+    string Room);
+
+public sealed record ClassRoutineDto(
+    string ClassId,
+    string ClassName,
+    string Shift,
+    string StartTime,
+    string EndTime,
+    IReadOnlyList<string> Days,
+    IReadOnlyList<RoutinePeriodDto> Periods,
+    bool IsDefault);
+
+public sealed record SaveClassRoutineRequest(
+    string? StartTime,
+    string? EndTime,
+    IReadOnlyList<string>? Days,
+    IReadOnlyList<RoutinePeriodDto>? Periods);
+
 

@@ -10,6 +10,7 @@ import {
   AppNotification,
   AuditLogEntry,
   ClassFeeBreakdown,
+  ClassRoutine,
   ConfirmHoldResponse,
   CreateClassResponse,
   HoldItem,
@@ -552,4 +553,41 @@ export async function deleteAdminNotification(id: number, adminToken: string): P
   await request<void>(`/admin/notifications/${id}`, {
     method: 'DELETE',
   }, undefined, adminToken);
+}
+
+// --- Class Routine (Timetable) API ---
+
+export async function fetchAllRoutines(): Promise<ClassRoutine[]> {
+  return await request<ClassRoutine[]>('/routines');
+}
+
+export async function fetchClassRoutine(classId: string): Promise<ClassRoutine> {
+  return await request<ClassRoutine>(`/classes/${encodeURIComponent(classId)}/routine`);
+}
+
+export async function saveClassRoutine(
+  classId: string,
+  payload: { startTime?: string; endTime?: string; days?: string[]; periods?: any[] },
+  adminToken: string,
+): Promise<ClassRoutine> {
+  return await request<ClassRoutine>(
+    `/admin/classes/${encodeURIComponent(classId)}/routine`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    },
+    undefined,
+    adminToken,
+  );
+}
+
+export async function resetClassRoutine(classId: string, adminToken: string): Promise<ClassRoutine> {
+  return await request<ClassRoutine>(
+    `/admin/classes/${encodeURIComponent(classId)}/routine`,
+    {
+      method: 'DELETE',
+    },
+    undefined,
+    adminToken,
+  );
 }

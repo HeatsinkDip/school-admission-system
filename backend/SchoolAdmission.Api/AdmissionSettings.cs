@@ -19,6 +19,14 @@ public sealed class AdmissionSettings
     public int HoldDurationSeconds { get; init; } = DefaultHoldDurationSeconds;
     public int SweepIntervalSeconds { get; init; } = DefaultSweepIntervalSeconds;
 
+    /// <summary>
+    /// When true (default) a student (17-digit birth registration number) may hold or own at most ONE
+    /// active (HELD) or CONFIRMED seat across ALL classes / shifts, e.g. they cannot take
+    /// "Class 6 - Morning Shift" and "Class 6 - Day Shift" (or Class 6 and Class 7) at the same time.
+    /// Set SINGLE_ADMISSION_PER_STUDENT=false to fall back to the per-class rule of the original contract.
+    /// </summary>
+    public bool SingleAdmissionPerStudent { get; init; } = true;
+
     public static AdmissionSettings FromConfiguration(IConfiguration config, ILogger? logger = null)
     {
         var rawCs = config["DB_CONNECTION_STRING"];
@@ -47,6 +55,19 @@ public sealed class AdmissionSettings
             ConnectionString = csb.ConnectionString,
             HoldDurationSeconds = ReadPositiveInt(config, "HOLD_DURATION_SECONDS", DefaultHoldDurationSeconds, logger),
             SweepIntervalSeconds = ReadPositiveInt(config, "SWEEP_INTERVAL_SECONDS", DefaultSweepIntervalSeconds, logger),
+            SingleAdmissionPerStudent = ReadBool(config, "SINGLE_ADMISSION_PER_STUDENT", true),
+        };
+    }
+
+    private static bool ReadBool(IConfiguration config, string key, bool fallback)
+    {
+        var raw = config[key];
+        if (string.IsNullOrWhiteSpace(raw)) return fallback;
+        return raw.Trim().ToLowerInvariant() switch
+        {
+            "1" or "true" or "yes" or "on" => true,
+            "0" or "false" or "no" or "off" => false,
+            _ => fallback,
         };
     }
 

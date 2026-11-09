@@ -347,3 +347,27 @@ export interface NotificationSummary {
   notifications: AppNotification[];
 }
 
+// --- Class Routine (Timetable) ---
+
+export interface RoutinePeriod {
+  day: string;
+  period: number;
+  startTime: string;
+  endTime: string;
+  subject: string;
+  teacher?: string;
+  room?: string;
+}
+
+export interface ClassRoutine {
+  classId: string;
+  className: string;
+  shift: string;
+  startTime: string;
+  endTime: string;
+  days: string[];
+  periods: RoutinePeriod[];
+  isDefault: boolean;
+}
+
+

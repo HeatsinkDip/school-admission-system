@@ -154,6 +154,20 @@ describe('School Admission Frontend', () => {
       if (url.endsWith('/me/holds')) {
         return jsonResponse([]);
       }
+      if (url.endsWith('/parent/profile')) {
+        return jsonResponse({
+          studentId: VALID_STUDENT_ID,
+          fullNameEn: 'Aarav Rahman',
+          dob: '2015-05-10',
+          gender: 'Male',
+          fatherName: 'Rahman',
+          fatherPhone: '01712345678',
+          presentAddress: 'Dhaka',
+          documents: [],
+          applicationStatus: 'APPROVED',
+          completenessPercent: 100,
+        });
+      }
       return jsonResponse({});
     });
 
@@ -415,6 +429,187 @@ describe('School Admission Frontend', () => {
     await waitFor(() => {
       expect(screen.getByTestId('student-id-input')).toBeInTheDocument();
     });
+  });
+
+  it('blocks student holding another class from applying to a second shift/class (Single Admission Rule)', async () => {
+    localStorage.setItem(STUDENT_ID_STORAGE_KEY, VALID_STUDENT_ID);
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith('/classes')) {
+        return jsonResponse([
+          {
+            id: 'c_morning',
+            name: 'Class 6 - Morning Shift',
+            totalSeats: 50,
+            heldSeats: 1,
+            confirmedSeats: 0,
+            availableSeats: 49,
+          },
+          {
+            id: 'c_day',
+            name: 'Class 6 - Day Shift',
+            totalSeats: 50,
+            heldSeats: 0,
+            confirmedSeats: 0,
+            availableSeats: 50,
+          },
+        ]);
+      }
+      if (url.endsWith('/me/holds')) {
+        return jsonResponse([
+          {
+            holdId: 'h_morn_1',
+            classId: 'c_morning',
+            className: 'Class 6 - Morning Shift',
+            studentId: VALID_STUDENT_ID,
+            status: 'HELD',
+            expiresAt: new Date(Date.now() + 600_000).toISOString(),
+            confirmedAt: null,
+            createdAt: new Date().toISOString(),
+          },
+        ]);
+      }
+      if (url.endsWith('/parent/profile')) {
+        return jsonResponse({
+          studentId: VALID_STUDENT_ID,
+          fullNameEn: 'Aarav Rahman',
+          dob: '2015-05-10',
+          gender: 'Male',
+          fatherName: 'Rahman',
+          fatherPhone: '01712345678',
+          presentAddress: 'Dhaka',
+          documents: [],
+          applicationStatus: 'APPROVED',
+          completenessPercent: 100,
+        });
+      }
+      return jsonResponse({});
+    });
+
+    render(<App />);
+
+    // Active hold notice banner should be present
+    expect(await screen.findByTestId('active-hold-notice-banner')).toBeInTheDocument();
+
+    // Day shift Apply button should be disabled because student already holds Morning Shift
+    const dayApplyBtn = await screen.findByTestId('apply-btn-c_day');
+    expect(dayApplyBtn).toBeDisabled();
+    expect(screen.getByTestId('apply-reason-c_day')).toHaveTextContent(
+      /Already admitted\/held in Class 6 - Morning Shift/i,
+    );
+  });
+
+  it('shows mandatory profile warning and disables apply when student profile is incomplete', async () => {
+    localStorage.setItem(STUDENT_ID_STORAGE_KEY, VALID_STUDENT_ID);
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith('/classes')) {
+        return jsonResponse([
+          {
+            id: 'c_1',
+            name: 'Class 6 - Morning Shift',
+            totalSeats: 50,
+            heldSeats: 0,
+            confirmedSeats: 0,
+            availableSeats: 50,
+          },
+        ]);
+      }
+      if (url.endsWith('/me/holds')) return jsonResponse([]);
+      if (url.endsWith('/parent/profile')) {
+        // Return incomplete profile with missing guardian and address
+        return jsonResponse({
+          studentId: VALID_STUDENT_ID,
+          fullNameEn: '',
+          dob: '',
+          gender: '',
+          fatherName: '',
+          fatherPhone: '',
+          presentAddress: '',
+          documents: [],
+          applicationStatus: 'DRAFT',
+          completenessPercent: 10,
+        });
+      }
+      return jsonResponse({});
+    });
+
+    render(<App />);
+
+    // Mandatory profile gate warning banner is shown
+    expect(await screen.findByTestId('mandatory-fields-gate-banner')).toBeInTheDocument();
+
+    // Apply button is disabled due to missing mandatory fields
+    const applyBtn = await screen.findByTestId('apply-btn-c_1');
+    expect(applyBtn).toBeDisabled();
+    expect(screen.getByTestId('apply-reason-c_1')).toHaveTextContent(
+      /Fill mandatory student details first/i,
+    );
+  });
+
+  it('renders class routine and fixed hours view from the routine tab and modal', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith('/classes')) {
+        return jsonResponse([
+          {
+            id: 'c_morn',
+            name: 'Class 6 - Morning Shift',
+            totalSeats: 50,
+            heldSeats: 0,
+            confirmedSeats: 0,
+            availableSeats: 50,
+          },
+        ]);
+      }
+      if (url.endsWith('/routines')) {
+        return jsonResponse([
+          {
+            classId: 'c_morn',
+            className: 'Class 6 - Morning Shift',
+            shift: 'Morning',
+            startTime: '07:30',
+            endTime: '12:00',
+            days: ['SUN', 'MON', 'TUE', 'WED', 'THU'],
+            periods: [
+              { period: 1, startTime: '07:30', endTime: '08:15', subject: 'Bangla 1st Paper', teacher: 'Mrs. Sultana', room: 'Room 201', day: 'SUN' },
+              { period: 2, startTime: '08:15', endTime: '09:00', subject: 'English 1st Paper', teacher: 'Mr. David', room: 'Room 201', day: 'SUN' },
+            ],
+            isDefault: true,
+          },
+        ]);
+      }
+      if (url.endsWith('/classes/c_morn/routine')) {
+        return jsonResponse({
+          classId: 'c_morn',
+          className: 'Class 6 - Morning Shift',
+          shift: 'Morning',
+          startTime: '07:30',
+          endTime: '12:00',
+          days: ['SUN', 'MON', 'TUE', 'WED', 'THU'],
+          periods: [
+            { period: 1, startTime: '07:30', endTime: '08:15', subject: 'Bangla 1st Paper', teacher: 'Mrs. Sultana', room: 'Room 201', day: 'SUN' },
+          ],
+          isDefault: true,
+        });
+      }
+      if (url.endsWith('/me/holds')) return jsonResponse([]);
+      return jsonResponse({});
+    });
+
+    render(<App />);
+
+    // Click on "Class Routines & Hours" in sidebar nav
+    const routineNavBtn = await screen.findByTestId('nav-routines-btn');
+    fireEvent.click(routineNavBtn);
+
+    // Should display class routine timetable with fixed hours
+    expect(await screen.findByTestId('class-routines-section')).toBeInTheDocument();
+    expect(screen.getByText(/School Operating Hours:/i)).toBeInTheDocument();
+    expect(screen.getByText(/07:30 — 12:00/i)).toBeInTheDocument();
+    expect(screen.getByText('Bangla 1st Paper')).toBeInTheDocument();
   });
 });
 

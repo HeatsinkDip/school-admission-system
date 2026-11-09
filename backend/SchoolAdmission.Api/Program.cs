@@ -17,6 +17,7 @@ builder.Services.AddSingleton<DbMigrator>();
 builder.Services.AddSingleton<ClassService>();
 builder.Services.AddSingleton<HoldService>();
 builder.Services.AddSingleton<PortalService>();
+builder.Services.AddSingleton<RoutineService>();
 builder.Services.AddHostedService<HoldExpirySweeper>();
 
 // CORS: CORS_ALLOWED_ORIGINS is a comma separated list, or "*" (default) for any origin.
@@ -45,6 +46,7 @@ app.UseMiddleware<ApiExceptionMiddleware>();
 app.MapClassEndpoints();
 app.MapHoldEndpoints();
 app.MapPortalEndpoints();
+app.MapRoutineEndpoints();
 
 // Unknown routes get the same JSON error shape.
 app.MapFallback(() => Results.Json(new ErrorBody(ErrorCodes.NotFound, "Resource not found."), statusCode: StatusCodes.Status404NotFound));

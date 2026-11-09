@@ -19,17 +19,38 @@ Where the specification left details open, the following choices were made and i
 1. **Mandatory 17-Digit Birth Registration Number (`X-Student-Id`):**
    - In Bangladesh, school admissions uniquely identify applicants using the government-issued 17-digit Birth Registration Number.
    - The system strictly enforces the regex `^[0-9]{17}$` across both frontend form inputs and backend API headers.
-2. **Fast Lane vs. Slow Lane Separation:**
-   - **Fast Lane (Seconds):** Hold seat and confirm admission fee.
-   - **Slow Lane (Days):** Complete child biographical information, guardian NID details, monthly household income, document uploads, and need-based tuition assistance requests.
-3. **Admission Office Eligibility Verification Gate:**
+2. **Mandatory Profile Fields Gate Before Seat Selection:**
+   - In accordance with school regulations, parents must fill out basic student identification (17-digit birth registration number, student name, DOB, gender, at least one guardian name and phone number, and present address) before class seat reservations can be placed.
+   - The UI disables class application until mandatory fields are filled, providing clear visual guidance to complete the child's dossier first.
+3. **Single Admission Per Student Rule (Multi-Class / Shift Conflict):**
+   - The same student (17-digit birth registration number) cannot enter Class 6 Morning Shift and Day Shift simultaneously, nor attend two different classes at the same time.
+   - Race conditions across simultaneous class requests are prevented via PostgreSQL per-student transaction advisory locks (`SELECT pg_advisory_xact_lock('student_hold'::regclass::oid::int, hashtext(@studentId));`).
+   - If a student has an active `HELD` or `CONFIRMED` admission in any other class, the application returns `409 Conflict: ALREADY_ADMITTED_ELSEWHERE`.
+   - In the UI, other classes display an "Already admitted/held" indicator, preventing duplicate shift reservations while allowing seamless shift switching once an unpaid hold is cancelled.
+4. **Fast Lane vs. Slow Lane Separation:**
+   - **Fast Lane (Seconds):** Hold seat and confirm admission fee once profile prerequisites are met.
+   - **Slow Lane (Days):** Complete extensive child biographical records, guardian NID uploads, household income verification, and need-based concession reviews.
+5. **Admission Office Eligibility Verification Gate:**
    - After submitting their profile, student applications are set to `SUBMITTED`.
    - The Admission Office inspects the student's age, documents, and previous academic records and transitions the application to `ELIGIBLE` / `APPROVED`.
    - The Parent Portal's class selection view displays an **Eligibility Review Gate**: class-shift enrollment is unlocked once the student's eligibility is approved, preventing unqualified applicants from holding seats.
 
 ---
 
-## 3. High-Concurrency Seat Allocation (100+ Users for 50 Seats)
+## 3. Class Routines & Fixed Operating Hours Architecture
+
+1. **Fixed Shift Hours:**
+   - Morning Shift: 07:30 to 12:00
+   - Day Shift: 12:30 to 17:00
+   - Evening Shift: 14:30 to 18:30
+2. **Weekly Timetable Generator:**
+   - Each class automatically receives a standard weekly routine covering Sunday through Thursday with six 45-minute academic periods, morning assembly, teacher and classroom allocations, and a designated 30-minute recess/tiffin break.
+3. **Routine Customization & Conflict Prevention:**
+   - Administrators can update or reset routine periods via `/admin/classes/{id}/routine`. Overlapping period timings on the same day are validated and rejected server-side (`400 Validation Error`).
+
+---
+
+## 4. High-Concurrency Seat Allocation (100+ Users for 50 Seats)
 
 1. **First-Come, First-Served Concurrency Model:**
    - No lottery system is used. The first applicant to acquire a hold receives the seat.

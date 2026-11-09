@@ -49,6 +49,16 @@ public sealed class HoldService(NpgsqlDataSource dataSource, AdmissionSettings s
         await using var conn = await dataSource.OpenConnectionAsync(ct);
         await using var tx = await conn.BeginTransactionAsync(IsolationLevel.ReadCommitted, ct);
 
+        // 0) Per-student lock (taken BEFORE the class lock, always in this order, so no deadlock cycle is
+        //    possible). It serialises one student's parallel applications to *different* classes, which the
+        //    per-class row lock below cannot do on its own.
+        if (settings.SingleAdmissionPerStudent)
+        {
+            await using var lockCmd = new NpgsqlCommand("SELECT pg_advisory_xact_lock(hashtext('student:' || @sid))", conn, tx);
+            lockCmd.Parameters.AddWithValue("sid", studentId);
+            await lockCmd.ExecuteNonQueryAsync(ct);
+        }
+
         // a) Lock the class row. Every applicant for this class queues here, across all processes.
         string className;
         int totalSeats;
@@ -97,6 +107,33 @@ public sealed class HoldService(NpgsqlDataSource dataSource, AdmissionSettings s
         if (mine > 0)
             throw ApiException.Conflict(ErrorCodes.AlreadyApplied,
                 "This student already has an active or confirmed application for this class.");
+
+        // c2) One admission per student across ALL classes / shifts (Morning vs Day, Class 6 vs Class 7).
+        if (settings.SingleAdmissionPerStudent)
+        {
+            await using var otherCmd = new NpgsqlCommand("""
+                SELECT c.name, h.status
+                FROM holds h
+                JOIN classes c ON c.id = h.class_id
+                WHERE h.student_id = @sid
+                  AND h.class_id <> @id
+                  AND (h.status = 'CONFIRMED' OR (h.status = 'HELD' AND h.expires_at > clock_timestamp()))
+                ORDER BY (h.status = 'CONFIRMED') DESC, h.created_at
+                LIMIT 1
+                """, conn, tx);
+            otherCmd.Parameters.AddWithValue("id", classId);
+            otherCmd.Parameters.AddWithValue("sid", studentId);
+            await using var r = await otherCmd.ExecuteReaderAsync(ct);
+            if (await r.ReadAsync(ct))
+            {
+                var otherClass = r.GetString(0);
+                var otherStatus = r.GetString(1);
+                throw ApiException.Conflict(ErrorCodes.AlreadyAdmittedElsewhere, otherStatus == "CONFIRMED"
+                    ? $"This student is already admitted to '{otherClass}'. A student cannot be enrolled in two classes or shifts at the same time."
+                    : $"This student already holds a seat in '{otherClass}'. Cancel that hold first; a student cannot apply to two classes or shifts at the same time.");
+            }
+        }
+
         if (taken >= totalSeats)
             throw ApiException.Conflict(ErrorCodes.SeatsFull, "No seats are available in this class.");
 

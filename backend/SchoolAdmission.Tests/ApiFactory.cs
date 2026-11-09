@@ -12,6 +12,7 @@ namespace SchoolAdmission.Tests;
 public class ApiFactory : WebApplicationFactory<Program>
 {
     protected virtual int HoldDurationSeconds => 600;
+    protected virtual bool SingleAdmissionPerStudent => true;
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -23,9 +24,16 @@ public class ApiFactory : WebApplicationFactory<Program>
                 ["DB_CONNECTION_STRING"] = TestDatabase.ConnectionString,
                 ["HOLD_DURATION_SECONDS"] = HoldDurationSeconds.ToString(),
                 ["SWEEP_INTERVAL_SECONDS"] = "1",
+                ["SINGLE_ADMISSION_PER_STUDENT"] = SingleAdmissionPerStudent ? "true" : "false",
             });
         });
     }
+}
+
+/// <summary>Original per-class contract rule (SINGLE_ADMISSION_PER_STUDENT=false).</summary>
+public sealed class PerClassRuleApiFactory : ApiFactory
+{
+    protected override bool SingleAdmissionPerStudent => false;
 }
 
 /// <summary>Holds expire after 1 second (HOLD_DURATION_SECONDS=1 test override).</summary>

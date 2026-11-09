@@ -81,16 +81,17 @@ body {
   width: 100%;
 }
 
-/* Sidebar */
+/* Sidebar (All-White Theme) */
 .app-sidebar {
   width: var(--sidebar-width);
-  background: var(--slate-900);
-  color: var(--slate-200);
+  background: #ffffff;
+  color: var(--slate-700);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid var(--slate-200);
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.02);
   position: sticky;
   top: 0;
   height: 100vh;
@@ -106,7 +107,8 @@ body {
   align-items: center;
   gap: 0.75rem;
   padding: 1.25rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--slate-200);
+  background: #ffffff;
 }
 
 .brand-logo {
@@ -128,7 +130,7 @@ body {
 .brand-name {
   font-size: 0.85rem;
   font-weight: 700;
-  color: #fff;
+  color: var(--slate-900);
   letter-spacing: 0.04em;
   white-space: nowrap;
 }
@@ -137,33 +139,35 @@ body {
   font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
-  color: var(--indigo-100);
-  background: rgba(99, 102, 241, 0.25);
+  color: var(--indigo-700);
+  background: var(--indigo-50);
+  border: 1px solid var(--indigo-100);
   padding: 0.1rem 0.4rem;
   border-radius: 4px;
 }
 
 .badge-parent {
-  color: var(--emerald-100);
-  background: rgba(16, 185, 129, 0.25);
+  color: var(--emerald-700);
+  background: var(--emerald-50);
+  border: 1px solid var(--emerald-100);
 }
 
 /* User Session Card in Sidebar */
 .sidebar-user-card {
   padding: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--slate-200);
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--slate-50);
 }
 
 .user-avatar-circle {
   width: 36px;
   height: 36px;
   border-radius: 999px;
-  background: var(--slate-700);
-  color: #fff;
+  background: var(--slate-200);
+  color: var(--slate-800);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -179,7 +183,7 @@ body {
 
 .user-name {
   font-weight: 600;
-  color: #fff;
+  color: var(--slate-900);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -195,18 +199,18 @@ body {
 }
 
 .role-super_admin {
-  background: rgba(168, 85, 247, 0.2);
-  color: #c084fc;
+  background: rgba(168, 85, 247, 0.15);
+  color: #7e22ce;
 }
 
 .role-admission_officer {
-  background: rgba(59, 130, 246, 0.2);
-  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.15);
+  color: #1d4ed8;
 }
 
 .role-accountant {
-  background: rgba(16, 185, 129, 0.2);
-  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.15);
+  color: #047857;
 }
 
 /* Student Session in Parent Sidebar */
@@ -224,18 +228,19 @@ body {
 }
 
 .session-label {
-  color: var(--slate-400);
+  color: var(--slate-500);
   font-size: 0.72rem;
 }
 
 .session-id {
-  color: #fff;
+  color: var(--slate-900);
   font-size: 0.85rem;
+  font-weight: 600;
 }
 
 .session-name {
-  color: var(--emerald-500);
-  font-weight: 500;
+  color: var(--emerald-600);
+  font-weight: 600;
   font-size: 0.78rem;
 }
 
@@ -249,7 +254,7 @@ body {
 .btn-link {
   background: none;
   border: none;
-  color: var(--indigo-100);
+  color: var(--indigo-600);
   cursor: pointer;
   padding: 0;
   font-weight: 600;
@@ -267,12 +272,13 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  background: #ffffff;
 }
 
 .nav-group-label {
   font-size: 0.68rem;
   font-weight: 700;
-  color: var(--slate-500);
+  color: var(--slate-400);
   padding: 0.75rem 0.6rem 0.25rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -284,7 +290,7 @@ body {
   gap: 0.75rem;
   padding: 0.65rem 0.75rem;
   border-radius: 6px;
-  color: var(--slate-300);
+  color: var(--slate-600);
   background: transparent;
   border: none;
   font-weight: 500;
@@ -296,20 +302,21 @@ body {
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
+  background: var(--slate-100);
+  color: var(--slate-900);
 }
 
 .nav-item.active {
-  background: var(--blue-600);
-  color: #fff;
+  background: var(--blue-50);
+  color: var(--blue-700);
   font-weight: 600;
+  border-left: 3px solid var(--blue-600);
 }
 
 .nav-badge {
   margin-left: auto;
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background: var(--slate-100);
+  color: var(--slate-700);
   font-size: 0.72rem;
   padding: 0.1rem 0.45rem;
   border-radius: 999px;
@@ -337,15 +344,16 @@ body {
 /* Sidebar Footer */
 .sidebar-footer {
   padding: 0.75rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--slate-200);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  background: #ffffff;
 }
 
 .role-simulator-widget {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--slate-50);
+  border: 1px solid var(--slate-200);
   border-radius: 6px;
   padding: 0.5rem;
 }
@@ -353,7 +361,7 @@ body {
 .sim-label {
   display: block;
   font-size: 0.7rem;
-  color: var(--slate-400);
+  color: var(--slate-500);
   margin-bottom: 0.35rem;
   font-weight: 600;
 }
@@ -366,9 +374,9 @@ body {
 .sim-btn {
   flex: 1;
   padding: 0.3rem 0.2rem;
-  background: var(--slate-800);
-  color: var(--slate-300);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  color: var(--slate-700);
+  border: 1px solid var(--slate-200);
   border-radius: 4px;
   font-size: 0.7rem;
   font-weight: 600;
@@ -377,8 +385,8 @@ body {
 }
 
 .sim-btn:hover {
-  background: var(--slate-700);
-  color: #fff;
+  background: var(--slate-100);
+  color: var(--slate-900);
 }
 
 .sim-btn.active {
@@ -401,7 +409,7 @@ body {
   background: transparent;
   border: none;
   border-radius: 6px;
-  color: var(--slate-300);
+  color: var(--slate-600);
   font-size: 0.82rem;
   font-weight: 500;
   cursor: pointer;
@@ -410,8 +418,8 @@ body {
 }
 
 .sidebar-link-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
+  background: var(--slate-100);
+  color: var(--slate-900);
 }
 
 /* =========================================================================
@@ -423,7 +431,7 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  background: var(--slate-100);
+  background: var(--slate-50);
 }
 
 .app-topbar {
@@ -2830,9 +2838,104 @@ body {
 }
 
 .landing-footer {
-  background: #090d16;
-  color: #94a3b8;
-  padding: 4rem 0 2rem;
+  background: #ffffff;
+  color: #64748b;
+  border-top: 1px solid #e2e8f0;
+  padding: 3rem 0 2rem;
 }
+
+/* =========================================================================
+   Pagination Styles (All-White Theme)
+   ========================================================================= */
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1.25rem;
+  background: #ffffff;
+  border-top: 1px solid var(--slate-200);
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--slate-600);
+  background: #ffffff;
+  border: 1px solid var(--slate-200);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--slate-50);
+  border-color: var(--slate-300);
+  color: var(--slate-900);
+}
+
+.pagination-btn.active {
+  background: var(--blue-50);
+  border-color: var(--blue-600);
+  color: var(--blue-700);
+  font-weight: 700;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination-ellipsis {
+  padding: 0 0.25rem;
+  color: var(--slate-400);
+}
+
+/* =========================================================================
+   Class Routine & Inspection Modal Styles (All-White Theme)
+   ========================================================================= */
+
+.routine-view-card {
+  background: #ffffff;
+  border-radius: 10px;
+}
+
+.routine-period-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.routine-period-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.inspection-modal {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  background: #ffffff;
+}
+
+.routine-modal {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-xl);
+}
+
 
 

@@ -8,6 +8,7 @@ public static class ErrorCodes
     public const string NotOwner = "NOT_OWNER";
     public const string SeatsFull = "SEATS_FULL";
     public const string AlreadyApplied = "ALREADY_APPLIED";
+    public const string AlreadyAdmittedElsewhere = "ALREADY_ADMITTED_ELSEWHERE";
     public const string HoldExpired = "HOLD_EXPIRED";
     public const string HoldCancelled = "HOLD_CANCELLED";
     public const string AlreadyConfirmed = "ALREADY_CONFIRMED";

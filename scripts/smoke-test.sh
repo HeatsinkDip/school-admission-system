@@ -53,14 +53,18 @@ req GET "/classes/$C";              check "6c confirmedSeats counted once" 200 "
 req DELETE "/holds/$H" "$S1";       check "7a cancel confirmed -> 409" 409 "$CODE" "$BODY" '"code":"ALREADY_CONFIRMED"'
 
 req POST /classes "" '{"name":"Smoke - Day Shift","totalSeats":5}'; C2=$(field id)
-req POST "/classes/$C2/holds" "$S1"; H2=$(field holdId)
-req DELETE "/holds/$H2" "$S2"; check "7b cancel by other student -> 403" 403 "$CODE" "$BODY" '"code":"NOT_OWNER"'
-req DELETE "/holds/$H2" "$S1"; check "7 DELETE /holds/{id}" 204 "$CODE" "$BODY"
-req DELETE "/holds/$H2" "$S1"; check "7c cancel again (idempotent)" 204 "$CODE" "$BODY"
-req POST "/holds/$H2/confirm" "$S1"; check "7d confirm cancelled -> 409" 409 "$CODE" "$BODY" '"code":"HOLD_CANCELLED"'
+# S1 is already confirmed in Morning Shift, so holding Day Shift must be rejected
+req POST "/classes/$C2/holds" "$S1"; check "7a cannot apply to another class when confirmed -> 409" 409 "$CODE" "$BODY" '"code":"ALREADY_ADMITTED_ELSEWHERE"'
 
-req GET /me/holds "$S1"
-check "8 GET /me/holds" 200 "$CODE" "$BODY" "\"holdId\":\"$H\"" "\"holdId\":\"$H2\"" '"className":"Smoke - Morning Shift"' '"status":"CONFIRMED"' '"status":"CANCELLED"'
+S3="2015271$(printf '%010d' $((RANDOM * RANDOM % 10000000000)))"
+req POST "/classes/$C2/holds" "$S3"; H2=$(field holdId)
+req DELETE "/holds/$H2" "$S2"; check "7b cancel by other student -> 403" 403 "$CODE" "$BODY" '"code":"NOT_OWNER"'
+req DELETE "/holds/$H2" "$S3"; check "7 DELETE /holds/{id}" 204 "$CODE" "$BODY"
+req DELETE "/holds/$H2" "$S3"; check "7c cancel again (idempotent)" 204 "$CODE" "$BODY"
+req POST "/holds/$H2/confirm" "$S3"; check "7d confirm cancelled -> 409" 409 "$CODE" "$BODY" '"code":"HOLD_CANCELLED"'
+
+req GET /me/holds "$S3"
+check "8 GET /me/holds" 200 "$CODE" "$BODY" "\"holdId\":\"$H2\"" '"className":"Smoke - Day Shift"' '"status":"CANCELLED"'
 req GET /me/holds; check "8b /me/holds without header -> 400" 400 "$CODE" "$BODY" '"code":"VALIDATION_ERROR"'
 
 req POST /classes "" '{"name":"","totalSeats":5}'; check "1b empty name -> 400" 400 "$CODE" "$BODY" '"code":"VALIDATION_ERROR"'

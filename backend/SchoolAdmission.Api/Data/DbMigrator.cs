@@ -216,6 +216,18 @@ public sealed class DbMigrator(NpgsqlDataSource dataSource, ILogger<DbMigrator> 
             CREATE INDEX IF NOT EXISTS ix_notifications_created 
                 ON notifications (created_at DESC);
             """),
+
+        (4, "class_routine_schema", """
+            ALTER TABLE classes
+                ADD COLUMN IF NOT EXISTS start_time   VARCHAR(5) NULL,
+                ADD COLUMN IF NOT EXISTS end_time     VARCHAR(5) NULL,
+                ADD COLUMN IF NOT EXISTS class_days   VARCHAR(100) NOT NULL DEFAULT 'SUN,MON,TUE,WED,THU',
+                ADD COLUMN IF NOT EXISTS routine_json JSONB NOT NULL DEFAULT '[]'::jsonb;
+
+            -- Speeds up the "one admission per student across all classes" check.
+            CREATE INDEX IF NOT EXISTS ix_holds_student_active
+                ON holds (student_id) WHERE status IN ('HELD', 'CONFIRMED');
+            """),
     ];
 
     public async Task MigrateWithRetryAsync(CancellationToken ct)

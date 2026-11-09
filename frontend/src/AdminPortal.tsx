@@ -47,8 +47,11 @@ import {
   ADMIN_USER_STORAGE_KEY,
   POLL_INTERVAL_MS,
 } from './config';
+import { ApplicationInspectionModal } from './ApplicationInspectionModal';
+import { ClassRoutineView } from './ClassRoutineView';
 import { DocumentViewerModal } from './DocumentViewerModal';
 import { NotificationCenter } from './NotificationCenter';
+import { Pagination } from './Pagination';
 import { STRINGS } from './strings';
 import { notifyToast, ToastContainer } from './ToastContainer';
 import {
@@ -59,10 +62,12 @@ import {
   AdminSession,
   AppNotification,
   AuditLogEntry,
+  ClassRoutine,
   DocumentItem,
   PaymentRecord,
   WaitlistEntry,
 } from './types';
+import { fetchAllRoutines } from './api';
 
 interface AdminPortalProps {
   onNavigateToParent: () => void;
@@ -73,6 +78,7 @@ type AdminView =
   | 'applications'
   | 'doc_verification'
   | 'classes'
+  | 'routines'
   | 'finance'
   | 'refunds'
   | 'waitlist'
@@ -142,6 +148,24 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
   const [newMonthlyTuition, setNewMonthlyTuition] = useState('6000');
   const [isSavingClass, setIsSavingClass] = useState(false);
   const [editingClass, setEditingClass] = useState<AdminClassDetail | null>(null);
+
+  // --- Inspection Modal State ---
+  const [inspectingApp, setInspectingApp] = useState<AdminApplicationSummary | null>(null);
+  const [inspectingDetail, setInspectingDetail] = useState<AdminApplicationDetail | null>(null);
+  const [isLoadingInspection, setIsLoadingInspection] = useState(false);
+
+  // --- Routine State ---
+  const [routines, setRoutines] = useState<ClassRoutine[]>([]);
+  const [selectedRoutine, setSelectedRoutine] = useState<ClassRoutine | null>(null);
+  const [isLoadingRoutines, setIsLoadingRoutines] = useState(false);
+
+  // --- Pagination States ---
+  const [appPage, setAppPage] = useState(1);
+  const [classPage, setClassPage] = useState(1);
+  const [paymentPage, setPaymentPage] = useState(1);
+  const [waitlistPage, setWaitlistPage] = useState(1);
+  const [auditPage, setAuditPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   // --- Review Form State ---
   const [reviewNote, setReviewNote] = useState('');
@@ -319,6 +343,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
     try {
       const detail = await api.getAdminApplicationDetail(session.token, studentId);
       setSelectedDetail(detail);
+      setInspectingDetail(detail);
       setReviewNote(detail.profile.reviewerNote || '');
       setAssignedSection(detail.profile.assignedSection || 'Section A');
       setEnrolledStudentNo(
@@ -330,6 +355,38 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
       showError(err);
     }
   };
+
+  const openInspectionModal = async (app: AdminApplicationSummary) => {
+    setInspectingApp(app);
+    setInspectingDetail(null);
+    setIsLoadingInspection(true);
+    try {
+      await loadStudentDossier(app.studentId);
+    } finally {
+      setIsLoadingInspection(false);
+    }
+  };
+
+  const loadAllRoutines = async () => {
+    setIsLoadingRoutines(true);
+    try {
+      const r = await fetchAllRoutines();
+      setRoutines(r);
+      if (r.length > 0 && !selectedRoutine) {
+        setSelectedRoutine(r[0]);
+      }
+    } catch (err) {
+      showError(err);
+    } finally {
+      setIsLoadingRoutines(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeView === 'routines') {
+      void loadAllRoutines();
+    }
+  }, [activeView]);
 
   // --- Handlers ---
 
@@ -950,6 +1007,17 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             {!isSidebarCollapsed && <span>Classes & Fee Builder</span>}
           </button>
 
+          <button
+            type="button"
+            className={`nav-item ${activeView === 'routines' ? 'active' : ''}`}
+            data-testid="admin-tab-routines"
+            onClick={() => setActiveView('routines')}
+            title="Class Timetables & Fixed Operating Hours"
+          >
+            <Clock size={19} />
+            {!isSidebarCollapsed && <span>Class Routines & Hours</span>}
+          </button>
+
           {isSuperAdmin && (
             <>
               <button
@@ -1219,7 +1287,9 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                       </tr>
                     </thead>
                     <tbody>
-                      {dashboard.classes.map((cls) => (
+                      {dashboard.classes
+                        .slice((classPage - 1) * PAGE_SIZE, classPage * PAGE_SIZE)
+                        .map((cls) => (
                         <tr key={cls.id}>
                           <td className="mono font-semibold">{cls.id}</td>
                           <td>
@@ -1274,6 +1344,14 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                     </tbody>
                   </table>
                 </div>
+
+                <Pagination
+                  currentPage={classPage}
+                  totalItems={dashboard.classes.length}
+                  pageSize={PAGE_SIZE}
+                  onPageChange={setClassPage}
+                  itemLabel="classes"
+                />
               </div>
             </div>
           )}
@@ -1378,7 +1456,9 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                         </tr>
                       </thead>
                       <tbody>
-                        {applications.map((app) => (
+                        {applications
+                          .slice((appPage - 1) * PAGE_SIZE, appPage * PAGE_SIZE)
+                          .map((app) => (
                           <tr
                             key={app.holdId}
                             className={selectedStudentId === app.studentId ? 'row-selected' : ''}
@@ -1426,7 +1506,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                                   type="button"
                                   className="btn btn-primary btn-xs"
                                   data-testid={`inspect-student-${app.studentId}`}
-                                  onClick={() => void loadStudentDossier(app.studentId)}
+                                  onClick={() => void openInspectionModal(app)}
                                 >
                                   <Eye size={13} /> Inspect & Verify
                                 </button>
@@ -1448,6 +1528,14 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                     </table>
                   </div>
                 )}
+
+                <Pagination
+                  currentPage={appPage}
+                  totalItems={applications.length}
+                  pageSize={PAGE_SIZE}
+                  onPageChange={setAppPage}
+                  itemLabel="applications"
+                />
               </div>
 
               {/* Selected Student Dossier Inspector Panel */}
@@ -1745,7 +1833,9 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                         </tr>
                       </thead>
                       <tbody>
-                        {payments.map((p) => (
+                        {payments
+                          .slice((paymentPage - 1) * PAGE_SIZE, paymentPage * PAGE_SIZE)
+                          .map((p) => (
                           <tr key={p.id}>
                             <td className="mono font-semibold">{p.receiptNo}</td>
                             <td className="mono">{p.studentId}</td>
@@ -1779,6 +1869,14 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                     </table>
                   </div>
                 )}
+
+                <Pagination
+                  currentPage={paymentPage}
+                  totalItems={payments.length}
+                  pageSize={PAGE_SIZE}
+                  onPageChange={setPaymentPage}
+                  itemLabel="payments"
+                />
               </div>
             </div>
           )}
@@ -1990,7 +2088,9 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                         </tr>
                       </thead>
                       <tbody>
-                        {waitlist.map((w) => (
+                        {waitlist
+                          .slice((waitlistPage - 1) * PAGE_SIZE, waitlistPage * PAGE_SIZE)
+                          .map((w) => (
                           <tr key={w.id}>
                             <td>
                               <span className="badge-position">#{w.position}</span>
@@ -2005,7 +2105,76 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                     </table>
                   </div>
                 )}
+
+                <Pagination
+                  currentPage={waitlistPage}
+                  totalItems={waitlist.length}
+                  pageSize={PAGE_SIZE}
+                  onPageChange={setWaitlistPage}
+                  itemLabel="waitlist entries"
+                />
               </div>
+            </div>
+          )}
+
+          {/* ================================================================= */}
+          {/* VIEW: CLASS ROUTINES & FIXED OPERATING HOURS                      */}
+          {/* ================================================================= */}
+          {activeView === 'routines' && (
+            <div className="view-section" data-testid="admin-routines-view">
+              <div className="panel-card mb-4">
+                <div className="panel-header">
+                  <div>
+                    <h3 className="panel-title flex items-center gap-2">
+                      <Clock className="text-indigo-600" size={20} />
+                      Class Routines & Fixed Operating Hours
+                    </h3>
+                    <p className="panel-subtitle">
+                      Inspect weekly timetable schedules, period breakdowns, teacher assignments, and classroom allocations.
+                    </p>
+                  </div>
+                  <div className="panel-actions">
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm flex items-center gap-1.5"
+                      onClick={() => void loadAllRoutines()}
+                      disabled={isLoadingRoutines}
+                    >
+                      <RefreshCw size={14} className={isLoadingRoutines ? 'animate-spin' : ''} />
+                      <span>Refresh Routines</span>
+                    </button>
+                  </div>
+                </div>
+
+                {routines.length > 0 && (
+                  <div className="routine-class-selector flex flex-wrap gap-2 mt-2 pt-2 border-t border-slate-100">
+                    <span className="text-xs font-bold text-slate-500 self-center mr-1">Select Class:</span>
+                    {routines.map((r) => (
+                      <button
+                        key={r.classId}
+                        type="button"
+                        className={`btn btn-xs ${
+                          selectedRoutine?.classId === r.classId ? 'btn-primary' : 'btn-outline text-slate-700'
+                        }`}
+                        onClick={() => setSelectedRoutine(r)}
+                      >
+                        {r.className} ({r.shift})
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {isLoadingRoutines ? (
+                <div className="p-8 text-center text-slate-500">Loading class routines...</div>
+              ) : selectedRoutine ? (
+                <ClassRoutineView routine={selectedRoutine} />
+              ) : (
+                <div className="panel-card text-center p-8 text-slate-400">
+                  <Clock size={40} className="mx-auto mb-2 opacity-50" />
+                  <p>No class routines available yet. Create classes first to initialize default shift schedules.</p>
+                </div>
+              )}
             </div>
           )}
 
@@ -2335,7 +2504,9 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                         </tr>
                       </thead>
                       <tbody>
-                        {auditLogs.map((log) => (
+                        {auditLogs
+                          .slice((auditPage - 1) * PAGE_SIZE, auditPage * PAGE_SIZE)
+                          .map((log) => (
                           <tr key={log.id}>
                             <td className="mono text-xs">{log.createdAt}</td>
                             <td>
@@ -2355,12 +2526,38 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                     </table>
                   </div>
                 )}
+
+                <Pagination
+                  currentPage={auditPage}
+                  totalItems={auditLogs.length}
+                  pageSize={PAGE_SIZE}
+                  onPageChange={setAuditPage}
+                  itemLabel="audit logs"
+                />
               </div>
             </div>
           )}
         </div>
         <ToastContainer />
       </main>
+
+      {/* --- Application Inspection & Verification Modal --- */}
+      {inspectingApp && session && (
+        <ApplicationInspectionModal
+          application={inspectingApp}
+          detail={inspectingDetail}
+          isLoading={isLoadingInspection}
+          session={session}
+          onClose={() => {
+            setInspectingApp(null);
+            setInspectingDetail(null);
+          }}
+          onRefreshQueue={async () => {
+            await refreshAdminData(false);
+          }}
+          onNotifyToast={(title, msg, sev) => notifyToast(title, msg, sev)}
+        />
+      )}
 
       {/* --- Interactive Document Verification Modal --- */}
       {inspectingDoc && (

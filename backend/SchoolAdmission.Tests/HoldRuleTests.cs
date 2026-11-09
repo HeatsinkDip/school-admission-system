@@ -20,11 +20,47 @@ public sealed class HoldRuleTests(ApiFactory factory) : IClassFixture<ApiFactory
     }
 
     [Fact]
-    public async Task SameStudent_CanApplyToDifferentClasses()
+    public async Task SameStudent_CannotHoldMorningAndDayShift_AtTheSameTime()
     {
         var student = Api.NewStudentId();
-        await Api.ApplyOkAsync(_client, await Api.CreateClassAsync(_client, 5), student);
-        await Api.ApplyOkAsync(_client, await Api.CreateClassAsync(_client, 5), student);
+        var morning = await Api.CreateClassAsync(_client, 5, "Class 6 - Morning Shift");
+        var day = await Api.CreateClassAsync(_client, 5, "Class 6 - Day Shift");
+
+        var holdId = await Api.ApplyOkAsync(_client, morning, student);
+        await Api.AssertError(await Api.ApplyAsync(_client, day, student), HttpStatusCode.Conflict, "ALREADY_ADMITTED_ELSEWHERE");
+        Assert.Equal(0, (await Api.GetClassAsync(_client, day)).GetProperty("heldSeats").GetInt32());
+
+        // Once confirmed, the student still cannot take a seat in a different class.
+        Assert.Equal(HttpStatusCode.OK, (await Api.ConfirmAsync(_client, holdId, student)).StatusCode);
+        var otherClass = await Api.CreateClassAsync(_client, 5, "Class 7 - Morning Shift");
+        await Api.AssertError(await Api.ApplyAsync(_client, otherClass, student), HttpStatusCode.Conflict, "ALREADY_ADMITTED_ELSEWHERE");
+    }
+
+    [Fact]
+    public async Task SameStudent_CanSwitchShift_AfterCancellingTheFirstHold()
+    {
+        var student = Api.NewStudentId();
+        var morning = await Api.CreateClassAsync(_client, 5, "Class 6 - Morning Shift");
+        var day = await Api.CreateClassAsync(_client, 5, "Class 6 - Day Shift");
+
+        var holdId = await Api.ApplyOkAsync(_client, morning, student);
+        Assert.Equal(HttpStatusCode.NoContent, (await Api.CancelAsync(_client, holdId, student)).StatusCode);
+        await Api.ApplyOkAsync(_client, day, student);
+    }
+
+    [Fact]
+    public async Task SameStudent_ParallelAppliesToManyClasses_GetsExactlyOneSeat()
+    {
+        var student = Api.NewStudentId();
+        var classes = new List<string>();
+        for (var i = 0; i < 6; i++) classes.Add(await Api.CreateClassAsync(_client, 5, $"Parallel Class {i}"));
+
+        var results = await Task.WhenAll(classes.Select(c => Api.ApplyAsync(_client, c, student)));
+
+        Assert.Equal(1, results.Count(r => r.StatusCode == HttpStatusCode.Created));
+        Assert.Equal(classes.Count - 1, results.Count(r => r.StatusCode == HttpStatusCode.Conflict));
+        var mine = await Api.Json(await Api.MyHoldsAsync(_client, student));
+        Assert.Equal(1, mine.EnumerateArray().Count(h => h.GetProperty("status").GetString() == "HELD"));
     }
 
     [Fact]

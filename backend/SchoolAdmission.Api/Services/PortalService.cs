@@ -949,7 +949,7 @@ public sealed class PortalService(
 
         if (nextStatus == "APPROVED")
         {
-            await AddNotificationAsync(conn, tx, "PARENT", studentId, "REVIEW", "SUCCESS", "Admission Approved! 🎉",
+            await AddNotificationAsync(conn, tx, "PARENT", studentId, "REVIEW", "SUCCESS", "Admission Approve",
                 $"Congratulations! Admission has been approved. Assigned Section: {section ?? "Section A"}, Roll: {studentNo ?? "1"}.", admin.FullName, ct);
             await AddNotificationAsync(conn, tx, "ALL_ADMINS", null, "REVIEW", "SUCCESS", "Admission Approved",
                 $"Student {studentId} approved by {admin.FullName}. Section: {section}, Roll: {studentNo}.", admin.FullName, ct);

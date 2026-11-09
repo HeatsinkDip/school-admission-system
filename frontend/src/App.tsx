@@ -24,20 +24,25 @@ import { AdminPortal } from './AdminPortal';
 import {
   api,
   ApiClientError,
+  fetchAllRoutines,
+  fetchClassRoutine,
   fetchNotifications,
   getServerNowMs,
   markAllNotificationsRead,
   markNotificationRead,
 } from './api';
+import { ClassRoutineView } from './ClassRoutineView';
 import { POLL_INTERVAL_MS, STUDENT_ID_STORAGE_KEY } from './config';
 import { LandingPage } from './LandingPage';
 import { NotificationCenter } from './NotificationCenter';
+import { Pagination } from './Pagination';
 import { generateAndDownloadPdfReceipt } from './ReceiptPdf';
 import { STRINGS } from './strings';
 import { notifyToast, ToastContainer } from './ToastContainer';
 import {
   AppNotification,
   ClassFeeBreakdown,
+  ClassRoutine,
   HoldItem,
   HoldStatus,
   PaymentRecord,
@@ -81,7 +86,7 @@ function formatStatusLabel(status: HoldStatus): string {
   }
 }
 
-type ParentNavTab = 'all' | 'classes' | 'active_hold' | 'child_dossier' | 'applications';
+type ParentNavTab = 'all' | 'classes' | 'active_hold' | 'child_dossier' | 'applications' | 'routines';
 type ProfileStepTab = 'student' | 'guardians' | 'finance' | 'documents';
 
 export function App() {
@@ -239,6 +244,18 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  // --- Pagination States ---
+  const [classesPage, setClassesPage] = useState<number>(1);
+  const [holdsPage, setHoldsPage] = useState<number>(1);
+  const CLASSES_PAGE_SIZE = 6;
+  const HOLDS_PAGE_SIZE = 5;
+
+  // --- Class Routine State ---
+  const [routines, setRoutines] = useState<ClassRoutine[]>([]);
+  const [selectedRoutine, setSelectedRoutine] = useState<ClassRoutine | null>(null);
+  const [modalRoutine, setModalRoutine] = useState<ClassRoutine | null>(null);
+  const [isLoadingRoutines, setIsLoadingRoutines] = useState<boolean>(false);
+
   // --- Live Clock Tick (every 1s) ---
   const [nowMs, setNowMs] = useState<number>(() => getServerNowMs());
   const expiredRefetchedIds = useRef<Set<string>>(new Set());
@@ -299,7 +316,7 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
             setUnreadNotifCount(summary.unreadCount);
           }
         })
-        .catch(() => {});
+        .catch(() => { });
     },
     [savedStudentId, showError],
   );
@@ -442,6 +459,85 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
     };
   }, [focusedHold?.classId, savedStudentId, profile?.hasSibling]);
 
+  // --- Class Routines Fetcher ---
+  const loadParentRoutines = useCallback(async () => {
+    setIsLoadingRoutines(true);
+    try {
+      const list = await fetchAllRoutines();
+      setRoutines(list);
+      if (list.length > 0) {
+        setSelectedRoutine((prev) => prev || list[0]);
+      }
+    } catch {
+      // Ignore
+    } finally {
+      setIsLoadingRoutines(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'routines' || activeTab === 'all') {
+      void loadParentRoutines();
+    }
+  }, [activeTab, loadParentRoutines]);
+
+  const handleOpenRoutineModal = async (classId: string) => {
+    try {
+      const r = await fetchClassRoutine(classId);
+      setModalRoutine(r);
+    } catch {
+      const found = routines.find((item) => item.classId === classId);
+      if (found) setModalRoutine(found);
+    }
+  };
+
+  // --- Mandatory Profile Fields Gate ---
+  const missingMandatoryFields = useMemo(() => {
+    const missing: string[] = [];
+    if (!savedStudentId || !isValidStudentId(savedStudentId)) {
+      missing.push('17-digit Birth Registration Number');
+    }
+    if (!profileForm.fullNameEn?.trim()) {
+      missing.push('Student Full Name (English)');
+    }
+    if (!profileForm.dob?.trim()) {
+      missing.push('Date of Birth');
+    }
+    if (!profileForm.gender?.trim()) {
+      missing.push('Gender');
+    }
+    const hasGuardian = Boolean(
+      profileForm.fatherName?.trim() ||
+      profileForm.motherName?.trim() ||
+      profileForm.guardianName?.trim()
+    );
+    if (!hasGuardian) {
+      missing.push('Guardian Name (Father/Mother/Guardian)');
+    }
+    const hasPhone = Boolean(
+      profileForm.fatherPhone?.trim() ||
+      profileForm.motherPhone?.trim() ||
+      profileForm.guardianPhone?.trim()
+    );
+    if (!hasPhone) {
+      missing.push('Guardian Contact Mobile');
+    }
+    if (!profileForm.presentAddress?.trim()) {
+      missing.push('Present Address');
+    }
+    return missing;
+  }, [savedStudentId, profileForm]);
+
+  const isMandatoryProfileComplete = missingMandatoryFields.length === 0;
+
+  // --- Single Admission / Cross-Class Conflict Helper ---
+  const activeHoldElsewhere = useMemo(() => {
+    return myHolds.find((h) => {
+      const eff = getEffectiveHoldStatus(h, nowMs);
+      return eff === 'HELD' || eff === 'CONFIRMED';
+    });
+  }, [myHolds, nowMs]);
+
   // --- Student ID Handlers ---
   const handleSaveStudentId = (e: React.FormEvent) => {
     e.preventDefault();
@@ -557,6 +653,41 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
       return;
     }
 
+    if (!isMandatoryProfileComplete) {
+      setActionModal({
+        isOpen: true,
+        type: 'WARNING',
+        title: 'Mandatory Student Profile Information Required',
+        message: 'School admission policy requires completing mandatory student and guardian information before you can select or reserve a class-shift seat.',
+        detailReason: `Missing required fields: ${missingMandatoryFields.join(', ')}. Please complete these details in the Child & Guardian Dossier first.`,
+        primaryActionLabel: 'Complete Profile Form Now',
+        onPrimaryAction: () => {
+          setActiveTab('child_dossier');
+          setActionModal((prev) => ({ ...prev, isOpen: false }));
+        },
+        secondaryActionLabel: 'Dismiss',
+      });
+      return;
+    }
+
+    if (activeHoldElsewhere && activeHoldElsewhere.classId !== cls.id) {
+      setActionModal({
+        isOpen: true,
+        type: 'WARNING',
+        title: 'Single Admission Rule (Class / Shift Conflict)',
+        message: `Student (${savedStudentId}) already has an active ${activeHoldElsewhere.status === 'CONFIRMED' ? 'confirmed admission' : 'seat reservation'} in "${activeHoldElsewhere.className || activeHoldElsewhere.classId}".`,
+        detailReason: 'Onnorokom Projukti School enforces single admission per student identity. Students cannot enter Morning and Day shifts simultaneously or attend two different classes at the same time. If you have an unpaid hold, cancel it first before switching classes.',
+        primaryActionLabel: 'View Active Hold',
+        onPrimaryAction: () => {
+          setSelectedHoldId(activeHoldElsewhere.holdId);
+          setActiveTab('active_hold');
+          setActionModal((prev) => ({ ...prev, isOpen: false }));
+        },
+        secondaryActionLabel: 'Dismiss',
+      });
+      return;
+    }
+
     setApplyingClassId(cls.id);
     try {
       const createdHold = await api.applyForSeat(cls.id, savedStudentId);
@@ -608,6 +739,20 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
             setActionModal((prev) => ({ ...prev, isOpen: false }));
           },
         });
+      } else if (err instanceof ApiClientError && err.code === 'ALREADY_ADMITTED_ELSEWHERE') {
+        setActionModal({
+          isOpen: true,
+          type: 'WARNING',
+          title: 'Single Admission Rule (Class / Shift Conflict)',
+          message: 'Student already has an active hold or confirmed admission in another class or shift.',
+          detailReason: 'Under school regulations, a student cannot hold morning and day shifts or attend two different classes at the same time. Cancel the current unpaid hold first before switching classes.',
+          primaryActionLabel: 'View My Applications',
+          onPrimaryAction: () => {
+            setActiveTab('applications');
+            setActionModal((prev) => ({ ...prev, isOpen: false }));
+          },
+          secondaryActionLabel: 'Dismiss',
+        });
       }
       await refreshData(true);
     } finally {
@@ -653,7 +798,7 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
       );
       setSelectedHoldId(hold.holdId);
       setSuccessMessage(STRINGS.holdConfirmedSuccess);
-      notifyToast('Admission Confirmed! 🎉', `Payment received and seat confirmed for ${hold.className || 'Class'}! Receipt generated.`, 'success');
+      notifyToast('Admission Confirmed!', `Payment received and seat confirmed for ${hold.className || 'Class'}! Receipt generated.`, 'success');
       setActionModal({
         isOpen: true,
         type: 'SUCCESS',
@@ -929,6 +1074,20 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
               <span className="nav-badge">{payments.length}</span>
             )}
           </button>
+
+          <button
+            type="button"
+            className={`nav-item ${activeTab === 'routines' ? 'active' : ''}`}
+            onClick={() => setActiveTab('routines')}
+            title="Class Timetables & Fixed Operating Hours"
+            data-testid="nav-routines-btn"
+          >
+            <Clock size={19} />
+            {!isSidebarCollapsed && <span>Class Routines & Hours</span>}
+            {!isSidebarCollapsed && routines.length > 0 && (
+              <span className="nav-badge">{routines.length}</span>
+            )}
+          </button>
         </nav>
 
         {/* Sidebar Bottom: Admin Switch & Support */}
@@ -967,6 +1126,8 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                 {activeTab === 'active_hold' && 'Current Seat Hold & Admission Fee'}
                 {activeTab === 'child_dossier' && 'Child Information & Verification Dossier'}
                 {activeTab === 'applications' && 'My Applications & Payment Receipts'}
+                {activeTab === 'routines' && 'Class Timetables & Operating Hours'}
+                {activeTab === 'all' && 'Full Portal Overview'}
               </strong>
             </div>
           </div>
@@ -1066,7 +1227,7 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
               <CheckCircle2 size={20} className="text-emerald-600" />
             </div>
             <div className="alert-banner-text">
-              <strong className="alert-banner-title">Admission Confirmed & Enrolled! 🎉</strong>
+              <strong className="alert-banner-title">Admission Confirmed & Enrolled!</strong>
               <span className="alert-banner-desc">
                 Congratulations! Assigned Section: <strong>{profile.assignedSection || 'Section A'}</strong>
                 {profile.enrolledStudentNo ? ` | Student Roll No: ${profile.enrolledStudentNo}` : ''}. Welcome to the school!
@@ -1291,6 +1452,64 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                         <span className="status-pill status-open font-semibold text-xs">ENROLLMENT UNLOCKED</span>
                       </div>
                     ) : null}
+
+                    {/* Mandatory Profile Fields Gate Banner */}
+                    {!isMandatoryProfileComplete && (
+                      <div className="alert-banner alert-banner-warning mt-3 flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-lg border border-amber-300 bg-amber-50" data-testid="mandatory-fields-gate-banner">
+                        <div className="flex items-center gap-3">
+                          <AlertTriangle size={24} className="text-amber-600 shrink-0" />
+                          <div>
+                            <strong className="text-sm text-amber-950 font-bold block">
+                              Mandatory Profile Information Required Before Reserving Seats
+                            </strong>
+                            <p className="text-xs text-amber-900 mt-0.5">
+                              School regulations require completion of mandatory student and guardian details before seat selection:
+                            </p>
+                            <span className="text-xs font-semibold text-amber-800 block mt-1">
+                              Missing: {missingMandatoryFields.join(' • ')}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-primary shrink-0"
+                          onClick={() => setActiveTab('child_dossier')}
+                          data-testid="complete-mandatory-profile-btn"
+                        >
+                          Complete Child Dossier &rarr;
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Cross-Class Single Admission Active Notice */}
+                    {activeHoldElsewhere && (
+                      <div className="alert-banner alert-banner-info mt-3 flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-lg border border-indigo-200 bg-indigo-50/70" data-testid="active-hold-notice-banner">
+                        <div className="flex items-center gap-3">
+                          <Clock size={24} className="text-indigo-600 shrink-0" />
+                          <div>
+                            <strong className="text-sm text-indigo-950 font-bold block">
+                              Single Shift/Class Enrollment Active ({activeHoldElsewhere.status === 'CONFIRMED' ? 'Confirmed Seat' : 'Active 10-Min Hold'})
+                            </strong>
+                            <p className="text-xs text-indigo-900 mt-0.5">
+                              This student has an active reservation in <strong>{activeHoldElsewhere.className || activeHoldElsewhere.classId}</strong>.
+                              Under school rules, students cannot attend Morning and Day shifts simultaneously or attend two classes at once.
+                            </p>
+                          </div>
+                        </div>
+                        {activeHoldElsewhere.status === 'HELD' && (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-outline shrink-0"
+                            onClick={() => {
+                              setSelectedHoldId(activeHoldElsewhere.holdId);
+                              setActiveTab('active_hold');
+                            }}
+                          >
+                            View Active Hold &rarr;
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1313,18 +1532,25 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                         </tr>
                       </thead>
                       <tbody>
-                        {classes.map((cls) => {
+                        {classes
+                          .slice((classesPage - 1) * CLASSES_PAGE_SIZE, classesPage * CLASSES_PAGE_SIZE)
+                          .map((cls) => {
                           const isApplyingThis = applyingClassId === cls.id;
                           const noStudent = !isValidStudentId(savedStudentId);
                           const noSeats = cls.availableSeats <= 0;
                           const existingActive = activeHoldByClassId.get(cls.id);
                           const alreadyWaitlisted = waitlistEntries.find((w) => w.classId === cls.id);
+                          const isHeldElsewhere = Boolean(activeHoldElsewhere && activeHoldElsewhere.classId !== cls.id);
 
                           let disabledReason: string | null = null;
                           if (noStudent) {
                             disabledReason = STRINGS.applyDisabledNoStudent;
+                          } else if (!isMandatoryProfileComplete) {
+                            disabledReason = 'Fill mandatory student details first';
                           } else if (existingActive) {
                             disabledReason = STRINGS.applyDisabledAlreadyActive;
+                          } else if (isHeldElsewhere) {
+                            disabledReason = `Already admitted/held in ${activeHoldElsewhere!.className || activeHoldElsewhere!.classId}`;
                           } else if (noSeats) {
                             disabledReason = STRINGS.applyDisabledFull;
                           }
@@ -1345,9 +1571,8 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                               </td>
                               <td data-testid={`class-available-${cls.id}`}>
                                 <span
-                                  className={`seat-counter ${
-                                    cls.availableSeats > 0 ? 'seat-open' : 'seat-full'
-                                  }`}
+                                  className={`seat-counter ${cls.availableSeats > 0 ? 'seat-open' : 'seat-full'
+                                    }`}
                                 >
                                   {cls.availableSeats} Available
                                 </span>
@@ -1365,7 +1590,17 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                                       {isApplyingThis ? STRINGS.applyingButton : STRINGS.applyButton}
                                     </button>
 
-                                    {noSeats && !noStudent && !existingActive && (
+                                    <button
+                                      type="button"
+                                      className="btn btn-outline btn-xs flex items-center gap-1"
+                                      onClick={() => void handleOpenRoutineModal(cls.id)}
+                                      title="View Fixed School Operating Hours & Class Timetable"
+                                    >
+                                      <Clock size={12} />
+                                      <span>Routine</span>
+                                    </button>
+
+                                    {noSeats && !noStudent && !existingActive && !isHeldElsewhere && (
                                       <button
                                         type="button"
                                         className="btn btn-outline btn-xs"
@@ -1399,6 +1634,14 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                     </table>
                   </div>
                 )}
+
+                <Pagination
+                  currentPage={classesPage}
+                  totalItems={classes.length}
+                  pageSize={CLASSES_PAGE_SIZE}
+                  onPageChange={setClassesPage}
+                  itemLabel="classes"
+                />
               </div>
             </div>
           )}
@@ -2215,7 +2458,9 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                         </tr>
                       </thead>
                       <tbody>
-                        {myHolds.map((hold) => {
+                        {myHolds
+                          .slice((holdsPage - 1) * HOLDS_PAGE_SIZE, holdsPage * HOLDS_PAGE_SIZE)
+                          .map((hold) => {
                           const effectiveStatus = getEffectiveHoldStatus(hold, nowMs);
                           const remainingSec = Math.max(
                             0,
@@ -2300,6 +2545,14 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                   </div>
                 )}
 
+                <Pagination
+                  currentPage={holdsPage}
+                  totalItems={myHolds.length}
+                  pageSize={HOLDS_PAGE_SIZE}
+                  onPageChange={setHoldsPage}
+                  itemLabel="applications"
+                />
+
                 {/* Receipts Section */}
                 {payments.length > 0 && (
                   <div className="mt-4 pt-4 border-t">
@@ -2355,7 +2608,77 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
               </div>
             </div>
           )}
+
+          {/* ================================================================= */}
+          {/* TAB 5: CLASS ROUTINES & FIXED OPERATING HOURS                     */}
+          {/* ================================================================= */}
+          {(activeTab === 'all' || activeTab === 'routines') && (
+            <div className="view-section" data-testid="class-routines-section">
+              <div className="panel-card mb-4">
+                <div className="panel-header">
+                  <div>
+                    <h3 className="panel-title flex items-center gap-2">
+                      <Clock className="text-indigo-600" size={20} />
+                      Class Timetables & Fixed School Operating Hours
+                    </h3>
+                    <p className="panel-subtitle">
+                      Inspect weekly class schedules, period timings (Morning: 07:30–12:00, Day: 12:30–17:00), subjects, and teacher assignments.
+                    </p>
+                  </div>
+                  <div className="panel-actions">
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-sm flex items-center gap-1.5"
+                      onClick={() => void loadParentRoutines()}
+                      disabled={isLoadingRoutines}
+                    >
+                      <RefreshCw size={13} className={isLoadingRoutines ? 'animate-spin' : ''} />
+                      <span>Refresh Timetables</span>
+                    </button>
+                  </div>
+                </div>
+
+                {routines.length > 0 && (
+                  <div className="routine-class-selector flex flex-wrap gap-2 mt-2 pt-2 border-t border-slate-100">
+                    <span className="text-xs font-bold text-slate-500 self-center mr-1">Select Class:</span>
+                    {routines.map((r) => (
+                      <button
+                        key={r.classId}
+                        type="button"
+                        className={`btn btn-xs ${
+                          selectedRoutine?.classId === r.classId ? 'btn-primary' : 'btn-outline text-slate-700'
+                        }`}
+                        onClick={() => setSelectedRoutine(r)}
+                      >
+                        {r.className} ({r.shift})
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {isLoadingRoutines ? (
+                <div className="p-8 text-center text-slate-500">Loading class routines...</div>
+              ) : selectedRoutine ? (
+                <ClassRoutineView routine={selectedRoutine} />
+              ) : (
+                <div className="panel-card text-center p-8 text-slate-400">
+                  <Clock size={40} className="mx-auto mb-2 opacity-50" />
+                  <p>No class routines available yet. Timetables are automatically available for all published class shifts.</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
+
+        {/* Modal for Quick Routine Inspection from Class Card */}
+        {modalRoutine && (
+          <ClassRoutineView
+            routine={modalRoutine}
+            isModal={true}
+            onClose={() => setModalRoutine(null)}
+          />
+        )}
         <ActionAlertModal
           isOpen={actionModal.isOpen}
           onClose={() => setActionModal((prev) => ({ ...prev, isOpen: false }))}
