@@ -183,3 +183,4 @@ export const ClassRoutineView: React.FC<ClassRoutineViewProps> = ({
 
   return content;
 };
+

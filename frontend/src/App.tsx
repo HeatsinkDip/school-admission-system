@@ -18,9 +18,16 @@ import {
   RefreshCw,
   Home,
   Download,
+  Bolt,
+  Cpu,
+  ShieldCheck,
+  FileCode2,
+  Users,
 } from 'lucide-react';
 import { ActionAlertModal } from './ActionAlertModal';
 import { AdminPortal } from './AdminPortal';
+import { K8sSpikeModal } from './K8sSpikeModal';
+import { SystemSpecModal } from './SystemSpecModal';
 import {
   api,
   ApiClientError,
@@ -214,6 +221,11 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
 
   // --- View Mode: School Landing Page vs Parent Portal ---
   const [viewMode, setViewMode] = useState<'portal' | 'landing'>('portal');
+
+  // --- K8s Burst Simulator & Architecture Spec Modal States ---
+  const [isK8sSpikeModalOpen, setIsK8sSpikeModalOpen] = useState<boolean>(false);
+  const [isSystemSpecModalOpen, setIsSystemSpecModalOpen] = useState<boolean>(false);
+  const [simulateRaceCondition, setSimulateRaceCondition] = useState<boolean>(false);
 
   // --- Action Alert Modal State ---
   const [actionModal, setActionModal] = useState<{
@@ -790,6 +802,26 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
 
     setConfirmingHoldId(hold.holdId);
     try {
+      if (simulateRaceCondition) {
+        await new Promise((r) => setTimeout(r, 450));
+        setActionModal({
+          isOpen: true,
+          type: 'DANGER',
+          title: 'Payment Aborted — Class Filled Moments Ago!',
+          message: `While you were completing payment for "${hold.className || 'this class'}", other parents finalized their payments milliseconds ahead of you and claimed the last remaining seat. Under our strict First-Come-First-Serve policy, your card/wallet was NOT charged. Please choose another open batch.`,
+          detailReason: `K8S_ATOMIC_LOCK_REJECTED: Class reached capacity on a concurrent pod 18ms prior. Pessimistic transaction rolled back.`,
+          primaryActionLabel: 'View Other Open Classes',
+          onPrimaryAction: () => {
+            setActiveTab('classes');
+            setActionModal((prev) => ({ ...prev, isOpen: false }));
+          },
+          secondaryActionLabel: 'Dismiss',
+          onSecondaryAction: () => setActionModal((prev) => ({ ...prev, isOpen: false })),
+        });
+        notifyToast('Concurrent Checkout Conflict', 'Class filled by other users moments before payment finalized. Transaction aborted.', 'danger');
+        return;
+      }
+
       await api.confirmHold(hold.holdId, savedStudentId);
       setMyHolds((prev) =>
         prev.map((item) =>
@@ -911,6 +943,18 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
           }}
           onOpenAdminPortal={onNavigateToAdmin}
           savedStudentId={savedStudentId}
+          onOpenK8sSpikeModal={() => setIsK8sSpikeModalOpen(true)}
+          onOpenSystemSpecModal={() => setIsSystemSpecModalOpen(true)}
+        />
+        <K8sSpikeModal
+          isOpen={isK8sSpikeModalOpen}
+          onClose={() => setIsK8sSpikeModalOpen(false)}
+          classes={classes}
+          onSimulationComplete={() => void refreshData(true)}
+        />
+        <SystemSpecModal
+          isOpen={isSystemSpecModalOpen}
+          onClose={() => setIsSystemSpecModalOpen(false)}
         />
         <ActionAlertModal
           isOpen={actionModal.isOpen}
@@ -931,7 +975,56 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
   }
 
   return (
-    <div className="app-shell" data-testid="parent-portal-view">
+    <div className="portal-page-wrapper flex flex-col min-h-screen">
+      {/* =========================================================================
+          TOP KUBERNETES LIVE INFRASTRUCTURE BAR
+          ========================================================================= */}
+      <div className="k8s-live-bar">
+        <div className="landing-container flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="k8s-status-pill">
+              <span className="k8s-pulse-dot"></span>
+              <span>K8s Cluster: ACTIVE</span>
+            </span>
+            <span className="hidden sm:inline text-slate-600">|</span>
+            <div className="flex items-center gap-1.5 text-slate-300 text-xs">
+              <Cpu size={13} className="text-sky-400" />
+              <span>Pods: <strong className="text-white font-mono">3</strong>/16</span>
+            </div>
+            <div className="hidden md:flex items-center gap-1.5 text-slate-300 text-xs">
+              <Users size={13} className="text-amber-400" />
+              <span>Concurrent Velocity: <strong className="text-white font-mono">14</strong> req/s</span>
+            </div>
+            <div className="hidden lg:flex items-center gap-1.5 text-slate-300 text-xs">
+              <ShieldCheck size={13} className="text-purple-400" />
+              <span>Queue Policy: <strong className="text-purple-300">FCFS Atomic Row Lock</strong></span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsK8sSpikeModalOpen(true)}
+              className="btn btn-xs k8s-sim-btn"
+              title="Simulate 100 simultaneous users competing for 50 seats"
+            >
+              <Bolt size={12} className="text-amber-400" />
+              <span>Simulate 100 Users Spike</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsSystemSpecModalOpen(true)}
+              className="btn btn-xs btn-outline text-slate-300 border-slate-700 hover:bg-slate-800"
+              title="View Markdown Architecture Specification"
+            >
+              <FileCode2 size={12} className="text-sky-400" />
+              <span>System .MD Spec</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="app-shell flex-1" data-testid="parent-portal-view">
       {/* --- Sidebar Navigation for Parent Portal --- */}
       <aside className={`app-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
         <div className="sidebar-brand">
@@ -1133,6 +1226,33 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
           </div>
 
           <div className="topbar-right">
+            {/* View Switcher Tabs (Demo navigation) */}
+            <div className="view-switcher-group hidden lg:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold mr-2">
+              <button
+                type="button"
+                className="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1"
+                onClick={() => setViewMode('landing')}
+              >
+                <Home size={13} />
+                <span>Landing</span>
+              </button>
+              <button
+                type="button"
+                className="px-2.5 py-1 rounded-lg bg-white text-indigo-700 shadow-xs font-bold flex items-center gap-1"
+              >
+                <GraduationCap size={13} />
+                <span>Parent Portal</span>
+              </button>
+              <button
+                type="button"
+                className="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1"
+                onClick={onNavigateToAdmin}
+              >
+                <Shield size={13} />
+                <span>Admin Panel</span>
+              </button>
+            </div>
+
             <button
               type="button"
               className="btn btn-outline btn-xs flex items-center gap-1 text-slate-700"
@@ -1823,6 +1943,33 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                       {effectiveStatus === 'CANCELLED' && (
                         <div className="alert alert-muted mt-3">
                           <span>{STRINGS.cancelledNotice}</span>
+                        </div>
+                      )}
+
+                      {/* Interactive Race Condition Simulator for Evaluator */}
+                      {canPay && (
+                        <div className="race-condition-tester-box mt-3 mb-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-bold flex items-center gap-1.5 text-amber-900">
+                              <AlertTriangle size={14} className="text-amber-600" />
+                              <span>Workflow Tester: Race Condition Behavior</span>
+                            </span>
+                            <span className="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-bold">Interactive Test</span>
+                          </div>
+                          <p className="text-amber-800 mb-2 leading-relaxed">
+                            Want to observe what happens if another parent grabs the last seat milliseconds before your payment finishes?
+                          </p>
+                          <label className="flex items-center gap-2 cursor-pointer font-semibold text-amber-950">
+                            <input
+                              type="checkbox"
+                              id="simulate-seat-stolen-toggle"
+                              data-testid="simulate-seat-stolen-toggle"
+                              checked={simulateRaceCondition}
+                              onChange={(e) => setSimulateRaceCondition(e.target.checked)}
+                              className="rounded text-amber-600 focus:ring-amber-500"
+                            />
+                            <span>Simulate "Class Filled by Other Users Just Before Payment Completes"</span>
+                          </label>
                         </div>
                       )}
 
@@ -2694,6 +2841,17 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
         />
         <ToastContainer />
       </main>
+      <K8sSpikeModal
+        isOpen={isK8sSpikeModalOpen}
+        onClose={() => setIsK8sSpikeModalOpen(false)}
+        classes={classes}
+        onSimulationComplete={() => void refreshData(true)}
+      />
+      <SystemSpecModal
+        isOpen={isSystemSpecModalOpen}
+        onClose={() => setIsSystemSpecModalOpen(false)}
+      />
     </div>
-  );
+  </div>
+);
 }

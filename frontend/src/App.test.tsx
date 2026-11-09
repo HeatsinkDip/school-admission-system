@@ -611,5 +611,128 @@ describe('School Admission Frontend', () => {
     expect(screen.getByText(/07:30 — 12:00/i)).toBeInTheDocument();
     expect(screen.getByText('Bangla 1st Paper')).toBeInTheDocument();
   });
+
+  it('opens and executes the Kubernetes 100-user concurrency spike simulator and opens system architecture spec modal', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith('/classes')) {
+        return jsonResponse([
+          {
+            id: 'c_sim',
+            name: 'Class 6 - Morning Shift',
+            totalSeats: 50,
+            heldSeats: 0,
+            confirmedSeats: 0,
+            availableSeats: 50,
+          },
+        ]);
+      }
+      if (url.endsWith('/me/holds')) return jsonResponse([]);
+      return jsonResponse({});
+    });
+
+    render(<App />);
+
+    // Click "Simulate 100 Users Spike" in the top K8s Live bar
+    const simBtns = screen.getAllByRole('button', { name: /Simulate 100 Users Spike/i });
+    expect(simBtns.length).toBeGreaterThan(0);
+    fireEvent.click(simBtns[0]);
+
+    // K8s Spike Modal should open
+    expect(await screen.findByTestId('k8s-spike-modal')).toBeInTheDocument();
+    expect(screen.getByText(/Kubernetes High-Concurrency Seat Burst Simulator/i)).toBeInTheDocument();
+
+    // Fire the simulation
+    const runBtn = screen.getByTestId('run-spike-sim-btn');
+    fireEvent.click(runBtn);
+
+    // Should indicate simulation running or pods autoscaled
+    expect(screen.getByText(/Simulating 100 Simultaneous Parent Requests/i)).toBeInTheDocument();
+
+    // Close the K8s modal
+    fireEvent.click(screen.getByRole('button', { name: /Close Simulator/i }));
+    await waitFor(() => {
+      expect(screen.queryByTestId('k8s-spike-modal')).not.toBeInTheDocument();
+    });
+
+    // Click "System .MD Spec" button
+    const specBtns = screen.getAllByRole('button', { name: /System .MD Spec/i });
+    expect(specBtns.length).toBeGreaterThan(0);
+    fireEvent.click(specBtns[0]);
+
+    // Spec modal should open
+    expect(await screen.findByTestId('system-spec-modal')).toBeInTheDocument();
+    expect(screen.getByText(/1. Database Schema & Primary Key Enforcement/i)).toBeInTheDocument();
+  });
+
+  it('notifies parent with valid reason when race condition simulation is toggled during seat payment', async () => {
+    const studentId = '20152690495734899';
+    window.localStorage.setItem(STUDENT_ID_STORAGE_KEY, studentId);
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.endsWith('/classes')) {
+        return jsonResponse([
+          {
+            id: 'c_race',
+            name: 'Class 6 - Day Shift',
+            totalSeats: 50,
+            heldSeats: 1,
+            confirmedSeats: 49,
+            availableSeats: 0,
+          },
+        ]);
+      }
+      if (url.endsWith('/me/holds')) {
+        return jsonResponse([
+          {
+            holdId: 'h_race',
+            classId: 'c_race',
+            className: 'Class 6 - Day Shift',
+            status: 'HELD',
+            expiresAt: new Date(Date.now() + 500000).toISOString(),
+            serverTime: new Date().toISOString(),
+          },
+        ]);
+      }
+      if (url.includes(`/students/${studentId}/profile`)) {
+        return jsonResponse({
+          studentId,
+          fullNameEn: 'Tahmid Khan',
+          dateOfBirth: '2014-02-15',
+          gender: 'MALE',
+          birthRegNumber: studentId,
+          desiredClass: 'Class 6 - Day Shift',
+          status: 'ELIGIBLE',
+          hasSibling: false,
+          fatherName: 'Mr. Khan',
+          motherName: 'Mrs. Khan',
+          primaryContactPhone: '01711223344',
+          presentAddress: 'Dhaka',
+          documents: [{ docType: 'BIRTH_CERTIFICATE', fileUrl: 'https://example.com/b.pdf', status: 'VERIFIED' }],
+        });
+      }
+      return jsonResponse({});
+    });
+
+    render(<App />);
+
+    // Wait for the active hold pay button to appear
+    const payBtn = await screen.findByTestId('focused-pay-btn');
+    expect(payBtn).toBeInTheDocument();
+
+    // Toggle the race condition simulator checkbox
+    const raceToggle = screen.getByTestId('simulate-seat-stolen-toggle');
+    expect(raceToggle).toBeInTheDocument();
+    fireEvent.click(raceToggle);
+
+    // Click Pay Admission Fee
+    fireEvent.click(payBtn);
+
+    // Should display the clear ActionAlertModal explaining payment aborted due to class full / race condition
+    expect(await screen.findByText(/Payment Aborted — Class Filled Moments Ago!/i)).toBeInTheDocument();
+    expect(screen.getByText(/other parents finalized their payments milliseconds ahead of you/i)).toBeInTheDocument();
+    expect(screen.getByText(/K8S_ATOMIC_LOCK_REJECTED/i)).toBeInTheDocument();
+  });
 });
 
