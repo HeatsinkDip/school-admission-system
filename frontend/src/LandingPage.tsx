@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   ArrowRight,
-  BookOpen,
   CheckCircle2,
   Cpu,
   GraduationCap,
@@ -38,7 +37,6 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({
-  classes,
   onOpenParentPortal,
   savedStudentId,
   onOpenK8sSpikeModal,
@@ -112,7 +110,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <div className="flex items-center gap-4 text-emerald-100 font-medium">
             <span className="flex items-center gap-1.5">
               <MapPin size={13} className="text-amber-400" />
-              <span>Bashundhara R/A, Dhaka-1229, Bangladesh</span>
+              <span>Plot 19-21, Block D, Bashundhara R/A, Dhaka-1229, Bangladesh</span>
             </span>
             <span className="hidden md:inline text-emerald-400">|</span>
             <span className="hidden md:flex items-center gap-1.5">
@@ -166,7 +164,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             {/* Colorful Geometric Sunburst Emblem matching ISD Reference */}
             <div className="isd-sunburst-logo">
               <svg viewBox="0 0 44 44" className="w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M22 4C23.1 4 24 4.9 24 6V10C24 11.1 23.1 12 22 12C20.9 12 20 11.1 20 10V6C20 4.9 20.9 4 22 4Z" fill="#10B981" />
+                <path d="M22 4C23.1 4 24 4.9 24 6V10C24 11.1 23.1 12 22 12C20.9 12 20 10V6C20 4.9 20.9 4 22 4Z" fill="#10B981" />
                 <path d="M22 32C23.1 32 24 32.9 24 34V38C24 39.1 23.1 40 22 40C20.9 40 20 39.1 20 38V34C20 32.9 20.9 32 22 32Z" fill="#EA580C" />
                 <path d="M4 22C4 20.9 4.9 20 6 20H10C11.1 20 12 20.9 12 22C12 23.1 11.1 24 10 24H6C4.9 24 4 23.1 4 22Z" fill="#F59E0B" />
                 <path d="M32 22C32 20.9 32.9 20 34 20H38C39.1 20 40 20.9 40 22C40 23.1 39.1 24 38 24H34C32.9 24 32 23.1 32 22Z" fill="#047857" />
@@ -225,15 +223,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               }}
             >
               <span>Learning Experiences</span>
-            </button>
-            <button
-              type="button"
-              className="isd-nav-item"
-              onClick={() => {
-                document.getElementById('seat-matrix-section')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              <span>Available Seats</span>
             </button>
           </nav>
 
@@ -311,6 +300,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                               document.getElementById('facilities-section')?.scrollIntoView({ behavior: 'smooth' });
                             } else if (link.name.includes('Primary') || link.name.includes('Early')) {
                               document.getElementById('our-schools-section')?.scrollIntoView({ behavior: 'smooth' });
+                            } else if (link.name.includes('Co-Curricular') || link.name.includes('Club')) {
+                              document.getElementById('clubs-section')?.scrollIntoView({ behavior: 'smooth' });
                             } else {
                               document.getElementById('experiences-section')?.scrollIntoView({ behavior: 'smooth' });
                             }
@@ -445,109 +436,173 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* =========================================================================
-          CAMPUS FACILITIES SECTION (Matching ISD Image 4: "COME AND SEE OUR CAMPUS")
+          CAMPUS FACILITIES SECTION (GRID 3-COLUMN LAYOUT)
           ========================================================================= */}
       <section id="facilities-section" className="py-20 bg-white border-b border-slate-100">
         <div className="landing-container">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Content */}
-            <div className="lg:col-span-5 space-y-6">
-              <div className="inline-flex items-center gap-2 text-xs font-black tracking-widest text-emerald-700 uppercase bg-emerald-50 px-3 py-1 rounded-md border border-emerald-200">
-                <span>COME AND SEE</span>
-              </div>
-              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                OUR CAMPUS <br />
-                <span className="text-emerald-700">FACILITIES</span>
-              </h2>
-              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                Step onto our purpose-built 7.5-acre smart campus in Bashundhara R/A, Dhaka. Designed to spark inquiry,
-                scientific creativity, and athletic mastery with internationally accredited safety standards.
-              </p>
+          <div className="text-center max-w-3xl mx-auto mb-14">
+            <div className="inline-flex items-center gap-2 text-xs font-black tracking-widest text-emerald-700 uppercase bg-emerald-50 px-3 py-1 rounded-md border border-emerald-200 mb-3">
+              <span>COME AND SEE</span>
+            </div>
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+              OUR CAMPUS FACILITIES
+            </h2>
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed mt-3">
+              Step onto our purpose-built 7.5-acre smart campus in Bashundhara R/A, Dhaka. Designed to spark inquiry,
+              scientific creativity, and athletic mastery with internationally accredited safety standards.
+            </p>
+          </div>
 
-              <div className="space-y-3 pt-2">
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
-                    ✓
-                  </div>
-                  <div className="text-sm text-slate-700">
-                    <strong>Robotics & Future AI Fabrication Studio:</strong> Microcontrollers, Arduino, 3D printers, and edge computing rigs.
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
-                    ✓
-                  </div>
-                  <div className="text-sm text-slate-700">
-                    <strong>Olympic-Standard Sports Arena:</strong> 25m heated swimming pool, FIFA-grade turf pitch, and indoor basketball court.
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
-                    ✓
-                  </div>
-                  <div className="text-sm text-slate-700">
-                    <strong>Digital Knowledge Commons:</strong> 25,000+ volumes, scientific journal subscriptions, and collaborative research pods.
-                  </div>
-                </div>
+          {/* 3-Column Facilities Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Facility Card 1 */}
+            <div className="isd-facility-grid-card">
+              <div className="isd-facility-card-media">
+                <img
+                  src="https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=800&q=80"
+                  alt="AI Robotics Studio and micro-engineering laboratory"
+                  className="isd-facility-photo"
+                />
+                <span className="isd-facility-category-badge">INNOVATION LAB</span>
               </div>
-
-              <div className="flex flex-wrap gap-4 pt-4">
-                <button
-                  type="button"
-                  className="btn btn-primary font-bold px-6 py-3"
-                  onClick={() => setIsCounselorModalOpen(true)}
-                >
-                  Schedule Campus Tour
-                </button>
-                <button
-                  type="button"
-                  className="isd-yellow-pill-solid font-bold px-6 py-3"
-                  onClick={() => setIsVideoModalOpen(true)}
-                >
-                  Virtual 360° Walkthrough
-                </button>
+              <div className="isd-facility-card-body">
+                <h3 className="isd-facility-card-title">AI Robotics & Future Tech Lab</h3>
+                <p className="isd-facility-card-desc">
+                  Microcontrollers, Arduino, Raspberry Pi, 3D prototyping benches, and sensory test tracks for student inventors and competitive robotics teams.
+                </p>
+                <div className="isd-facility-checklist">
+                  <div className="isd-facility-check-item">
+                    <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
+                    <span>3D Rapid Prototyping & Laser Cutters</span>
+                  </div>
+                  <div className="isd-facility-check-item">
+                    <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
+                    <span>Autonomous Rover & Drone Arena</span>
+                  </div>
+                  <div className="isd-facility-check-item">
+                    <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
+                    <span>High-Concurrency Cloud Computing Rigs</span>
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-slate-100 mt-auto">
+                  <button
+                    type="button"
+                    className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1.5 transition"
+                    onClick={() => setIsCounselorModalOpen(true)}
+                  >
+                    <span>Schedule Lab Tour &rarr;</span>
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Right Campus Building Feature Card (Image 4 reference) */}
-            <div className="lg:col-span-7">
-              <div className="isd-facility-banner-card">
+            {/* Facility Card 2 */}
+            <div className="isd-facility-grid-card">
+              <div className="isd-facility-card-media">
                 <img
-                  src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80"
-                  alt="Onnorokom Projukti School Bashundhara Campus Pavilion"
-                  className="isd-facility-hero-img"
+                  src="https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80"
+                  alt="Central Academic Pavilion in Bashundhara campus"
+                  className="isd-facility-photo"
                 />
-                <div className="isd-facility-card-badge">
-                  <div className="text-xs font-bold uppercase tracking-wider text-amber-300">Modern Architecture</div>
-                  <div className="font-serif font-bold text-lg text-white">Central Academic & Science Wing</div>
-                  <div className="text-xs text-slate-200 mt-1">Bashundhara R/A, Dhaka-1229</div>
+                <span className="isd-facility-category-badge">SMART PAVILION</span>
+              </div>
+              <div className="isd-facility-card-body">
+                <h3 className="isd-facility-card-title">Central Academic Complex</h3>
+                <p className="isd-facility-card-desc">
+                  Modern architecturally designed climate-controlled smart classrooms with interactive digital displays, high-speed fiber connectivity, and acoustic learning zones.
+                </p>
+                <div className="isd-facility-checklist">
+                  <div className="isd-facility-check-item">
+                    <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
+                    <span>Interactive Smart Pod Classrooms</span>
+                  </div>
+                  <div className="isd-facility-check-item">
+                    <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
+                    <span>500-Seat Performing Arts Auditorium</span>
+                  </div>
+                  <div className="isd-facility-check-item">
+                    <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
+                    <span>Eco-Sustainable Green Architecture</span>
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-slate-100 mt-auto">
+                  <button
+                    type="button"
+                    className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1.5 transition"
+                    onClick={() => setIsCounselorModalOpen(true)}
+                  >
+                    <span>Explore Pavilion &rarr;</span>
+                  </button>
                 </div>
               </div>
+            </div>
 
-              {/* Sub Facility Mini Gallery */}
-              <div className="grid grid-cols-3 gap-4 mt-4">
-                <div className="isd-facility-thumb">
-                  <img
-                    src="https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=500&q=80"
-                    alt="Robotics and micro-engineering lab"
-                  />
-                  <span>AI Robotics Lab</span>
+            {/* Facility Card 3 */}
+            <div className="isd-facility-grid-card">
+              <div className="isd-facility-card-media">
+                <img
+                  src="https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=800&q=80"
+                  alt="Olympic-standard sports arena and artificial turf"
+                  className="isd-facility-photo"
+                />
+                <span className="isd-facility-category-badge">ATHLETIC COMPLEX</span>
+              </div>
+              <div className="isd-facility-card-body">
+                <h3 className="isd-facility-card-title">Olympic Sports & Aquatic Arena</h3>
+                <p className="isd-facility-card-desc">
+                  25-meter heated competition swimming pool, FIFA-grade artificial turf football ground, professional basketball courts, and badminton academy.
+                </p>
+                <div className="isd-facility-checklist">
+                  <div className="isd-facility-check-item">
+                    <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
+                    <span>25m Heated Competition Pool</span>
+                  </div>
+                  <div className="isd-facility-check-item">
+                    <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
+                    <span>FIFA-Certified Football Turf Ground</span>
+                  </div>
+                  <div className="isd-facility-check-item">
+                    <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
+                    <span>Certified International Sports Coaches</span>
+                  </div>
                 </div>
-                <div className="isd-facility-thumb">
-                  <img
-                    src="https://images.unsplash.com/photo-1517649763962-0c623266ddc0?auto=format&fit=crop&w=500&q=80"
-                    alt="Sports and athletics facilities"
-                  />
-                  <span>Olympic Sports Turf</span>
-                </div>
-                <div className="isd-facility-thumb">
-                  <img
-                    src="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=500&q=80"
-                    alt="Digital Library Commons"
-                  />
-                  <span>Research Library</span>
+                <div className="pt-4 border-t border-slate-100 mt-auto">
+                  <button
+                    type="button"
+                    className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1.5 transition"
+                    onClick={() => setIsCounselorModalOpen(true)}
+                  >
+                    <span>View Sports Facilities &rarr;</span>
+                  </button>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Tour CTA Strip */}
+          <div className="mt-12 p-6 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <School size={28} className="text-emerald-700 shrink-0" />
+              <div>
+                <strong className="text-slate-900 block font-serif text-lg">Interested in Visiting the Campus?</strong>
+                <p className="text-xs text-slate-600">Guided family tours run Sunday through Thursday by appointment.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                className="btn btn-primary font-bold px-5 py-2.5"
+                onClick={() => setIsCounselorModalOpen(true)}
+              >
+                Schedule Campus Tour
+              </button>
+              <button
+                type="button"
+                className="isd-yellow-pill-solid font-bold px-5 py-2.5"
+                onClick={() => setIsVideoModalOpen(true)}
+              >
+                Virtual 360° Walkthrough
+              </button>
             </div>
           </div>
         </div>
@@ -574,7 +629,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </p>
           </div>
 
-          {/* 3 Prominent School Cards (Early Years, Primary, Secondary) */}
+          {/* 3 Prominent School Cards (Early Years, Primary, Secondary) in 3-column grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Early Years */}
             <div className="isd-school-level-card">
@@ -726,7 +781,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* =========================================================================
-          "EXCEPTIONAL LEARNING EXPERIENCES AT OPS" (Matching ISD Image 4)
+          "EXCEPTIONAL LEARNING EXPERIENCES AT OPS" (GRID 3-COLUMN LAYOUT)
           ========================================================================= */}
       <section id="experiences-section" className="py-20 bg-slate-50 border-b border-slate-200">
         <div className="landing-container">
@@ -742,6 +797,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </p>
           </div>
 
+          {/* 3-Column Learning Experiences Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Experience 1: Carnegie Mellon Tech Academy */}
             <div className="isd-exp-card">
@@ -752,7 +808,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 />
                 <div className="isd-exp-badge">TECH CODING ACADEMY</div>
               </div>
-              <div className="p-6">
+              <div className="p-6 flex-1 flex flex-col">
                 <h4 className="font-serif font-bold text-xl text-slate-900 mb-2">
                   Robotics, Cloud & AI Academy
                 </h4>
@@ -760,7 +816,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   Hands-on curriculum incorporating microcontrollers, Python neural networks, autonomous rovers, and
                   high-concurrency cloud computing fundamentals from grade 6.
                 </p>
-                <div className="flex items-center text-xs font-bold text-emerald-700">
+                <div className="mt-auto pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-emerald-700">
                   <span>Explore Robotics Curriculum &rarr;</span>
                 </div>
               </div>
@@ -775,7 +831,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 />
                 <div className="isd-exp-badge">SERVICE LEARNING</div>
               </div>
-              <div className="p-6">
+              <div className="p-6 flex-1 flex flex-col">
                 <h4 className="font-serif font-bold text-xl text-slate-900 mb-2">
                   Bangladesh Community Outreach
                 </h4>
@@ -783,7 +839,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   Student-led community projects across Bangladesh: clean water filtration engineering, solar energy drives for rural schools,
                   and digital literacy mentorship for underprivileged youth.
                 </p>
-                <div className="flex items-center text-xs font-bold text-emerald-700">
+                <div className="mt-auto pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-emerald-700">
                   <span>Explore Social Impact Initiatives &rarr;</span>
                 </div>
               </div>
@@ -798,7 +854,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 />
                 <div className="isd-exp-badge">BARCA ATHLETICS</div>
               </div>
-              <div className="p-6">
+              <div className="p-6 flex-1 flex flex-col">
                 <h4 className="font-serif font-bold text-xl text-slate-900 mb-2">
                   Athletic Academy & Sports
                 </h4>
@@ -806,7 +862,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   Elite training programs in competitive football, swimming, cricket, tennis, and badminton coached
                   by certified international trainers emphasizing teamwork, agility, and grit.
                 </p>
-                <div className="flex items-center text-xs font-bold text-emerald-700">
+                <div className="mt-auto pt-3 border-t border-slate-100 flex items-center text-xs font-bold text-emerald-700">
                   <span>View Sports Schedules & Teams &rarr;</span>
                 </div>
               </div>
@@ -816,7 +872,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* =========================================================================
-          CO-CURRICULAR CLUBS & STUDENT SOCIETIES (Dedicated Bangladesh School Feature)
+          CO-CURRICULAR CLUBS & LIFE (GRID 3-COLUMN LAYOUT)
           ========================================================================= */}
       <section id="clubs-section" className="py-20 bg-white border-b border-slate-200">
         <div className="landing-container">
@@ -825,181 +881,136 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               STUDENT LIFE & LEADERSHIP
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight">
-              18+ CO-CURRICULAR CLUBS & SOCIETIES
+              CLUBS & STUDENT LIFE
             </h2>
             <p className="text-slate-600 text-sm sm:text-base mt-3">
-              Where passions transform into lifelong skills. Every student at Onnorokom Projukti School participates
-              in at least two active clubs per academic term.
+              Where passions transform into lifelong skills. Over 18 student-led societies spanning technology,
+              competitive debate, athletics, arts, and humanitarian outreach.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* 3-Column Clubs & Life Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Club 1 */}
             <div className="isd-club-box">
-              <div className="isd-club-icon-wrap bg-emerald-100 text-emerald-800">
-                <Cpu size={24} />
+              <div className="flex items-center justify-between mb-4">
+                <div className="isd-club-icon-wrap bg-emerald-100 text-emerald-800">
+                  <Cpu size={24} />
+                </div>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
+                  TECH & STEM
+                </span>
               </div>
-              <h4 className="font-bold text-base text-slate-900 mb-1.5">Robotics & AI Club</h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                National champions in FIRST Lego League and VEX Robotics. Building autonomous combat bots and sensory drones.
+              <h4 className="font-bold text-lg text-slate-900 mb-2">Robotics & AI Society</h4>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+                National champions in FIRST Lego League & VEX Robotics. Students design autonomous rovers, IoT sensor networks, and competitive bots.
               </p>
+              <div className="pt-3 border-t border-slate-100 mt-auto flex items-center justify-between text-xs">
+                <span className="text-slate-500">Mentored by Engineers</span>
+                <span className="font-bold text-emerald-700">FLL Champions '26</span>
+              </div>
             </div>
 
+            {/* Club 2 */}
             <div className="isd-club-box">
-              <div className="isd-club-icon-wrap bg-amber-100 text-amber-800">
-                <Trophy size={24} />
+              <div className="flex items-center justify-between mb-4">
+                <div className="isd-club-icon-wrap bg-amber-100 text-amber-800">
+                  <Trophy size={24} />
+                </div>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
+                  ORATORY & DEBATE
+                </span>
               </div>
-              <h4 className="font-bold text-base text-slate-900 mb-1.5">National Debating Society</h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Parliamentary and Asian format debate. Fostering sharp analytical argumentation, public oratory, and quick thinking.
+              <h4 className="font-bold text-lg text-slate-900 mb-2">National Debating Society</h4>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+                Parliamentary and Asian format debate. Fostering sharp analytical argumentation, public oratory, and quick critical thinking.
               </p>
+              <div className="pt-3 border-t border-slate-100 mt-auto flex items-center justify-between text-xs">
+                <span className="text-slate-500">English & Bangla</span>
+                <span className="font-bold text-amber-700">National Finalists</span>
+              </div>
             </div>
 
+            {/* Club 3 */}
+            <div className="flex items-center justify-between mb-4" style={{ display: 'none' }} />
             <div className="isd-club-box">
-              <div className="isd-club-icon-wrap bg-sky-100 text-sky-800">
-                <Award size={24} />
+              <div className="flex items-center justify-between mb-4">
+                <div className="isd-club-icon-wrap bg-sky-100 text-sky-800">
+                  <Award size={24} />
+                </div>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-sky-700 bg-sky-50 px-2.5 py-1 rounded-md border border-sky-200">
+                  OLYMPIADS
+                </span>
               </div>
-              <h4 className="font-bold text-base text-slate-900 mb-1.5">Science Olympiad Team</h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Intensive preparation for Bangladesh Math, Physics, and Informatics Olympiads with distinguished university mentors.
+              <h4 className="font-bold text-lg text-slate-900 mb-2">Science Olympiad Team</h4>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+                Intensive preparation for Bangladesh Math, Physics, and Informatics Olympiads with distinguished university researchers.
               </p>
+              <div className="pt-3 border-t border-slate-100 mt-auto flex items-center justify-between text-xs">
+                <span className="text-slate-500">Math, Physics, AI</span>
+                <span className="font-bold text-sky-700">Top 5% Rank</span>
+              </div>
             </div>
 
+            {/* Club 4 */}
             <div className="isd-club-box">
-              <div className="isd-club-icon-wrap bg-indigo-100 text-indigo-800">
-                <Globe size={24} />
+              <div className="flex items-center justify-between mb-4">
+                <div className="isd-club-icon-wrap bg-indigo-100 text-indigo-800">
+                  <Globe size={24} />
+                </div>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-200">
+                  DIPLOMACY
+                </span>
               </div>
-              <h4 className="font-bold text-base text-slate-900 mb-1.5">Model United Nations (MUN)</h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Simulating international diplomacy, geopolitical resolution drafting, and global crisis management summits.
+              <h4 className="font-bold text-lg text-slate-900 mb-2">Model United Nations (MUN)</h4>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+                Simulating international diplomacy, geopolitical resolution drafting, and global crisis management summits worldwide.
               </p>
+              <div className="pt-3 border-t border-slate-100 mt-auto flex items-center justify-between text-xs">
+                <span className="text-slate-500">Global Delegations</span>
+                <span className="font-bold text-indigo-700">Best Delegate '26</span>
+              </div>
             </div>
 
+            {/* Club 5 */}
             <div className="isd-club-box">
-              <div className="isd-club-icon-wrap bg-rose-100 text-rose-800">
-                <HeartHandshake size={24} />
+              <div className="flex items-center justify-between mb-4">
+                <div className="isd-club-icon-wrap bg-rose-100 text-rose-800">
+                  <HeartHandshake size={24} />
+                </div>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-rose-700 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200">
+                  HUMANITARIAN
+                </span>
               </div>
-              <h4 className="font-bold text-base text-slate-900 mb-1.5">Social Welfare & Red Crescent</h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                First-aid training, disaster relief coordination, and charity drives for local community welfare.
+              <h4 className="font-bold text-lg text-slate-900 mb-2">Red Crescent & Outreach</h4>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+                Disaster relief coordination, medical first-aid training, clean water campaigns, and charity drives for underprivileged communities.
               </p>
+              <div className="pt-3 border-t border-slate-100 mt-auto flex items-center justify-between text-xs">
+                <span className="text-slate-500">Community Impact</span>
+                <span className="font-bold text-rose-700">Red Crescent Partner</span>
+              </div>
             </div>
 
+            {/* Club 6 */}
             <div className="isd-club-box">
-              <div className="isd-club-icon-wrap bg-teal-100 text-teal-800">
-                <Sparkles size={24} />
+              <div className="flex items-center justify-between mb-4">
+                <div className="isd-club-icon-wrap bg-teal-100 text-teal-800">
+                  <Sparkles size={24} />
+                </div>
+                <span className="text-[10px] font-extrabold uppercase tracking-wider text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md border border-teal-200">
+                  CREATIVE ARTS
+                </span>
               </div>
-              <h4 className="font-bold text-base text-slate-900 mb-1.5">Music & Performing Arts</h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Classical Bengali music, contemporary orchestra, choir, and dramatic theater productions.
+              <h4 className="font-bold text-lg text-slate-900 mb-2">Performing Arts & Theater</h4>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+                Classical Bengali music, contemporary symphony orchestra, choral ensembles, and annual dramatic stage productions.
               </p>
-            </div>
-
-            <div className="isd-club-box">
-              <div className="isd-club-icon-wrap bg-green-100 text-green-800">
-                <School size={24} />
+              <div className="pt-3 border-t border-slate-100 mt-auto flex items-center justify-between text-xs">
+                <span className="text-slate-500">Auditorium Stage</span>
+                <span className="font-bold text-teal-700">Annual Gala</span>
               </div>
-              <h4 className="font-bold text-base text-slate-900 mb-1.5">Green Eco Warriors Club</h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Rooftop hydroponics, solar energy tracking, plastic recycling drives, and environmental advocacy.
-              </p>
             </div>
-
-            <div className="isd-club-box">
-              <div className="isd-club-icon-wrap bg-purple-100 text-purple-800">
-                <BookOpen size={24} />
-              </div>
-              <h4 className="font-bold text-base text-slate-900 mb-1.5">Journalism & Creative Writing</h4>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Publishing the monthly school magazine <em>The Projukti Observer</em>, photography, and podcast broadcasting.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* =========================================================================
-          REAL-TIME CLASS SEAT CAPACITY MATRIX (White & Emerald Theme)
-          ========================================================================= */}
-      <section id="seat-matrix-section" className="py-20 bg-slate-50 border-b border-slate-200">
-        <div className="landing-container">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
-            <div>
-              <span className="text-xs font-black uppercase tracking-widest text-emerald-700 block mb-1">
-                ADMISSION INVENTORY & TIMINGS
-              </span>
-              <h2 className="font-serif text-3xl sm:text-4xl font-black text-slate-900">
-                Available Classes & Shifts
-              </h2>
-            </div>
-            <p className="text-sm text-slate-600 max-w-md">
-              Each class batch has strictly capped seats (e.g. 50 seats) on a First-Come-First-Served basis.
-              Live seat counts refresh automatically.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {classes.length === 0 ? (
-              <div className="col-span-full p-12 text-center bg-white border border-slate-200 rounded-2xl text-slate-500 shadow-sm">
-                Admission window schedules are currently being compiled by the Registrar Office.
-              </div>
-            ) : (
-              classes.map((c) => {
-                const isFull = c.availableSeats <= 0;
-                const fillPercent = Math.min(100, Math.round(((c.totalSeats - c.availableSeats) / c.totalSeats) * 100));
-                const isMorning = c.name.toLowerCase().includes('morning');
-                const isDay = c.name.toLowerCase().includes('day');
-
-                return (
-                  <div key={c.id} className="isd-seat-card">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 block mb-1">
-                          {isMorning ? '🌅 Morning Shift (07:30 AM - 12:00 PM)' : isDay ? '☀️ Day Shift (12:30 PM - 05:00 PM)' : 'Academic Cohort'}
-                        </span>
-                        <h4 className="font-serif font-bold text-xl text-slate-900">{c.name}</h4>
-                      </div>
-                      <span className={`isd-seat-pill ${isFull ? 'full' : 'open'}`}>
-                        {isFull ? 'BATCH FULL' : 'SEATS OPEN'}
-                      </span>
-                    </div>
-
-                    <div className="space-y-2 mt-4">
-                      <div className="flex justify-between text-xs text-slate-600">
-                        <span>Available Seats:</span>
-                        <strong className="text-slate-900 font-mono text-sm">
-                          {c.availableSeats} of {c.totalSeats}
-                        </strong>
-                      </div>
-                      <div className="isd-seat-progress-bar">
-                        <div
-                          className={`isd-seat-progress-fill ${isFull ? 'bg-rose-500' : 'bg-emerald-600'}`}
-                          style={{ width: `${fillPercent}%` }}
-                        />
-                      </div>
-                      <div className="flex justify-between text-[11px] text-slate-500 pt-1">
-                        <span>Confirmed: {c.confirmedSeats}</span>
-                        <span>In Payment Hold: {c.heldSeats}</span>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
-                      <div>
-                        <span className="text-[10px] text-slate-400 uppercase font-semibold block">Admission Tuition</span>
-                        <span className="text-base font-bold text-slate-900 font-mono">৳ 12,500 BDT</span>
-                      </div>
-                      <button
-                        type="button"
-                        className={`btn btn-sm ${isFull ? 'btn-secondary' : 'btn-isd-primary font-bold'}`}
-                        onClick={() => onOpenParentPortal(c.id)}
-                        disabled={isFull}
-                      >
-                        {isFull ? 'Full' : 'Apply for Seat'}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })
-            )}
           </div>
         </div>
       </section>
@@ -1007,7 +1018,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* =========================================================================
           5-STEP GUIDED ADMISSION PROCESS (Transparent & Merit-Driven)
           ========================================================================= */}
-      <section id="workflow-section" className="py-20 bg-white border-b border-slate-200">
+      <section id="workflow-section" className="py-20 bg-slate-50 border-b border-slate-200">
         <div className="landing-container">
           <div className="text-center max-w-3xl mx-auto mb-14">
             <span className="text-xs font-black uppercase tracking-widest text-emerald-700 block mb-2">
@@ -1076,7 +1087,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <div className="flex items-center gap-3.5">
                 <div className="isd-sunburst-logo">
                   <svg viewBox="0 0 44 44" className="w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M22 4C23.1 4 24 4.9 24 6V10C24 11.1 23.1 12 22 12C20.9 12 20 11.1 20 10V6C20 4.9 20.9 4 22 4Z" fill="#10B981" />
+                    <path d="M22 4C23.1 4 24 4.9 24 6V10C24 11.1 23.1 12 22 12C20.9 12 20 10V6C20 4.9 20.9 4 22 4Z" fill="#10B981" />
                     <path d="M22 32C23.1 32 24 32.9 24 34V38C24 39.1 23.1 40 22 40C20.9 40 20 39.1 20 38V34C20 32.9 20.9 32 22 32Z" fill="#EA580C" />
                     <path d="M4 22C4 20.9 4.9 20 6 20H10C11.1 20 12 20.9 12 22C12 23.1 11.1 24 10 24H6C4.9 24 4 23.1 4 22Z" fill="#F59E0B" />
                     <path d="M32 22C32 20.9 32.9 20 34 20H38C39.1 20 40 20.9 40 22C40 23.1 39.1 24 38 24H34C32.9 24 32 23.1 32 22Z" fill="#047857" />
@@ -1160,11 +1171,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     type="button"
                     className="hover:text-white transition flex items-center gap-1.5"
                     onClick={() => {
-                      document.getElementById('seat-matrix-section')?.scrollIntoView({ behavior: 'smooth' });
+                      document.getElementById('facilities-section')?.scrollIntoView({ behavior: 'smooth' });
                     }}
                   >
                     <ChevronRight size={13} className="text-amber-400" />
-                    <span>Live Class Seat Matrix</span>
+                    <span>Campus Facilities</span>
                   </button>
                 </li>
                 <li>
@@ -1176,7 +1187,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                     }}
                   >
                     <ChevronRight size={13} className="text-amber-400" />
-                    <span>Clubs & CCA Programs</span>
+                    <span>Clubs & Student Life</span>
                   </button>
                 </li>
                 {onOpenK8sSpikeModal && (

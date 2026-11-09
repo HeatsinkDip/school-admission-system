@@ -236,7 +236,6 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  space-y: 1rem;
 }
 
 .isd-menu-link-btn {
@@ -460,62 +459,93 @@
 }
 
 /* =========================================================================
-   CAMPUS FACILITIES (Matching ISD Image 4: "COME AND SEE OUR CAMPUS")
+   CAMPUS FACILITIES: 3-COLUMN GRID ARCHITECTURE
    ========================================================================= */
 
-.isd-facility-banner-card {
-  position: relative;
-  border-radius: 20px;
+.isd-facility-grid-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15);
-  height: 380px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
 }
 
-.isd-facility-hero-img {
+.isd-facility-grid-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--isd-green-primary);
+  box-shadow: 0 16px 28px -6px rgba(4, 120, 87, 0.12);
+}
+
+.isd-facility-card-media {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+}
+
+.isd-facility-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.4s ease;
 }
 
-.isd-facility-banner-card:hover .isd-facility-hero-img {
-  transform: scale(1.03);
+.isd-facility-grid-card:hover .isd-facility-photo {
+  transform: scale(1.05);
 }
 
-.isd-facility-card-badge {
+.isd-facility-category-badge {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(0deg, rgba(1, 77, 51, 0.95) 0%, rgba(1, 77, 51, 0) 100%);
-  padding: 3rem 1.5rem 1.5rem 1.5rem;
-}
-
-.isd-facility-thumb {
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
-  height: 100px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
-}
-
-.isd-facility-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.isd-facility-thumb span {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(1, 77, 51, 0.85);
-  color: #ffffff;
+  top: 1rem;
+  left: 1rem;
+  background: var(--isd-green-dark);
+  color: var(--isd-yellow);
   font-size: 0.7rem;
-  font-weight: 700;
-  padding: 0.25rem 0.5rem;
-  text-align: center;
+  font-weight: 800;
+  padding: 0.3rem 0.75rem;
+  border-radius: 6px;
+  letter-spacing: 0.05em;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.isd-facility-card-body {
+  padding: 1.75rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.isd-facility-card-title {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.isd-facility-card-desc {
+  font-size: 0.85rem;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+}
+
+.isd-facility-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.isd-facility-check-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #334155;
+  font-weight: 500;
 }
 
 .isd-yellow-pill-solid {
@@ -658,7 +688,7 @@
 }
 
 /* =========================================================================
-   "EXCEPTIONAL LEARNING EXPERIENCES" (Matching ISD Image 4)
+   "EXCEPTIONAL LEARNING EXPERIENCES": 3-COLUMN GRID
    ========================================================================= */
 
 .isd-exp-card {
@@ -667,20 +697,20 @@
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
   display: flex;
   flex-direction: column;
 }
 
 .isd-exp-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 16px 28px -6px rgba(4, 120, 87, 0.12);
   border-color: var(--isd-green-primary);
 }
 
 .isd-exp-media {
   position: relative;
-  height: 200px;
+  height: 220px;
   overflow: hidden;
 }
 
@@ -688,6 +718,11 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.isd-exp-card:hover .isd-exp-media img {
+  transform: scale(1.05);
 }
 
 .isd-exp-badge {
@@ -704,20 +739,23 @@
 }
 
 /* =========================================================================
-   STUDENT CLUBS BOXES
+   CLUBS & STUDENT LIFE: 3-COLUMN GRID
    ========================================================================= */
 
 .isd-club-box {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 1.5rem;
-  transition: all 0.2s ease;
+  border-radius: 18px;
+  padding: 1.75rem;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
 }
 
 .isd-club-box:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 24px -4px rgba(4, 120, 87, 0.1);
   border-color: var(--isd-green-primary);
 }
 
@@ -728,58 +766,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
-}
-
-/* =========================================================================
-   SEAT CAPACITY MATRIX (White & Emerald Theme)
-   ========================================================================= */
-
-.isd-seat-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 1.75rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s ease;
-}
-
-.isd-seat-card:hover {
-  border-color: var(--isd-green-primary);
-  box-shadow: 0 10px 20px -5px rgba(4, 120, 87, 0.12);
-}
-
-.isd-seat-pill {
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 0.25rem 0.65rem;
-  border-radius: 9999px;
-  letter-spacing: 0.04em;
-}
-
-.isd-seat-pill.open {
-  background: #ecfdf5;
-  color: #047857;
-  border: 1px solid #a7f3d0;
-}
-
-.isd-seat-pill.full {
-  background: #fff1f2;
-  color: #be123c;
-  border: 1px solid #fecdd3;
-}
-
-.isd-seat-progress-bar {
-  height: 8px;
-  background: #f1f5f9;
-  border-radius: 9999px;
-  overflow: hidden;
-}
-
-.isd-seat-progress-fill {
-  height: 100%;
-  border-radius: 9999px;
-  transition: width 0.3s ease;
 }
 
 /* =========================================================================
