@@ -16,7 +16,7 @@ import {
 import { STRINGS } from './strings';
 import { isValidStudentId } from './ParentPortal';
 import { STUDENT_ID_STORAGE_KEY } from './config';
-import { loginWithGoogle, logoutFirebase, User } from './firebase';
+import { loginWithGoogle, logoutFirebase, type User as FirebaseUser } from './firebase';
 import './ParentPortal.css';
 import './LandingPage.css';
 
@@ -34,7 +34,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
   const [parentNameInput, setParentNameInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isFirebaseLoading, setIsFirebaseLoading] = useState(false);
-  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [showFirebaseModal, setShowFirebaseModal] = useState(false);
 
   const handleQuickFill = () => {
