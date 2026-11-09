@@ -12,6 +12,9 @@ import {
   Home,
   LogOut,
   X,
+  Users,
+  FileText,
+  CreditCard,
 } from 'lucide-react';
 import { STRINGS } from './strings';
 import { isValidStudentId } from './ParentPortal';
@@ -199,7 +202,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
             <form onSubmit={handleLogin} className="p-6 sm:p-7 space-y-5">
               {/* 17-Digit Birth ID Field */}
               <div>
-                <label className="text-xs font-black text-slate-800 uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-semibold text-slate-800 uppercase tracking-wider block mb-1.5">
                   Student Birth Registration Number (17 Digits) <span className="text-rose-600">*</span>
                 </label>
                 <div className="relative">
@@ -214,26 +217,26 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
                       setStudentIdInput(val);
                       if (error) setError(null);
                     }}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-300 font-mono text-sm sm:text-base tracking-wider focus:outline-none focus:border-[#014d33] focus:ring-2 focus:ring-emerald-700/20 bg-slate-50/40 text-slate-900 transition"
+                    className="w-full px-4 py-3 rounded-md border border-slate-300 font-mono text-sm sm:text-base tracking-wider focus:outline-none focus:border-[#004d3d] focus:ring-2 focus:ring-emerald-700/20 bg-slate-50/50 text-slate-900 transition-colors"
                     autoFocus
                   />
                   {studentIdInput.length === 17 && (
-                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-emerald-600 flex items-center gap-1 text-xs font-bold bg-white px-2 py-0.5 rounded-md border border-emerald-200">
-                      <CheckCircle2 size={16} />
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-700 flex items-center gap-1 text-xs font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      <CheckCircle2 size={15} />
                       <span>Valid</span>
                     </div>
                   )}
                 </div>
                 <div className="flex items-center justify-between mt-1.5 text-xs text-slate-500">
                   <span>Must be exactly 17 numeric digits from government birth certificate.</span>
-                  <span className="font-mono text-slate-400 font-bold">{studentIdInput.length}/17 digits</span>
+                  <span className="font-mono tabular-nums text-slate-500 font-semibold">{studentIdInput.length}/17 digits</span>
                 </div>
               </div>
 
               {/* 2-Column Row: Mobile Phone & Parent Name */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1">
                 <div>
-                  <label className="text-xs font-black text-slate-800 uppercase tracking-wider block mb-1.5">
+                  <label className="text-xs font-semibold text-slate-800 uppercase tracking-wider block mb-1.5">
                     Parent / Guardian Mobile Phone <span className="text-rose-600">*</span>
                   </label>
                   <div className="relative">
@@ -243,9 +246,9 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
                       placeholder="01712345678"
                       value={parentPhoneInput}
                       onChange={(e) => setParentPhoneInput(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#014d33] focus:ring-2 focus:ring-emerald-700/20 bg-slate-50/40 text-slate-900"
+                      className="w-full px-4 py-2.5 rounded-md border border-slate-300 text-sm font-mono tabular-nums focus:outline-none focus:border-[#004d3d] focus:ring-2 focus:ring-emerald-700/20 bg-slate-50/50 text-slate-900 transition-colors"
                     />
-                    <Phone size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <Phone size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   </div>
                   <p className="text-[11px] text-slate-500 mt-1">
                     Acts as your family account login.
@@ -253,7 +256,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
                 </div>
 
                 <div>
-                  <label className="text-xs font-black text-slate-800 uppercase tracking-wider block mb-1.5">
+                  <label className="text-xs font-semibold text-slate-800 uppercase tracking-wider block mb-1.5">
                     Parent / Guardian Full Name (Optional)
                   </label>
                   <input
@@ -262,7 +265,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
                     placeholder="e.g. Mr. Rafiqul Rahman"
                     value={parentNameInput}
                     onChange={(e) => setParentNameInput(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#014d33] focus:ring-2 focus:ring-emerald-700/20 bg-slate-50/40 text-slate-900"
+                    className="w-full px-4 py-2.5 rounded-md border border-slate-300 text-sm focus:outline-none focus:border-[#004d3d] focus:ring-2 focus:ring-emerald-700/20 bg-slate-50/50 text-slate-900 transition-colors"
                   />
                   <p className="text-[11px] text-slate-500 mt-1">
                     Primary contact for all children.
@@ -274,7 +277,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
               {error && (
                 <div
                   data-testid="student-id-error"
-                  className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-start gap-2.5 animate-shake"
+                  className="p-3.5 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-start gap-2.5"
                 >
                   <AlertCircle size={16} className="text-rose-600 shrink-0 mt-0.5" />
                   <span className="font-semibold">{error}</span>
@@ -285,7 +288,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
               <div className="pt-1">
                 <div className="relative flex py-2 items-center">
                   <div className="flex-grow border-t border-slate-200"></div>
-                  <span className="flex-shrink mx-3 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 bg-white px-2">
+                  <span className="flex-shrink mx-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 bg-white px-2">
                     Or Sign In with Firebase
                   </span>
                   <div className="flex-grow border-t border-slate-200"></div>
@@ -311,7 +314,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
                       }
                     }}
                     disabled={isFirebaseLoading}
-                    className="w-full py-2.5 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-2 shadow-2xs"
+                    className="w-full py-2.5 px-4 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors flex items-center justify-center gap-2 shadow-2xs focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:outline-none"
                   >
                     <svg className="w-4 h-4" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -324,58 +327,64 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
                 </div>
               </div>
 
-              {/* Action Buttons Row (Matching Image 2) */}
+              {/* Action Buttons Row */}
               <div className="pt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100">
                 <button
                   type="button"
                   data-testid="quick-fill-student-id-btn"
                   onClick={handleQuickFill}
-                  className="text-xs font-bold text-emerald-800 hover:text-emerald-900 bg-emerald-50/80 hover:bg-emerald-100/90 px-3.5 py-2 rounded-xl border border-emerald-200 transition flex items-center gap-1.5"
+                  className="text-xs font-semibold text-emerald-900 hover:text-emerald-950 bg-emerald-50 hover:bg-emerald-100 px-3.5 py-2 rounded-lg border border-emerald-200 transition-colors flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:outline-none"
                 >
-                  <Sparkles size={14} className="text-amber-500" />
-                  <span>⚡ Quick Fill Demo Credentials</span>
+                  <Sparkles size={14} className="text-amber-600" />
+                  <span>Quick Fill Demo Credentials</span>
                 </button>
 
                 <button
                   type="submit"
                   data-testid="save-student-id-btn"
-                  className="px-6 py-2.5 rounded-xl bg-[#014d33] hover:bg-emerald-800 text-white font-extrabold text-sm transition shadow-md flex items-center gap-2 group"
+                  className="px-6 py-2.5 rounded-lg bg-[#004d3d] hover:bg-[#00382b] text-white font-semibold text-sm transition-colors shadow-xs flex items-center gap-2 group focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:outline-none"
                 >
                   <span>Login & Continue to Admission Dossier</span>
-                  <ArrowRight size={16} className="group-hover:translate-x-0.5 transition" />
+                  <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform motion-reduce:transform-none" />
                 </button>
               </div>
             </form>
           </div>
 
-          {/* 3 Value Proposition Cards (Matching Image 2 Exactly) */}
+          {/* 3 Value Proposition Cards (Anti-AI-Slop compliant: no emojis, no scale-105, disciplined radius) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
-              <div className="font-bold text-slate-900 text-xs flex items-center gap-2">
-                <span className="text-base">👥</span>
+            <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1.5 hover:border-emerald-700/30 transition-colors">
+              <div className="font-semibold text-slate-900 text-xs flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0">
+                  <Users size={14} />
+                </div>
                 <span>1 Parent • Multiple Children</span>
               </div>
-              <p className="text-slate-600 text-[11px] leading-relaxed">
+              <p className="text-slate-600 text-xs leading-relaxed">
                 Easily register 1 or more children in Onnorokom School. Switch between children anytime and receive a 10% sibling concession.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
-              <div className="font-bold text-slate-900 text-xs flex items-center gap-2">
-                <span className="text-base">📄</span>
+            <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1.5 hover:border-emerald-700/30 transition-colors">
+              <div className="font-semibold text-slate-900 text-xs flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0">
+                  <FileText size={14} />
+                </div>
                 <span>Step 1: Student Dossier</span>
               </div>
-              <p className="text-slate-600 text-[11px] leading-relaxed">
+              <p className="text-slate-600 text-xs leading-relaxed">
                 Fill out child & guardian details. Once saved, real-time class and shift seat reservation unlocks immediately.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
-              <div className="font-bold text-slate-900 text-xs flex items-center gap-2">
-                <span className="text-base">💳</span>
+            <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1.5 hover:border-emerald-700/30 transition-colors">
+              <div className="font-semibold text-slate-900 text-xs flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0">
+                  <CreditCard size={14} />
+                </div>
                 <span>Step 2 & 3: Lock Seat & Pay</span>
               </div>
-              <p className="text-slate-600 text-[11px] leading-relaxed">
+              <p className="text-slate-600 text-xs leading-relaxed">
                 10-minute atomic hold lock ensures zero race conditions. Pay tuition fee to finalize confirmed admission.
               </p>
             </div>

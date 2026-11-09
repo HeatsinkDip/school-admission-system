@@ -873,7 +873,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               MORE ABOUT US
             </span>
             <h3 className="font-serif text-2xl sm:text-3xl font-black text-white">
-              ISD IN NUMBERS
+              ONNOROKOM SCHOOL IN NUMBERS
             </h3>
           </div>
 

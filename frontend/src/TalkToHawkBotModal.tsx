@@ -129,21 +129,21 @@ export const TalkToHawkBotModal: React.FC<TalkToHawkBotModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]"
+        className="bg-white rounded-xl max-w-lg w-full shadow-xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
         data-testid="talk-to-hawk-modal"
       >
-        {/* Header (Matching Image 1) */}
-        <div className="p-4 sm:p-5 flex items-center justify-between border-b border-slate-100 bg-white">
+        {/* Header */}
+        <div className="p-4 sm:p-5 flex items-center justify-between border-b border-slate-200 bg-white">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#014d33] text-amber-300 flex items-center justify-center shrink-0 shadow-sm">
-              <Compass size={22} />
+            <div className="w-10 h-10 rounded-lg bg-[#004d3d] text-amber-300 flex items-center justify-center shrink-0">
+              <Compass size={20} />
             </div>
             <div>
-              <h3 className="font-serif font-black text-slate-900 text-lg leading-tight">
+              <h3 className="font-serif font-bold text-slate-900 text-lg leading-tight">
                 Talk to Hawk Admissions Desk
               </h3>
-              <p className="text-xs font-bold text-emerald-700 tracking-wide">
+              <p className="text-xs font-semibold text-emerald-800 tracking-wide">
                 Onnorokom School, Bangladesh
               </p>
             </div>
@@ -151,18 +151,18 @@ export const TalkToHawkBotModal: React.FC<TalkToHawkBotModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition"
+            className="w-8 h-8 rounded-md border border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition-colors focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:outline-none"
             aria-label="Close Hawk Helpdesk"
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
         {/* Scrollable Content Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
-          {/* Frequently Asked Questions Green Card (Exact match to Image 1) */}
-          <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-2xl p-4">
-            <h4 className="font-extrabold text-xs sm:text-sm text-emerald-950 mb-2">
+          {/* Frequently Asked Questions Green Card */}
+          <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-lg p-4">
+            <h4 className="font-bold text-xs sm:text-sm text-emerald-950 mb-2">
               Frequently Asked Questions
             </h4>
             <ul className="space-y-1.5 text-xs text-emerald-900 leading-relaxed">
@@ -178,25 +178,25 @@ export const TalkToHawkBotModal: React.FC<TalkToHawkBotModalProps> = ({
             </ul>
           </div>
 
-          {/* Quick FAQ Question Chips */}
+          {/* Quick FAQ Question Chips (Anti-AI-Slop: clean typography, no emojis) */}
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1">
-              <Sparkles size={12} className="text-amber-500" />
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5 flex items-center gap-1">
+              <Sparkles size={12} className="text-amber-600" />
               <span>Suggested Inquiries</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {[
-                '📋 Required Documents',
-                '⏱️ 10-Min Hold Lock',
-                '👨‍👩‍👧 Sibling Concession',
-                '🌅 Morning & Day Shifts',
-                '💳 Tuition Fees',
+                'Required Documents',
+                '10-Min Hold Lock',
+                'Sibling Concession',
+                'Morning & Day Shifts',
+                'Tuition Fees',
               ].map((chip) => (
                 <button
                   key={chip}
                   type="button"
-                  onClick={() => handleSendMessage(chip.slice(3))}
-                  className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-50 hover:bg-emerald-50 hover:text-emerald-800 text-slate-600 border border-slate-200 transition"
+                  onClick={() => handleSendMessage(chip)}
+                  className="px-2.5 py-1 text-xs font-medium rounded-md bg-slate-50 hover:bg-emerald-50 hover:text-emerald-900 text-slate-700 border border-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:outline-none"
                 >
                   {chip}
                 </button>
@@ -212,12 +212,12 @@ export const TalkToHawkBotModal: React.FC<TalkToHawkBotModalProps> = ({
                 className={`flex gap-2.5 ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {m.sender === 'hawk' && (
-                  <div className="w-7 h-7 rounded-full bg-[#014d33] text-amber-300 flex items-center justify-center text-xs shrink-0 mt-0.5">
+                  <div className="w-7 h-7 rounded-md bg-[#004d3d] text-amber-300 flex items-center justify-center text-xs shrink-0 mt-0.5">
                     <Compass size={14} />
                   </div>
                 )}
                 <div
-                  className={`rounded-2xl px-3.5 py-2.5 text-xs max-w-[85%] leading-relaxed ${
+                  className={`rounded-lg px-3.5 py-2.5 text-xs max-w-[85%] leading-relaxed ${
                     m.sender === 'user'
                       ? 'bg-[#014d33] text-white rounded-br-xs'
                       : 'bg-slate-100 text-slate-800 rounded-bl-xs border border-slate-200/60'

@@ -3,10 +3,24 @@
    ========================================================================= */
 
 :root {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-serif: 'Crimson Pro', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  /* Color Palette */
+  /* Institutional Palette: Deep Forest Green & Refined Warm Saffron */
+  --inst-950: #002920;
+  --inst-900: #00382b;
+  --inst-800: #004d3d;
+  --inst-700: #006652;
+  --inst-600: #00856b;
+  --inst-50:  #f0fbf8;
+
+  --saffron-600: #b45309;
+  --saffron-500: #d97706;
+  --saffron-100: #fef3c7;
+  --saffron-50:  #fffbeb;
+
+  /* Surface & Slate Neutrals */
   --slate-50: #f8fafc;
   --slate-100: #f1f5f9;
   --slate-200: #e2e8f0;
@@ -18,10 +32,10 @@
   --slate-800: #1e293b;
   --slate-900: #0f172a;
 
-  --indigo-50: #eef2ff;
-  --indigo-100: #e0e7ff;
-  --indigo-600: #4f46e5;
-  --indigo-700: #4338ca;
+  --indigo-50: #f0fbf8;
+  --indigo-100: #d9f5ee;
+  --indigo-600: #004d3d;
+  --indigo-700: #00382b;
 
   --blue-50: #eff6ff;
   --blue-100: #dbeafe;
@@ -50,11 +64,44 @@
   --sidebar-collapsed-width: 72px;
   --topbar-height: 64px;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  /* Structured Radius Scale (Anti-AI-Slop) */
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+
+  /* Flat elevation hierarchy (Anti-AI-Slop: minimal shadow, structural borders) */
+  --shadow-2xs: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px -2px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Tabular Numbers */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Accessibility & Focus Rings */
+:focus-visible {
+  outline: 2px solid var(--inst-800);
+  outline-offset: 2px;
+}
+
+/* Reduced Motion Support (Anti-AI-Slop rule MO10) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 * {
@@ -307,10 +354,10 @@ body {
 }
 
 .nav-item.active {
-  background: var(--emerald-50);
-  color: var(--emerald-700);
-  font-weight: 700;
-  border-left: 3px solid var(--emerald-600);
+  background: var(--slate-100);
+  color: var(--inst-800);
+  font-weight: 600;
+  border-left: none;
 }
 
 .nav-badge {

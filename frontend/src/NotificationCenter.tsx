@@ -137,7 +137,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
         <Bell size={18} className={unreadCount > 0 ? 'text-[#014d33]' : 'text-slate-600'} />
         {unreadCount > 0 && (
           <span
-            className="absolute -top-1.5 -right-1.5 px-1.5 min-w-[20px] h-5 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center shadow-md animate-pulse"
+            className="absolute -top-1.5 -right-1.5 px-1.5 min-w-[20px] h-5 rounded-full bg-rose-600 text-white text-[10px] font-bold tabular-nums flex items-center justify-center shadow-xs"
             data-testid="notification-badge"
             data-badge-unread="true"
           >
@@ -146,21 +146,21 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
         )}
       </button>
 
-      {/* Redesigned Notification Dropdown Panel */}
+      {/* Notification Dropdown Panel (Anti-AI-Slop Clean Style) */}
       {isOpen && (
         <div
-          className="absolute right-0 mt-2 w-[340px] sm:w-[400px] bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 overflow-hidden flex flex-col max-h-[85vh] animate-fadeIn"
+          className="absolute right-0 mt-2 w-[340px] sm:w-[400px] bg-white rounded-xl border border-slate-200 shadow-xl z-50 overflow-hidden flex flex-col max-h-[85vh]"
           data-testid="notification-dropdown"
         >
           {/* Header Bar */}
-          <div className="p-3.5 bg-gradient-to-r from-[#014d33] to-emerald-950 text-white flex items-center justify-between">
+          <div className="p-3.5 bg-[#004d3d] text-white flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-amber-300">
+              <div className="w-7 h-7 rounded-md bg-white/10 flex items-center justify-center text-amber-300">
                 <Bell size={14} />
               </div>
               <div>
-                <span className="font-extrabold text-xs block text-white">{titleLabel}</span>
-                <span className="text-[10px] text-emerald-200">
+                <span className="font-semibold text-xs block text-white">{titleLabel}</span>
+                <span className="text-[10px] text-emerald-100 tabular-nums">
                   {unreadCount > 0 ? `${unreadCount} unread update${unreadCount > 1 ? 's' : ''}` : 'All caught up'}
                 </span>
               </div>

@@ -41,26 +41,26 @@ export const ActionAlertModal: React.FC<ActionAlertModalProps> = ({
     switch (type) {
       case 'SUCCESS':
         return (
-          <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
-            <CheckCircle2 size={28} />
+          <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+            <CheckCircle2 size={24} />
           </div>
         );
       case 'WARNING':
         return (
-          <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center">
-            <AlertTriangle size={28} />
+          <div className="w-10 h-10 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+            <AlertTriangle size={24} />
           </div>
         );
       case 'DANGER':
         return (
-          <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center">
-            <XCircle size={28} />
+          <div className="w-10 h-10 rounded-lg bg-rose-100 text-rose-800 flex items-center justify-center shrink-0">
+            <XCircle size={24} />
           </div>
         );
       default:
         return (
-          <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-[#014d33] flex items-center justify-center">
-            <Info size={28} />
+          <div className="w-10 h-10 rounded-lg bg-emerald-100 text-[#004d3d] flex items-center justify-center shrink-0">
+            <Info size={24} />
           </div>
         );
     }
@@ -98,7 +98,7 @@ export const ActionAlertModal: React.FC<ActionAlertModalProps> = ({
                 {title}
               </h3>
               {countdownSeconds !== undefined && countdownSeconds > 0 && (
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-mono font-bold mt-1">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-xs font-mono font-bold tabular-nums mt-1">
                   <Clock size={12} className="animate-spin text-amber-700" />
                   <span>
                     {Math.floor(countdownSeconds / 60)}:

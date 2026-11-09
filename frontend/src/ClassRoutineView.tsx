@@ -192,8 +192,8 @@ export const ClassRoutineView: React.FC<ClassRoutineViewProps> = ({
                         <Clock size={10} /> {slot.startTime} - {slot.endTime}
                       </div>
                     </td>
-                    <td colSpan={5} className="py-2 px-4 text-center font-extrabold text-amber-900 tracking-wide text-xs">
-                      🍱 {slot.label} ({slot.startTime} – {slot.endTime}) • Dining & Prayer Interval for {routine.className}
+                    <td colSpan={5} className="py-2 px-4 text-center font-bold text-amber-900 tracking-wide text-xs">
+                      {slot.label} ({slot.startTime} – {slot.endTime}) • Dining & Prayer Interval for {routine.className}
                     </td>
                   </tr>
                 );

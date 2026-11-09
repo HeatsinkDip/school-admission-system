@@ -2072,32 +2072,38 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     </form>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t border-slate-100">
-                      <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
-                        <div className="font-bold text-slate-900 text-xs flex items-center gap-2">
-                          <span className="text-base">👥</span>
+                      <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1.5 hover:border-emerald-700/30 transition-colors">
+                        <div className="font-semibold text-slate-900 text-xs flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-md bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0">
+                            <Users size={14} />
+                          </div>
                           <span>1 Parent • Multiple Children</span>
                         </div>
-                        <p className="text-slate-600 text-[11px] leading-relaxed">
+                        <p className="text-slate-600 text-xs leading-relaxed">
                           Easily register 1 or more children in Onnorokom School. Switch between children anytime and receive a 10% sibling concession.
                         </p>
                       </div>
 
-                      <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
-                        <div className="font-bold text-slate-900 text-xs flex items-center gap-2">
-                          <span className="text-base">📄</span>
+                      <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1.5 hover:border-emerald-700/30 transition-colors">
+                        <div className="font-semibold text-slate-900 text-xs flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-md bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0">
+                            <FileText size={14} />
+                          </div>
                           <span>Step 1: Student Dossier</span>
                         </div>
-                        <p className="text-slate-600 text-[11px] leading-relaxed">
+                        <p className="text-slate-600 text-xs leading-relaxed">
                           Fill out child & guardian details. Once saved, real-time class and shift seat reservation unlocks immediately.
                         </p>
                       </div>
 
-                      <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
-                        <div className="font-bold text-slate-900 text-xs flex items-center gap-2">
-                          <span className="text-base">💳</span>
+                      <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1.5 hover:border-emerald-700/30 transition-colors">
+                        <div className="font-semibold text-slate-900 text-xs flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-md bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0">
+                            <CreditCard size={14} />
+                          </div>
                           <span>Step 2 & 3: Lock Seat & Pay</span>
                         </div>
-                        <p className="text-slate-600 text-[11px] leading-relaxed">
+                        <p className="text-slate-600 text-xs leading-relaxed">
                           10-minute atomic hold lock ensures zero race conditions. Pay tuition fee to finalize confirmed admission.
                         </p>
                       </div>
@@ -4471,8 +4477,8 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                                       <div className="text-[11px] uppercase tracking-wider text-amber-800">Recess Break</div>
                                       <div className="font-mono text-[11px] text-amber-900">{slot.startTime} - {slot.endTime}</div>
                                     </td>
-                                    <td colSpan={5} className="py-2 px-4 text-center font-extrabold text-xs tracking-wide text-amber-900">
-                                      🍱 {slot.label} ({slot.startTime} – {slot.endTime}) • Mid-Shift Refreshment & Assembly Break
+                                    <td colSpan={5} className="py-2 px-4 text-center font-bold text-xs tracking-wide text-amber-900">
+                                      {slot.label} ({slot.startTime} – {slot.endTime}) • Mid-Shift Refreshment & Assembly Break
                                     </td>
                                   </tr>
                                 );
@@ -4687,8 +4693,11 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 </div>
               )}
 
-              <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-900">
-                💡 <strong>Sibling Concession:</strong> Adding this child will automatically link them to their sibling and grant an automatic 10% discount on admission fees!
+              <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-start gap-2">
+                <Sparkles size={14} className="text-amber-600 shrink-0 mt-0.5" />
+                <span>
+                  <strong>Sibling Concession:</strong> Adding this child will automatically link them to their sibling and grant an automatic 10% fee concession on admission and tuition fees.
+                </span>
               </div>
 
               <div className="pt-2 flex justify-end gap-2 border-t border-slate-100">
