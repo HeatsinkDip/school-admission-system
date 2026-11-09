@@ -20,10 +20,10 @@ import {
   Compass,
   Menu,
   Shield,
-  MessageCircle,
   Users,
 } from 'lucide-react';
 import { SchoolClass } from './types';
+import { TalkToHawkBotModal } from './TalkToHawkBotModal';
 import './LandingPage.css';
 import './K8sModals.css';
 
@@ -574,7 +574,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 data-testid="landing-apply-btn-hero"
               >
                 <GraduationCap size={20} />
-                <span>Parents Registration & Apply</span>
+                <span>Register & Apply Now!</span>
                 <ArrowRight size={18} />
               </button>
 
@@ -616,11 +616,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           title="Talk with an Admission Counselor"
         >
           <div className="w-8 h-8 rounded-full bg-emerald-950 flex items-center justify-center text-amber-400">
-            <MessageCircle size={18} />
+            <Compass size={18} />
           </div>
           <div className="text-left">
             <div className="text-[11px] font-bold text-white uppercase tracking-wider">Talk to Hawk</div>
-            <div className="text-[9px] text-emerald-200">Online Helpdesk • Dhaka</div>
+            <div className="text-[9px] text-emerald-200">Admissions Desk • ISD</div>
           </div>
         </button>
       </section>
@@ -1538,9 +1538,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               &copy; {new Date().getFullYear()} International School Dhaka. All rights reserved.
             </div>
             <div className="flex items-center gap-3">
-              <span>Kubernetes Orchestrated</span>
-              <span>•</span>
-              <span>PostgreSQL FCFS Atomic Row Locks</span>
+              <span>Zero Lottery • FCFS Admission</span>
               <span>•</span>
               <span>17-Digit BRN Primary Key</span>
             </div>
@@ -1596,72 +1594,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       )}
 
       {/* =========================================================================
-          COUNSELOR INQUIRY MODAL ("TALK TO HAWK / COUNSELOR")
+          ONLINE BOT: "TALK TO HAWK ADMISSIONS DESK" (Interactive AI/Rule Counselor)
           ========================================================================= */}
-      {isCounselorModalOpen && (
-        <div className="isd-video-modal-backdrop" onClick={() => setIsCounselorModalOpen(false)}>
-          <div className="isd-counselor-modal-box" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-full bg-emerald-800 text-amber-400 flex items-center justify-center font-bold">
-                  <Compass size={18} />
-                </div>
-                <div>
-                  <h4 className="font-serif font-bold text-slate-900">Talk to Hawk Admissions Desk</h4>
-                  <div className="text-xs text-emerald-700 font-semibold">International School Dhaka</div>
-                </div>
-              </div>
-              <button
-                type="button"
-                className="btn-icon"
-                onClick={() => setIsCounselorModalOpen(false)}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <div className="space-y-4 py-4 text-xs sm:text-sm text-slate-700">
-              <div className="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl">
-                <strong className="text-emerald-950 block mb-1">Frequently Asked Questions</strong>
-                <ul className="space-y-1.5 text-xs text-emerald-900">
-                  <li>• <strong>Primary Key:</strong> Mandatory 17-digit Birth Registration Number.</li>
-                  <li>• <strong>No Quotas/Lottery:</strong> Admissions are strictly First-Come-First-Served upon payment.</li>
-                  <li>• <strong>Class Shifts:</strong> Morning (07:30 - 12:00 BST) & Day (12:30 - 05:00 BST).</li>
-                </ul>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-700">How can our admissions counselor help you today?</label>
-                <textarea
-                  className="form-input w-full"
-                  rows={3}
-                  placeholder="Ask any question regarding seat availability, documents, or curriculum..."
-                />
-              </div>
-            </div>
-
-            <div className="pt-2 flex justify-end gap-3 border-t border-slate-100">
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                onClick={() => setIsCounselorModalOpen(false)}
-              >
-                Close
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary btn-sm font-bold"
-                onClick={() => {
-                  setIsCounselorModalOpen(false);
-                  onOpenParentPortal();
-                }}
-              >
-                Proceed to Parent Portal &rarr;
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <TalkToHawkBotModal
+        isOpen={isCounselorModalOpen}
+        onClose={() => setIsCounselorModalOpen(false)}
+        onProceedToPortal={onOpenParentPortal}
+      />
 
       {/* Screen-reader and testing accessibility helpers */}
       <div className="sr-only" aria-hidden="true">

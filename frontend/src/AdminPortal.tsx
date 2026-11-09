@@ -48,6 +48,7 @@ import {
 } from './config';
 import { ApplicationInspectionModal } from './ApplicationInspectionModal';
 import { ClassRoutineView } from './ClassRoutineView';
+import { ClassStudentsModal } from './ClassStudentsModal';
 import { DocumentViewerModal } from './DocumentViewerModal';
 import { NotificationCenter } from './NotificationCenter';
 import { Pagination } from './Pagination';
@@ -148,6 +149,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
   const [newMonthlyTuition, setNewMonthlyTuition] = useState('6000');
   const [isSavingClass, setIsSavingClass] = useState(false);
   const [editingClass, setEditingClass] = useState<AdminClassDetail | null>(null);
+  const [viewingClassStudents, setViewingClassStudents] = useState<AdminClassDetail | null>(null);
 
   // --- Inspection Modal State ---
   const [inspectingApp, setInspectingApp] = useState<AdminApplicationSummary | null>(null);
@@ -1489,6 +1491,16 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
                             <div className="flex items-center justify-end gap-1">
                               <button
                                 type="button"
+                                data-testid={`view-students-btn-${cls.id}`}
+                                className="px-2 py-0.5 rounded border border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 text-[11px] font-bold transition flex items-center gap-1 shadow-2xs"
+                                onClick={() => setViewingClassStudents(cls)}
+                                title={`View enrolled and held students for ${cls.name}`}
+                              >
+                                <Users size={11} className="inline mr-0.5" />
+                                <span>View Students</span>
+                              </button>
+                              <button
+                                type="button"
                                 className="px-2 py-0.5 rounded border border-slate-300 text-slate-700 hover:bg-slate-100 text-[11px] font-semibold transition"
                                 onClick={() => startEditClass(cls)}
                                 title="Edit class and fee configuration"
@@ -2773,6 +2785,20 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
           isOpen={Boolean(inspectingDoc)}
           onClose={() => setInspectingDoc(null)}
           onVerify={handleVerifyDocument}
+        />
+      )}
+
+      {/* --- Class Students Roster Modal --- */}
+      {viewingClassStudents && (
+        <ClassStudentsModal
+          isOpen={Boolean(viewingClassStudents)}
+          onClose={() => setViewingClassStudents(null)}
+          classData={viewingClassStudents}
+          applications={applications}
+          onInspectStudent={(app) => {
+            setViewingClassStudents(null);
+            void openInspectionModal(app);
+          }}
         />
       )}
     </div>

@@ -32,10 +32,12 @@ import {
   Check,
   LogOut,
   LogIn,
+  Compass,
 } from 'lucide-react';
 import { ActionAlertModal } from './ActionAlertModal';
 import { K8sSpikeModal } from './K8sSpikeModal';
 import { SystemSpecModal } from './SystemSpecModal';
+import { TalkToHawkBotModal } from './TalkToHawkBotModal';
 import {
   api,
   ApiClientError,
@@ -299,6 +301,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
   const [isK8sSpikeModalOpen, setIsK8sSpikeModalOpen] = useState<boolean>(false);
   const [isSystemSpecModalOpen, setIsSystemSpecModalOpen] = useState<boolean>(false);
   const [simulateRaceCondition, setSimulateRaceCondition] = useState<boolean>(false);
+  const [isCounselorModalOpen, setIsCounselorModalOpen] = useState<boolean>(false);
 
   // --- Action Alert Modal State ---
   const [actionModal, setActionModal] = useState<{
@@ -1831,26 +1834,25 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             <section className="space-y-4" data-testid="overview-dashboard-section">
               {/* Parent Registration & Admission Login Card (when not yet logged in or editing ID) */}
               {(!savedStudentId || isEditingStudentId) && (
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden" data-testid="student-id-section">
-                  <div className="bg-slate-950 text-white p-5 sm:p-6 border-b border-slate-800">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-2">
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden" data-testid="student-id-section">
+                  <div className="bg-[#03130e] text-white p-6 sm:p-7 border-b border-emerald-950">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-400 text-[11px] font-extrabold uppercase tracking-wider mb-2.5">
                       <ShieldCheck size={14} className="text-emerald-400" />
                       <span>Zero Lottery • FCFS Atomic Row-Lock Admission</span>
                     </div>
-                    <h1 className="text-xl sm:text-2xl font-extrabold font-serif tracking-tight text-white">
+                    <h1 className="text-2xl sm:text-3xl font-serif font-black tracking-tight text-white">
                       Parent Registration & Student Admission Login
                     </h1>
-                    <p className="text-slate-300 text-xs sm:text-sm mt-1.5 max-w-2xl leading-relaxed">
-                      Enter your child's government 17-digit Birth Registration Number and parent mobile phone to register or log in.
-                      Parents with multiple children can manage all siblings under a single unified family account.
+                    <p className="text-slate-300 text-xs sm:text-sm mt-2 max-w-3xl leading-relaxed">
+                      Enter your child's government 17-digit Birth Registration Number and parent mobile phone to register or log in. Parents with multiple children can manage all siblings under a single unified family account.
                     </p>
                   </div>
 
-                  <div className="p-5 sm:p-6 space-y-4">
-                    <form onSubmit={handleSaveStudentId} className="space-y-4">
+                  <div className="p-6 sm:p-7 space-y-5">
+                    <form onSubmit={handleSaveStudentId} className="space-y-5">
                       <div>
-                        <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                          Student Birth Registration Number (17 Digits) <span className="text-rose-500">*</span>
+                        <label className="text-xs font-black text-slate-800 uppercase tracking-wider block mb-1.5">
+                          Student Birth Registration Number (17 Digits) <span className="text-rose-600">*</span>
                         </label>
                         <input
                           type="text"
@@ -1859,19 +1861,19 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                           onChange={(e) => handleStudentIdInputChange(e.target.value)}
                           placeholder="e.g. 20152691234567890"
                           maxLength={17}
-                          className="w-full bg-slate-50 border border-slate-300 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 text-slate-900 font-mono text-sm px-3.5 py-2 rounded-xl transition outline-none"
+                          className="w-full bg-slate-50/40 border border-slate-300 focus:border-[#014d33] focus:bg-white focus:ring-2 focus:ring-emerald-700/20 text-slate-900 font-mono text-sm sm:text-base px-4 py-3 rounded-xl transition outline-none"
                           autoFocus
                         />
-                        <div className="flex items-center justify-between mt-1 text-[11px] text-slate-500">
+                        <div className="flex items-center justify-between mt-1.5 text-xs text-slate-500">
                           <span>Must be exactly 17 numeric digits from government birth certificate.</span>
-                          <span className="font-mono text-slate-400">{studentIdInput.length}/17 digits</span>
+                          <span className="font-mono text-slate-400 font-bold">{studentIdInput.length}/17 digits</span>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1">
                         <div>
-                          <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                            Parent / Guardian Mobile Phone <span className="text-rose-500">*</span>
+                          <label className="text-xs font-black text-slate-800 uppercase tracking-wider block mb-1.5">
+                            Parent / Guardian Mobile Phone <span className="text-rose-600">*</span>
                           </label>
                           <input
                             type="tel"
@@ -1880,13 +1882,13 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                             onChange={(e) => setParentPhoneInput(e.target.value)}
                             placeholder="01712345678"
                             maxLength={15}
-                            className="w-full bg-slate-50 border border-slate-300 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 text-slate-900 text-sm px-3.5 py-2 rounded-xl transition outline-none"
+                            className="w-full bg-slate-50/40 border border-slate-300 focus:border-[#014d33] focus:bg-white focus:ring-2 focus:ring-emerald-700/20 text-slate-900 text-sm px-4 py-2.5 rounded-xl transition outline-none"
                           />
-                          <span className="text-[10px] text-slate-500 block mt-0.5">Acts as your family account login.</span>
+                          <span className="text-[11px] text-slate-500 block mt-1">Acts as your family account login.</span>
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                          <label className="text-xs font-black text-slate-800 uppercase tracking-wider block mb-1.5">
                             Parent / Guardian Full Name (Optional)
                           </label>
                           <input
@@ -1895,72 +1897,73 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                             value={parentNameInput || parentName}
                             onChange={(e) => setParentNameInput(e.target.value)}
                             placeholder="e.g. Mr. Rafiqul Rahman"
-                            className="w-full bg-slate-50 border border-slate-300 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 text-slate-900 text-sm px-3.5 py-2 rounded-xl transition outline-none"
+                            className="w-full bg-slate-50/40 border border-slate-300 focus:border-[#014d33] focus:bg-white focus:ring-2 focus:ring-emerald-700/20 text-slate-900 text-sm px-4 py-2.5 rounded-xl transition outline-none"
                           />
-                          <span className="text-[10px] text-slate-500 block mt-0.5">Primary contact for all children.</span>
+                          <span className="text-[11px] text-slate-500 block mt-1">Primary contact for all children.</span>
                         </div>
                       </div>
 
                       {studentIdError && (
-                        <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2" data-testid="student-id-error">
-                          <AlertCircle size={15} className="text-rose-600 shrink-0" />
+                        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2.5" data-testid="student-id-error">
+                          <AlertCircle size={16} className="text-rose-600 shrink-0" />
                           <span>{studentIdError}</span>
                         </div>
                       )}
 
-                      <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
+                      <div className="pt-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100">
                         <button
                           type="button"
                           onClick={() => {
                             setStudentIdInput('20152691234567890');
                             setParentPhoneInput('01712345678');
-                            setParentNameInput('Rafiqul Rahman');
+                            setParentNameInput('Mr. Rafiqul Rahman');
                             if (studentIdError) setStudentIdError(null);
                           }}
-                          className="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline"
+                          className="text-xs font-bold text-emerald-800 hover:text-emerald-900 bg-emerald-50/80 hover:bg-emerald-100/90 px-3.5 py-2 rounded-xl border border-emerald-200 transition flex items-center gap-1.5"
                         >
-                          ⚡ Quick Fill Demo Credentials
+                          <Sparkles size={14} className="text-amber-500" />
+                          <span>⚡ Quick Fill Demo Credentials</span>
                         </button>
 
                         <button
                           type="submit"
                           data-testid="save-student-id-btn"
                           onClick={handleSaveStudentId}
-                          className="w-full sm:w-auto px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2"
+                          className="px-6 py-2.5 rounded-xl bg-[#014d33] hover:bg-emerald-800 text-white font-extrabold text-sm transition shadow-md flex items-center gap-2 group"
                         >
                           <span>Login & Continue to Admission Dossier</span>
-                          <ArrowRight size={15} />
+                          <ArrowRight size={16} className="group-hover:translate-x-0.5 transition" />
                         </button>
                       </div>
                     </form>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-slate-100">
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                        <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                          <Users size={14} className="text-emerald-600" />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t border-slate-100">
+                      <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
+                        <div className="font-bold text-slate-900 text-xs flex items-center gap-2">
+                          <span className="text-base">👥</span>
                           <span>1 Parent • Multiple Children</span>
                         </div>
-                        <p className="text-slate-600 text-[10px] leading-relaxed">
+                        <p className="text-slate-600 text-[11px] leading-relaxed">
                           Easily register 1 or more children in Onnorokom School. Switch between children anytime and receive a 10% sibling concession.
                         </p>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                        <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                          <FileText size={14} className="text-amber-600" />
+                      <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
+                        <div className="font-bold text-slate-900 text-xs flex items-center gap-2">
+                          <span className="text-base">📄</span>
                           <span>Step 1: Student Dossier</span>
                         </div>
-                        <p className="text-slate-600 text-[10px] leading-relaxed">
+                        <p className="text-slate-600 text-[11px] leading-relaxed">
                           Fill out child & guardian details. Once saved, real-time class and shift seat reservation unlocks immediately.
                         </p>
                       </div>
 
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                        <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                          <CreditCard size={14} className="text-sky-600" />
+                      <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
+                        <div className="font-bold text-slate-900 text-xs flex items-center gap-2">
+                          <span className="text-base">💳</span>
                           <span>Step 2 & 3: Lock Seat & Pay</span>
                         </div>
-                        <p className="text-slate-600 text-[10px] leading-relaxed">
+                        <p className="text-slate-600 text-[11px] leading-relaxed">
                           10-minute atomic hold lock ensures zero race conditions. Pay tuition fee to finalize confirmed admission.
                         </p>
                       </div>
@@ -2400,7 +2403,29 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
           {/* =========================================================
               2. AVAILABLE CLASSES & SHIFTS (FAST-LANE SEAT BOOKING)
              ========================================================= */}
-          {showClasses && (
+          {showClasses && !savedStudentId && (
+            <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-4 max-w-xl mx-auto shadow-sm my-8">
+              <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-200 text-[#014d33] flex items-center justify-center mx-auto">
+                <ShieldCheck size={28} />
+              </div>
+              <h3 className="font-serif font-black text-slate-900 text-xl">
+                Parent Login Required to View Available Seats
+              </h3>
+              <p className="text-slate-600 text-xs leading-relaxed max-w-md mx-auto">
+                In accordance with school admission policies, seat capacity and real-time 10-minute hold reservation are available to registered guardians. Please log in with your child's 17-digit Birth Registration Number.
+              </p>
+              <button
+                type="button"
+                onClick={() => setActiveNav('dashboard')}
+                className="px-6 py-2.5 rounded-xl bg-[#014d33] hover:bg-emerald-800 text-white font-bold text-xs shadow-md transition inline-flex items-center gap-2"
+              >
+                <span>Go to Parent Registration & Login</span>
+                <ArrowRight size={14} />
+              </button>
+            </div>
+          )}
+
+          {showClasses && savedStudentId && (
             <section className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
               <div className="p-3 sm:p-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
@@ -4489,7 +4514,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 Admission Support & Verification
               </div>
               <div>Single Admission Policy: 1 Active Class Hold Per 17-digit BRN</div>
-              <div>FCFS 10-Minute Atomic Hold with Real-time Postgres Row Locking</div>
+              <div>FCFS 10-Minute Atomic Hold • Zero Lottery Admission Guarantee</div>
               <div>Sibling Concession: 10% Automated Tuition Fee Discount</div>
             </div>
             <div className="md:col-span-3 space-y-1.5 text-slate-600">
@@ -4625,6 +4650,30 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
           </div>
         </div>
       )}
+
+      {/* Floating Talk to Hawk Bot Button */}
+      <button
+        type="button"
+        data-testid="talk-to-hawk-floating-btn"
+        onClick={() => setIsCounselorModalOpen(true)}
+        className="fixed bottom-5 right-5 z-40 bg-[#014d33] hover:bg-emerald-800 text-white px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 font-bold text-xs border border-emerald-400/40 transition hover:scale-105"
+        title="Chat with Hawk Admissions Desk"
+      >
+        <div className="w-6 h-6 rounded-full bg-amber-400 text-[#014d33] flex items-center justify-center font-black">
+          <Compass size={14} />
+        </div>
+        <span>Talk to Hawk</span>
+      </button>
+
+      {/* Online Admissions Bot Modal */}
+      <TalkToHawkBotModal
+        isOpen={isCounselorModalOpen}
+        onClose={() => setIsCounselorModalOpen(false)}
+        onProceedToPortal={() => {
+          setIsCounselorModalOpen(false);
+          setActiveNav('dashboard');
+        }}
+      />
     </div>
   );
 };
