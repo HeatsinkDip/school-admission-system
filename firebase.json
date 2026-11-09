@@ -1,0 +1,15 @@
+{
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Onnorokom School, Bangladesh",
+        "supportEmail": "toknowdip@gmail.com",
+        "authorizedRedirectUris": [
+          "https://onnorokom-school-admissions.firebaseapp.com/__/auth/handler",
+          "http://localhost:3000"
+        ]
+      }
+    }
+  }
+}
+
