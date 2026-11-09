@@ -1,5 +1,6 @@
 import React from 'react';
 import { FileCode2, X, ShieldCheck, Database, Layers, CheckCircle2, AlertOctagon } from 'lucide-react';
+import './K8sModals.css';
 
 interface SystemSpecModalProps {
   isOpen: boolean;
@@ -160,3 +161,4 @@ FOR UPDATE; -- Prevents phantom reads and over-subscription under high concurren
     </div>
   );
 };
+

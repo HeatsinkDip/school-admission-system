@@ -54,6 +54,7 @@ import { NotificationCenter } from './NotificationCenter';
 import { Pagination } from './Pagination';
 import { STRINGS } from './strings';
 import { notifyToast, ToastContainer } from './ToastContainer';
+import './AdminPortal.css';
 import {
   AdminApplicationDetail,
   AdminApplicationSummary,

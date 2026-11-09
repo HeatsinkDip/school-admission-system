@@ -1,0 +1,121 @@
+/* =========================================================================
+   Parent & Student Portal Stylesheet (All-White SaaS Theme)
+   ========================================================================= */
+
+.portal-page-wrapper {
+  background-color: #f8fafc;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* All-white parent shell */
+.app-shell[data-testid="parent-portal-view"] {
+  background-color: #f8fafc;
+}
+
+/* White Sidebar */
+.app-sidebar {
+  background: #ffffff !important;
+  border-right: 1px solid #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+.sidebar-brand {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.sidebar-user-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.nav-item {
+  color: #475569 !important;
+  font-weight: 500;
+  border-radius: 10px;
+}
+
+.nav-item:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.nav-item.active {
+  background-color: #e0e7ff !important;
+  color: #4338ca !important;
+  font-weight: 700 !important;
+}
+
+/* Main Content Area */
+.app-main {
+  background: #f8fafc;
+}
+
+.app-topbar {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+}
+
+/* All-white Card Panels */
+.panel-card,
+.class-card,
+.stat-card-modern,
+.profile-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04) !important;
+}
+
+.panel-card:hover,
+.class-card:hover {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Class Reservation Cards */
+.class-card-header {
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.class-card-title {
+  color: #0f172a;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Hold & Payment Checkout Box */
+.hold-timer-card {
+  background: #ffffff;
+  border: 2px solid #6366f1;
+  border-radius: 16px;
+  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.08);
+}
+
+.hold-countdown-timer {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #b45309;
+  border-radius: 12px;
+}
+
+/* Form inputs */
+.input,
+.select,
+.textarea {
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}

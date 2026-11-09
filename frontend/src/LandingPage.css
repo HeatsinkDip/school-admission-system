@@ -1,0 +1,352 @@
+/* =========================================================================
+   All-White Institutional Theme: Landing Page Stylesheet
+   ========================================================================= */
+
+.landing-page-root {
+  background-color: #ffffff;
+  color: #0f172a;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.landing-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* =========================================================================
+   All-White Institutional Header
+   ========================================================================= */
+
+.isd-header-white {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  position: sticky;
+  top: 36px;
+  z-index: 50;
+  backdrop-filter: blur(8px);
+}
+
+.isd-brand-emblem {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+  color: #f59e0b;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.isd-nav-link {
+  color: #475569;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.isd-nav-link:hover {
+  color: #1e1b4b;
+  background-color: #f1f5f9;
+}
+
+/* =========================================================================
+   Clean All-White Hero Section with High-Impact Imagery
+   ========================================================================= */
+
+.isd-hero-white {
+  background: #ffffff;
+  padding-top: 3rem;
+  padding-bottom: 4rem;
+  position: relative;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.hero-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.hero-title-white {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+  font-size: 2.75rem;
+  line-height: 1.15;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+  margin-top: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .hero-title-white {
+    font-size: 3.5rem;
+  }
+}
+
+.hero-highlight-amber {
+  color: #d97706;
+}
+
+.hero-description-white {
+  color: #475569;
+  font-size: 1.1rem;
+  line-height: 1.65;
+  max-width: 600px;
+  margin-bottom: 2rem;
+}
+
+.hero-image-wrapper {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.12);
+  border: 4px solid #ffffff;
+}
+
+.hero-image-main {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-floating-badge {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 1.25rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 0.85rem 1.15rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* =========================================================================
+   Interactive Workflow Preview Card (White Theme)
+   ========================================================================= */
+
+.workflow-card-white {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+}
+
+.workflow-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.workflow-step-item:hover {
+  border-color: #4f46e5;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.06);
+}
+
+.step-num-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #4f46e5;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* =========================================================================
+   Real-Time Seat Matrix Cards (All-White Theme)
+   ========================================================================= */
+
+.matrix-grid-white {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.seat-matrix-card-white {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.seat-matrix-card-white:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+}
+
+.seat-progress-bar-white {
+  width: 100%;
+  height: 8px;
+  background-color: #f1f5f9;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+/* =========================================================================
+   Academic Pathways with Visual Photos
+   ========================================================================= */
+
+.pathway-card-photo {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.pathway-card-photo:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.08);
+  border-color: #cbd5e1;
+}
+
+.pathway-photo {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.pathway-body {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================================================
+   Campus Facilities Showcase
+   ========================================================================= */
+
+.facility-card-white {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  height: 220px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.06);
+}
+
+.facility-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.facility-card-white:hover .facility-photo {
+  transform: scale(1.04);
+}
+
+.facility-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.2) 60%, transparent 100%);
+  color: #ffffff;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+/* =========================================================================
+   Director's Welcome Letter (White Theme)
+   ========================================================================= */
+
+.director-card-white {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 5px solid #d97706;
+  border-radius: 16px;
+  padding: 2.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+}
+
+/* =========================================================================
+   All-White Institutional Footer
+   ========================================================================= */
+
+.isd-footer-white {
+  background: #ffffff;
+  color: #475569;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 3.5rem;
+  padding-bottom: 2rem;
+  margin-top: auto;
+}
+
+.footer-column-title {
+  color: #0f172a;
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  letter-spacing: 0.02em;
+}
+
+.footer-link-white {
+  color: #64748b;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: none;
+  padding: 0.25rem 0;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.footer-link-white:hover {
+  color: #1e1b4b;
+}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bolt, X } from 'lucide-react';
 import { SchoolClass } from './types';
+import './K8sModals.css';
 
 interface K8sSpikeModalProps {
   isOpen: boolean;

@@ -6,7 +6,6 @@ import {
   FileText,
   CreditCard,
   UserCheck,
-  Shield,
   CheckCircle2,
   AlertCircle,
   Upload,
@@ -46,6 +45,8 @@ import { Pagination } from './Pagination';
 import { generateAndDownloadPdfReceipt } from './ReceiptPdf';
 import { STRINGS } from './strings';
 import { notifyToast, ToastContainer } from './ToastContainer';
+import './ParentPortal.css';
+import './K8sModals.css';
 import {
   AppNotification,
   ClassFeeBreakdown,
@@ -126,10 +127,10 @@ export function App() {
 }
 
 interface ParentPortalProps {
-  onNavigateToAdmin: () => void;
+  onNavigateToAdmin?: () => void;
 }
 
-function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
+function ParentPortal({ onNavigateToAdmin: _onNavigateToAdmin }: ParentPortalProps) {
   // --- Persisted Student ID ---
   const [savedStudentId, setSavedStudentId] = useState<string>(() => {
     try {
@@ -941,7 +942,6 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
               setActiveTab('classes');
             }
           }}
-          onOpenAdminPortal={onNavigateToAdmin}
           savedStudentId={savedStudentId}
           onOpenK8sSpikeModal={() => setIsK8sSpikeModalOpen(true)}
           onOpenSystemSpecModal={() => setIsSystemSpecModalOpen(true)}
@@ -989,15 +989,15 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
             <span className="hidden sm:inline text-slate-600">|</span>
             <div className="flex items-center gap-1.5 text-slate-300 text-xs">
               <Cpu size={13} className="text-sky-400" />
-              <span>Pods: <strong className="text-white font-mono">3</strong>/16</span>
+              <span>Pods: <strong className="text-white font-mono">3/16</strong></span>
             </div>
             <div className="hidden md:flex items-center gap-1.5 text-slate-300 text-xs">
               <Users size={13} className="text-amber-400" />
-              <span>Concurrent Velocity: <strong className="text-white font-mono">14</strong> req/s</span>
+              <span>Concurrent Velocity: <strong className="text-white font-mono">14 req/s</strong></span>
             </div>
             <div className="hidden lg:flex items-center gap-1.5 text-slate-300 text-xs">
               <ShieldCheck size={13} className="text-purple-400" />
-              <span>Queue Policy: <strong className="text-purple-300">FCFS Atomic Row Lock</strong></span>
+              <span>Queue Policy: <strong className="text-purple-300">First-Come-First-Served Atomic Lock</strong></span>
             </div>
           </div>
 
@@ -1183,17 +1183,11 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
           </button>
         </nav>
 
-        {/* Sidebar Bottom: Admin Switch & Support */}
+        {/* Sidebar Bottom: School Identity */}
         <div className="sidebar-footer">
-          <button
-            type="button"
-            className="sidebar-link-btn text-indigo"
-            data-testid="go-to-admin-btn"
-            onClick={onNavigateToAdmin}
-          >
-            <Shield size={16} />
-            {!isSidebarCollapsed && <span>Staff Admin Portal</span>}
-          </button>
+          <div className="text-xs text-slate-400 text-center py-1">
+            <span>Onnorokom Projukti School</span>
+          </div>
         </div>
       </aside>
 
@@ -1226,7 +1220,7 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
           </div>
 
           <div className="topbar-right">
-            {/* View Switcher Tabs (Demo navigation) */}
+            {/* View Switcher Tabs */}
             <div className="view-switcher-group hidden lg:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-semibold mr-2">
               <button
                 type="button"
@@ -1234,7 +1228,7 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
                 onClick={() => setViewMode('landing')}
               >
                 <Home size={13} />
-                <span>Landing</span>
+                <span>Landing Page</span>
               </button>
               <button
                 type="button"
@@ -1242,14 +1236,6 @@ function ParentPortal({ onNavigateToAdmin }: ParentPortalProps) {
               >
                 <GraduationCap size={13} />
                 <span>Parent Portal</span>
-              </button>
-              <button
-                type="button"
-                className="px-2.5 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center gap-1"
-                onClick={onNavigateToAdmin}
-              >
-                <Shield size={13} />
-                <span>Admin Panel</span>
               </button>
             </div>
 

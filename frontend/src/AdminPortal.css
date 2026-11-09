@@ -1,0 +1,75 @@
+/* =========================================================================
+   Admin Portal Stylesheet (All-White SaaS Theme)
+   ========================================================================= */
+
+.admin-portal-wrapper {
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.admin-shell {
+  background-color: #f8fafc;
+}
+
+/* White Admin Sidebar */
+.admin-sidebar {
+  background: #ffffff !important;
+  border-right: 1px solid #e2e8f0 !important;
+  color: #1e293b !important;
+}
+
+/* Admin Metric Cards */
+.admin-stat-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-stat-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+}
+
+/* Admin Modern Tables */
+.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.admin-table th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1e293b;
+  font-size: 0.85rem;
+}
+
+.admin-table tr:hover td {
+  background: #f8fafc;
+}
+
+/* Inspection Modal & Document Viewer */
+.inspection-modal-desk {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
