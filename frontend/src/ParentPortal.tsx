@@ -22,7 +22,6 @@ import {
   Edit3,
   Menu,
   X,
-  Layers,
   BadgeCheck,
   AlertCircle,
   Users,
@@ -197,7 +196,6 @@ export interface ParentChildItem {
 
 export type ParentNavTab =
   | 'dashboard'
-  | 'full_portal'
   | 'children'
   | 'classes'
   | 'payment'
@@ -271,7 +269,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
   const [newChildError, setNewChildError] = useState<string | null>(null);
 
   // --- Navigation & Layout State ---
-  const [activeNav, setActiveNav] = useState<ParentNavTab>('full_portal');
+  const [activeNav, setActiveNav] = useState<ParentNavTab>('dashboard');
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // --- Core Seat & Hold Data ---
@@ -1166,18 +1164,17 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
   };
 
   // --- Active Tabs Display Condition ---
-  const showOverview = activeNav === 'dashboard' || activeNav === 'full_portal' || activeNav === 'all';
+  const showOverview = activeNav === 'dashboard';
   const showChildren = activeNav === 'children';
-  const showClasses = activeNav === 'classes' || activeNav === 'full_portal' || activeNav === 'all';
-  const showPayment = activeNav === 'payment' || activeNav === 'active_hold' || activeNav === 'full_portal' || activeNav === 'all';
-  const showDossier = activeNav === 'dossier' || activeNav === 'child_dossier' || activeNav === 'full_portal' || activeNav === 'all';
-  const showReceipts = activeNav === 'receipts' || activeNav === 'applications' || activeNav === 'full_portal' || activeNav === 'all';
-  const showRoutines = activeNav === 'routines' || activeNav === 'full_portal' || activeNav === 'all';
+  const showClasses = activeNav === 'classes';
+  const showPayment = activeNav === 'payment' || activeNav === 'active_hold';
+  const showDossier = activeNav === 'dossier' || activeNav === 'child_dossier';
+  const showReceipts = activeNav === 'receipts' || activeNav === 'applications';
+  const showRoutines = activeNav === 'routines';
 
   const SIDEBAR_ITEMS = [
     { id: 'dashboard', label: 'Overview Dashboard', icon: LayoutDashboard, badge: 'Live', testId: 'nav-dashboard-btn' },
     { id: 'children', label: 'My Children (Family)', icon: Users, badge: `${parentChildren.length || 1}`, testId: 'nav-children-btn' },
-    { id: 'full_portal', label: 'Full Portal View (All-in-One)', icon: Layers, badge: null, testId: 'nav-all-overview-btn' },
     { id: 'classes', label: 'Available Classes', icon: BookOpen, badge: `${classes.length || 29}`, testId: 'nav-classes-btn' },
     { id: 'payment', label: 'Seat Hold & Payment', icon: CreditCard, badge: confirmedHold ? 'PAID' : (focusedHold?.status === 'HELD' ? 'HOLD' : null), testId: 'nav-active-hold-btn' },
     { id: 'dossier', label: 'Child & Guardian Dossier', icon: UserCheck, badge: `${completeness}%`, testId: 'nav-child-dossier-btn' },
@@ -1559,8 +1556,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     (item.id === 'classes' && activeNav === 'classes') ||
                     (item.id === 'payment' && activeNav === 'active_hold') ||
                     (item.id === 'dossier' && activeNav === 'child_dossier') ||
-                    (item.id === 'receipts' && activeNav === 'applications') ||
-                    (item.id === 'full_portal' && activeNav === 'all');
+                    (item.id === 'receipts' && activeNav === 'applications');
 
                   return (
                     <button
@@ -1683,259 +1679,6 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             </div>
           )}
 
-          {/* Parent Registration & Admission Login Card (when not yet logged in) */}
-          {!savedStudentId && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden" data-testid="student-id-section">
-              <div className="bg-slate-950 text-white p-5 sm:p-6 border-b border-slate-800">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-2">
-                  <ShieldCheck size={14} className="text-emerald-400" />
-                  <span>Zero Lottery • FCFS Atomic Row-Lock Admission</span>
-                </div>
-                <h1 className="text-xl sm:text-2xl font-extrabold font-serif tracking-tight text-white">
-                  Parent Registration & Student Admission Login
-                </h1>
-                <p className="text-slate-300 text-xs sm:text-sm mt-1.5 max-w-2xl leading-relaxed">
-                  Enter your child's government 17-digit Birth Registration Number and parent mobile phone to register or log in.
-                  Parents with multiple children can manage all siblings under a single unified family account.
-                </p>
-              </div>
-
-              <div className="p-5 sm:p-6 space-y-4">
-                <form onSubmit={handleSaveStudentId} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                      Student Birth Registration Number (17 Digits) <span className="text-rose-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      data-testid="student-id-input"
-                      value={studentIdInput}
-                      onChange={(e) => handleStudentIdInputChange(e.target.value)}
-                      placeholder="e.g. 20152691234567890"
-                      maxLength={17}
-                      className="w-full bg-slate-50 border border-slate-300 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 text-slate-900 font-mono text-sm px-3.5 py-2 rounded-xl transition outline-none"
-                      autoFocus
-                    />
-                    <div className="flex items-center justify-between mt-1 text-[11px] text-slate-500">
-                      <span>Must be exactly 17 numeric digits from government birth certificate.</span>
-                      <span className="font-mono text-slate-400">{studentIdInput.length}/17 digits</span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                        Parent / Guardian Mobile Phone <span className="text-rose-500">*</span>
-                      </label>
-                      <input
-                        type="tel"
-                        data-testid="parent-phone-input"
-                        value={parentPhoneInput || parentPhone}
-                        onChange={(e) => setParentPhoneInput(e.target.value)}
-                        placeholder="01712345678"
-                        maxLength={15}
-                        className="w-full bg-slate-50 border border-slate-300 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 text-slate-900 text-sm px-3.5 py-2 rounded-xl transition outline-none"
-                      />
-                      <span className="text-[10px] text-slate-500 block mt-0.5">Acts as your family account login.</span>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                        Parent / Guardian Full Name (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        data-testid="parent-name-input"
-                        value={parentNameInput || parentName}
-                        onChange={(e) => setParentNameInput(e.target.value)}
-                        placeholder="e.g. Mr. Rafiqul Rahman"
-                        className="w-full bg-slate-50 border border-slate-300 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 text-slate-900 text-sm px-3.5 py-2 rounded-xl transition outline-none"
-                      />
-                      <span className="text-[10px] text-slate-500 block mt-0.5">Primary contact for all children.</span>
-                    </div>
-                  </div>
-
-                  {studentIdError && (
-                    <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2" data-testid="student-id-error">
-                      <AlertCircle size={15} className="text-rose-600 shrink-0" />
-                      <span>{studentIdError}</span>
-                    </div>
-                  )}
-
-                  <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setStudentIdInput('20152691234567890');
-                        setParentPhoneInput('01712345678');
-                        setParentNameInput('Rafiqul Rahman');
-                        if (studentIdError) setStudentIdError(null);
-                      }}
-                      className="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline"
-                    >
-                      ⚡ Quick Fill Demo Credentials
-                    </button>
-
-                    <button
-                      type="submit"
-                      data-testid="save-student-id-btn"
-                      onClick={handleSaveStudentId}
-                      className="w-full sm:w-auto px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2"
-                    >
-                      <span>Login & Continue to Admission Dossier</span>
-                      <ArrowRight size={15} />
-                    </button>
-                  </div>
-                </form>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-slate-100">
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                    <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                      <Users size={14} className="text-emerald-600" />
-                      <span>1 Parent • Multiple Children</span>
-                    </div>
-                    <p className="text-slate-600 text-[10px] leading-relaxed">
-                      Easily register 1 or more children in Onnorokom School. Switch between children anytime and receive a 10% sibling concession.
-                    </p>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                    <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                      <FileText size={14} className="text-amber-600" />
-                      <span>Step 1: Student Dossier</span>
-                    </div>
-                    <p className="text-slate-600 text-[10px] leading-relaxed">
-                      Fill out child & guardian details. Once saved, real-time class and shift seat reservation unlocks immediately.
-                    </p>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                    <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                      <CreditCard size={14} className="text-sky-600" />
-                      <span>Step 2 & 3: Lock Seat & Pay</span>
-                    </div>
-                    <p className="text-slate-600 text-[10px] leading-relaxed">
-                      10-minute atomic hold lock ensures zero race conditions. Pay tuition fee to finalize confirmed admission.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* 4-Step Interactive Admission Stepper */}
-          <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-2xs">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5 mb-3">
-              <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  Admission Journey
-                </span>
-                <h2 className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1">
-                  Child Admission Roadmap: <span className={activeStudentName ? 'text-slate-900' : 'text-slate-400 italic font-mono'}>{activeStudentName ?? 'null'}</span>
-                </h2>
-              </div>
-              <div className="text-[11px] text-slate-500 font-medium">
-                Family Account: <strong className="font-mono text-slate-800">{parentPhone || '01712-345678'}</strong>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-              {/* Step 1 */}
-              <div className={`p-2.5 rounded-lg border transition ${
-                isMandatoryComplete
-                  ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950'
-                  : 'bg-amber-50 border-amber-300 text-amber-950 ring-1 ring-amber-400'
-              }`}>
-                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
-                  <span>Step 1</span>
-                  <span>{isMandatoryComplete ? '✓ Done' : '⚠️ Pending'}</span>
-                </div>
-                <div className="font-extrabold text-xs">Student Dossier</div>
-                <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
-                  Personal, guardian & academic history.
-                </p>
-                {!isMandatoryComplete && (
-                  <button
-                    onClick={() => setActiveNav('dossier')}
-                    className="mt-1.5 text-[10px] font-bold text-amber-800 hover:underline block"
-                  >
-                    Complete Form &rarr;
-                  </button>
-                )}
-              </div>
-
-              {/* Step 2 */}
-              <div className={`p-2.5 rounded-lg border transition ${
-                confirmedHold
-                  ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950'
-                  : focusedHold
-                  ? 'bg-sky-50 border-sky-300 text-sky-950'
-                  : isMandatoryComplete
-                  ? 'bg-slate-50 border-slate-300 text-slate-900 ring-1 ring-emerald-500/40'
-                  : 'bg-slate-50 border-slate-200 text-slate-400'
-              }`}>
-                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
-                  <span>Step 2</span>
-                  <span>{confirmedHold || focusedHold ? '✓ Selected' : isMandatoryComplete ? 'Ready' : 'Locked'}</span>
-                </div>
-                <div className="font-extrabold text-xs">Class Enrollment</div>
-                <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
-                  Choose Morning / Day shift class.
-                </p>
-                {isMandatoryComplete && !focusedHold && (
-                  <button
-                    onClick={() => setActiveNav('classes')}
-                    className="mt-1.5 text-[10px] font-bold text-emerald-700 hover:underline block"
-                  >
-                    Select Class &rarr;
-                  </button>
-                )}
-              </div>
-
-              {/* Step 3 */}
-              <div className={`p-2.5 rounded-lg border transition ${
-                confirmedHold
-                  ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950'
-                  : focusedHold
-                  ? 'bg-amber-50 border-amber-300 text-amber-950 ring-1 ring-amber-400 animate-pulse'
-                  : 'bg-slate-50 border-slate-200 text-slate-400'
-              }`}>
-                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
-                  <span>Step 3</span>
-                  <span>{confirmedHold ? '✓ Paid' : focusedHold ? '⏳ Hold' : 'Pending'}</span>
-                </div>
-                <div className="font-extrabold text-xs">Seat Hold & Pay</div>
-                <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
-                  10-min atomic lock & tuition payment.
-                </p>
-                {focusedHold && !confirmedHold && (
-                  <button
-                    onClick={() => setActiveNav('payment')}
-                    className="mt-1.5 text-[10px] font-bold text-amber-800 hover:underline block"
-                  >
-                    Pay Tuition &rarr;
-                  </button>
-                )}
-              </div>
-
-              {/* Step 4 */}
-              <div className={`p-2.5 rounded-lg border transition ${
-                confirmedHold
-                  ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950 ring-1 ring-emerald-500'
-                  : 'bg-slate-50 border-slate-200 text-slate-400'
-              }`}>
-                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
-                  <span>Step 4</span>
-                  <span>{confirmedHold ? '✓ Enrolled' : 'Pending'}</span>
-                </div>
-                <div className="font-extrabold text-xs">Official Receipt</div>
-                <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
-                  Digital barcode PDF receipt & roll.
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* =========================================================
               FAMILY ACCOUNT & MULTI-CHILD MANAGEMENT VIEW
              ========================================================= */}
@@ -2053,25 +1796,276 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               1. OVERVIEW DASHBOARD (Compact High-Density)
              ========================================================= */}
           {showOverview && (
-            <section className="space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                <div>
-                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-1.5">
-                    <LayoutDashboard className="w-4 h-4 text-emerald-600" />
-                    Student Admission Overview Dashboard
-                  </h2>
-                  <p className="text-[11px] text-slate-500">
-                    Real-time summary of student profile, confirmed enrollment, fee payment status, and dossier verification.
-                  </p>
+            <section className="space-y-4" data-testid="overview-dashboard-section">
+              {/* Parent Registration & Admission Login Card (when not yet logged in or editing ID) */}
+              {(!savedStudentId || isEditingStudentId) && (
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden" data-testid="student-id-section">
+                  <div className="bg-slate-950 text-white p-5 sm:p-6 border-b border-slate-800">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-2">
+                      <ShieldCheck size={14} className="text-emerald-400" />
+                      <span>Zero Lottery • FCFS Atomic Row-Lock Admission</span>
+                    </div>
+                    <h1 className="text-xl sm:text-2xl font-extrabold font-serif tracking-tight text-white">
+                      Parent Registration & Student Admission Login
+                    </h1>
+                    <p className="text-slate-300 text-xs sm:text-sm mt-1.5 max-w-2xl leading-relaxed">
+                      Enter your child's government 17-digit Birth Registration Number and parent mobile phone to register or log in.
+                      Parents with multiple children can manage all siblings under a single unified family account.
+                    </p>
+                  </div>
+
+                  <div className="p-5 sm:p-6 space-y-4">
+                    <form onSubmit={handleSaveStudentId} className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                          Student Birth Registration Number (17 Digits) <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          data-testid="student-id-input"
+                          value={studentIdInput}
+                          onChange={(e) => handleStudentIdInputChange(e.target.value)}
+                          placeholder="e.g. 20152691234567890"
+                          maxLength={17}
+                          className="w-full bg-slate-50 border border-slate-300 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 text-slate-900 font-mono text-sm px-3.5 py-2 rounded-xl transition outline-none"
+                          autoFocus
+                        />
+                        <div className="flex items-center justify-between mt-1 text-[11px] text-slate-500">
+                          <span>Must be exactly 17 numeric digits from government birth certificate.</span>
+                          <span className="font-mono text-slate-400">{studentIdInput.length}/17 digits</span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                            Parent / Guardian Mobile Phone <span className="text-rose-500">*</span>
+                          </label>
+                          <input
+                            type="tel"
+                            data-testid="parent-phone-input"
+                            value={parentPhoneInput || parentPhone}
+                            onChange={(e) => setParentPhoneInput(e.target.value)}
+                            placeholder="01712345678"
+                            maxLength={15}
+                            className="w-full bg-slate-50 border border-slate-300 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 text-slate-900 text-sm px-3.5 py-2 rounded-xl transition outline-none"
+                          />
+                          <span className="text-[10px] text-slate-500 block mt-0.5">Acts as your family account login.</span>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
+                            Parent / Guardian Full Name (Optional)
+                          </label>
+                          <input
+                            type="text"
+                            data-testid="parent-name-input"
+                            value={parentNameInput || parentName}
+                            onChange={(e) => setParentNameInput(e.target.value)}
+                            placeholder="e.g. Mr. Rafiqul Rahman"
+                            className="w-full bg-slate-50 border border-slate-300 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20 text-slate-900 text-sm px-3.5 py-2 rounded-xl transition outline-none"
+                          />
+                          <span className="text-[10px] text-slate-500 block mt-0.5">Primary contact for all children.</span>
+                        </div>
+                      </div>
+
+                      {studentIdError && (
+                        <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2" data-testid="student-id-error">
+                          <AlertCircle size={15} className="text-rose-600 shrink-0" />
+                          <span>{studentIdError}</span>
+                        </div>
+                      )}
+
+                      <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStudentIdInput('20152691234567890');
+                            setParentPhoneInput('01712345678');
+                            setParentNameInput('Rafiqul Rahman');
+                            if (studentIdError) setStudentIdError(null);
+                          }}
+                          className="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline"
+                        >
+                          ⚡ Quick Fill Demo Credentials
+                        </button>
+
+                        <button
+                          type="submit"
+                          data-testid="save-student-id-btn"
+                          onClick={handleSaveStudentId}
+                          className="w-full sm:w-auto px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2"
+                        >
+                          <span>Login & Continue to Admission Dossier</span>
+                          <ArrowRight size={15} />
+                        </button>
+                      </div>
+                    </form>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-slate-100">
+                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
+                        <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                          <Users size={14} className="text-emerald-600" />
+                          <span>1 Parent • Multiple Children</span>
+                        </div>
+                        <p className="text-slate-600 text-[10px] leading-relaxed">
+                          Easily register 1 or more children in Onnorokom School. Switch between children anytime and receive a 10% sibling concession.
+                        </p>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
+                        <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                          <FileText size={14} className="text-amber-600" />
+                          <span>Step 1: Student Dossier</span>
+                        </div>
+                        <p className="text-slate-600 text-[10px] leading-relaxed">
+                          Fill out child & guardian details. Once saved, real-time class and shift seat reservation unlocks immediately.
+                        </p>
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
+                        <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                          <CreditCard size={14} className="text-sky-600" />
+                          <span>Step 2 & 3: Lock Seat & Pay</span>
+                        </div>
+                        <p className="text-slate-600 text-[10px] leading-relaxed">
+                          10-minute atomic hold lock ensures zero race conditions. Pay tuition fee to finalize confirmed admission.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <button
-                  onClick={() => setActiveNav(activeNav === 'full_portal' ? 'dashboard' : 'full_portal')}
-                  className="self-start sm:self-auto px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-1 shadow-2xs"
-                >
-                  <Layers className="w-3 h-3 text-amber-600" />
-                  {activeNav === 'full_portal' ? 'Collapse to Overview' : 'Expand All Portal Sections'}
-                </button>
-              </div>
+              )}
+
+              {/* 4-Step Interactive Admission Stepper (Visible once logged in) */}
+              {savedStudentId && (
+                <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-2xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2.5 mb-3">
+                    <div>
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        Admission Journey
+                      </span>
+                      <h2 className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1">
+                        Child Admission Roadmap: <span className={activeStudentName ? 'text-slate-900' : 'text-slate-400 italic font-mono'}>{activeStudentName ?? 'null'}</span>
+                      </h2>
+                    </div>
+                    <div className="text-[11px] text-slate-500 font-medium">
+                      Family Account: <strong className="font-mono text-slate-800">{parentPhone || '01712-345678'}</strong>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                    {/* Step 1 */}
+                    <div className={`p-2.5 rounded-lg border transition ${
+                      isMandatoryComplete
+                        ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950'
+                        : 'bg-amber-50 border-amber-300 text-amber-950 ring-1 ring-amber-400'
+                    }`}>
+                      <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
+                        <span>Step 1</span>
+                        <span>{isMandatoryComplete ? '✓ Done' : '⚠️ Pending'}</span>
+                      </div>
+                      <div className="font-extrabold text-xs">Student Dossier</div>
+                      <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
+                        Personal, guardian & academic history.
+                      </p>
+                      {!isMandatoryComplete && (
+                        <button
+                          onClick={() => setActiveNav('dossier')}
+                          className="mt-1.5 text-[10px] font-bold text-amber-800 hover:underline block"
+                        >
+                          Complete Form &rarr;
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Step 2 */}
+                    <div className={`p-2.5 rounded-lg border transition ${
+                      confirmedHold
+                        ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950'
+                        : focusedHold
+                        ? 'bg-sky-50 border-sky-300 text-sky-950'
+                        : isMandatoryComplete
+                        ? 'bg-slate-50 border-slate-300 text-slate-900 ring-1 ring-emerald-500/40'
+                        : 'bg-slate-50 border-slate-200 text-slate-400'
+                    }`}>
+                      <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
+                        <span>Step 2</span>
+                        <span>{confirmedHold || focusedHold ? '✓ Selected' : isMandatoryComplete ? 'Ready' : 'Locked'}</span>
+                      </div>
+                      <div className="font-extrabold text-xs">Class Enrollment</div>
+                      <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
+                        Choose Morning / Day shift class.
+                      </p>
+                      {isMandatoryComplete && !focusedHold && (
+                        <button
+                          onClick={() => setActiveNav('classes')}
+                          className="mt-1.5 text-[10px] font-bold text-emerald-700 hover:underline block"
+                        >
+                          Select Class &rarr;
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Step 3 */}
+                    <div className={`p-2.5 rounded-lg border transition ${
+                      confirmedHold
+                        ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950'
+                        : focusedHold
+                        ? 'bg-amber-50 border-amber-300 text-amber-950 ring-1 ring-amber-400 animate-pulse'
+                        : 'bg-slate-50 border-slate-200 text-slate-400'
+                    }`}>
+                      <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
+                        <span>Step 3</span>
+                        <span>{confirmedHold ? '✓ Paid' : focusedHold ? '⏳ Hold' : 'Pending'}</span>
+                      </div>
+                      <div className="font-extrabold text-xs">Seat Hold & Pay</div>
+                      <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
+                        10-min atomic lock & tuition payment.
+                      </p>
+                      {focusedHold && !confirmedHold && (
+                        <button
+                          onClick={() => setActiveNav('payment')}
+                          className="mt-1.5 text-[10px] font-bold text-amber-800 hover:underline block"
+                        >
+                          Pay Tuition &rarr;
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Step 4 */}
+                    <div className={`p-2.5 rounded-lg border transition ${
+                      confirmedHold
+                        ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950 ring-1 ring-emerald-500'
+                        : 'bg-slate-50 border-slate-200 text-slate-400'
+                    }`}>
+                      <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
+                        <span>Step 4</span>
+                        <span>{confirmedHold ? '✓ Enrolled' : 'Pending'}</span>
+                      </div>
+                      <div className="font-extrabold text-xs">Official Receipt</div>
+                      <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">
+                        Digital barcode PDF receipt & roll.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Student Admission Overview Dashboard Cards (Visible once logged in) */}
+              {savedStudentId && (
+                <div className="space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                    <div>
+                      <h2 className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-1.5">
+                        <LayoutDashboard className="w-4 h-4 text-emerald-600" />
+                        Student Admission Overview Dashboard
+                      </h2>
+                      <p className="text-[11px] text-slate-500">
+                        Real-time summary of student profile, confirmed enrollment, fee payment status, and dossier verification.
+                      </p>
+                    </div>
+                  </div>
 
               {/* 4 Key Status KPI Cards (Compact) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
@@ -2366,8 +2360,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   </div>
                 </div>
               </div>
-            </section>
+            </div>
           )}
+        </section>
+      )}
 
           {/* =========================================================
               2. AVAILABLE CLASSES & SHIFTS (FAST-LANE SEAT BOOKING)
@@ -2703,6 +2699,22 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                       >
                         {confirmingHoldId ? 'Processing...' : 'Pay admission fee'}
                       </button>
+
+                      {focusedHold && (
+                        <button
+                          type="button"
+                          data-testid={`pay-btn-${focusedHold.holdId}`}
+                          disabled={
+                            getEffectiveHoldStatus(focusedHold, nowMs) !== 'HELD' ||
+                            confirmingHoldId === focusedHold.holdId
+                          }
+                          onClick={() => handleConfirm(focusedHold)}
+                          className="sr-only"
+                          aria-hidden="true"
+                        >
+                          Pay Hold {focusedHold.holdId}
+                        </button>
+                      )}
 
                       {focusedHold && focusedHold.status === 'HELD' && (
                         <button

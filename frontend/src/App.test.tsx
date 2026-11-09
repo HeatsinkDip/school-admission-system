@@ -115,6 +115,9 @@ describe('School Admission Frontend', () => {
       await Promise.resolve();
     });
 
+    // Navigate to Seat Hold & Payment tab
+    fireEvent.click(screen.getByTestId('nav-active-hold-btn'));
+
     expect(screen.getByTestId('focused-hold-status')).toHaveTextContent('HELD');
     expect(screen.getByTestId('focused-hold-countdown')).toHaveTextContent('00:03');
     expect(screen.getByTestId('focused-pay-btn')).not.toBeDisabled();
@@ -176,6 +179,7 @@ describe('School Admission Frontend', () => {
 
     render(<App />);
 
+    fireEvent.click(await screen.findByTestId('nav-classes-btn'));
     const applyBtn = await screen.findByTestId('apply-btn-c_1');
     fireEvent.click(applyBtn);
 
@@ -208,6 +212,8 @@ describe('School Admission Frontend', () => {
 
     localStorage.setItem(STUDENT_ID_STORAGE_KEY, VALID_STUDENT_ID);
     render(<App />);
+
+    fireEvent.click(screen.getByTestId('nav-classes-btn'));
 
     await act(async () => {
       await Promise.resolve();
@@ -324,6 +330,7 @@ describe('School Admission Frontend', () => {
 
     render(<App />);
 
+    fireEvent.click(await screen.findByTestId('nav-child-dossier-btn'));
     const nameInput = await screen.findByTestId('child-name-en-input');
     fireEvent.change(nameInput, { target: { value: 'Aarav Rahman' } });
 
@@ -494,6 +501,8 @@ describe('School Admission Frontend', () => {
 
     render(<App />);
 
+    fireEvent.click(await screen.findByTestId('nav-classes-btn'));
+
     // Active hold notice banner should be present
     expect(await screen.findByTestId('active-hold-notice-banner')).toBeInTheDocument();
 
@@ -542,6 +551,8 @@ describe('School Admission Frontend', () => {
     });
 
     render(<App />);
+
+    fireEvent.click(await screen.findByTestId('nav-classes-btn'));
 
     // Mandatory profile gate warning banner is shown
     expect(await screen.findByTestId('mandatory-fields-gate-banner')).toBeInTheDocument();
@@ -725,6 +736,8 @@ describe('School Admission Frontend', () => {
 
     render(<App />);
 
+    fireEvent.click(await screen.findByTestId('nav-active-hold-btn'));
+
     // Wait for the active hold pay button to appear
     const payBtn = await screen.findByTestId('focused-pay-btn');
     expect(payBtn).toBeInTheDocument();
@@ -766,7 +779,8 @@ describe('School Admission Frontend', () => {
 
     expect(await screen.findByTestId('active-student-id')).toHaveTextContent(firstId);
 
-    // Enter student name for firstId
+    // Enter student name for firstId in Dossier
+    fireEvent.click(screen.getByTestId('nav-child-dossier-btn'));
     const nameInput = screen.getByTestId('child-name-en-input');
     fireEvent.change(nameInput, { target: { value: 'Aarav Rahman' } });
     expect(screen.getByTestId('active-student-name')).toHaveTextContent('Aarav Rahman');
@@ -781,9 +795,11 @@ describe('School Admission Frontend', () => {
       expect(screen.getByTestId('active-student-name')).toHaveTextContent('null');
     });
 
-    // Click Parent Logout button -> session clears and login form returns
+    // Click Parent Logout button -> session clears and returns to overview dashboard login
     fireEvent.click(screen.getByTestId('parent-logout-btn'));
     expect(localStorage.getItem(STUDENT_ID_STORAGE_KEY)).toBeNull();
+    // Switch to Overview Dashboard where student-id-input lives
+    fireEvent.click(screen.getByTestId('nav-dashboard-btn'));
     expect(screen.getByTestId('student-id-input')).toHaveValue('');
   });
 
@@ -830,6 +846,8 @@ describe('School Admission Frontend', () => {
     });
 
     render(<App />);
+
+    fireEvent.click(await screen.findByTestId('nav-child-dossier-btn'));
 
     // Section 1: Child Profile
     fireEvent.change(await screen.findByTestId('child-name-en-input'), { target: { value: 'Aarav Rahman' } });
