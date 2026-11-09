@@ -786,5 +786,98 @@ describe('School Admission Frontend', () => {
     expect(localStorage.getItem(STUDENT_ID_STORAGE_KEY)).toBeNull();
     expect(screen.getByTestId('student-id-input')).toHaveValue('');
   });
+
+  it('fills out Child & Guardian Dossier sections, uploads documents, and submits for verification without polling overwrite', async () => {
+    localStorage.setItem(STUDENT_ID_STORAGE_KEY, VALID_STUDENT_ID);
+
+    let submittedPayload: Record<string, unknown> | null = null;
+    let uploadedDocPayload: Record<string, unknown> | null = null;
+
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
+      const url = String(input);
+      if (url.endsWith('/parent/profile') && init?.method === 'PUT') {
+        submittedPayload = JSON.parse(String(init.body || '{}')) as Record<string, unknown>;
+        return jsonResponse({
+          studentId: VALID_STUDENT_ID,
+          ...submittedPayload,
+          documents: [],
+          applicationStatus: submittedPayload.submitForReview ? 'SUBMITTED' : 'DRAFT',
+          completenessPercent: 100,
+        });
+      }
+      if (url.endsWith('/parent/documents') && init?.method === 'POST') {
+        uploadedDocPayload = JSON.parse(String(init.body || '{}')) as Record<string, unknown>;
+        return jsonResponse({
+          studentId: VALID_STUDENT_ID,
+          fullNameEn: 'Aarav Rahman',
+          documents: [
+            {
+              type: uploadedDocPayload.type,
+              label: uploadedDocPayload.label,
+              fileName: uploadedDocPayload.fileName,
+              fileSize: uploadedDocPayload.fileSize,
+              status: 'PENDING',
+            },
+          ],
+          applicationStatus: 'SUBMITTED',
+          completenessPercent: 100,
+        });
+      }
+      if (url.endsWith('/classes') || url.endsWith('/me/holds')) {
+        return jsonResponse([]);
+      }
+      return jsonResponse({});
+    });
+
+    render(<App />);
+
+    // Section 1: Child Profile
+    fireEvent.change(await screen.findByTestId('child-name-en-input'), { target: { value: 'Aarav Rahman' } });
+    fireEvent.change(screen.getByTestId('child-dob-input'), { target: { value: '2015-04-12' } });
+    fireEvent.change(screen.getByTestId('child-gender-select'), { target: { value: 'Male' } });
+    fireEvent.change(screen.getByTestId('child-address-input'), { target: { value: 'House 42, Road 7, Dhanmondi, Dhaka' } });
+
+    // Section 2: Father, Mother & Guardian
+    fireEvent.change(screen.getByTestId('father-name-input'), { target: { value: 'Debashish Kundu' } });
+    fireEvent.change(screen.getByTestId('father-phone-input'), { target: { value: '+8801711234567' } });
+    fireEvent.change(screen.getByTestId('father-nid-input'), { target: { value: '19822694510982341' } });
+    fireEvent.change(screen.getByTestId('mother-name-input'), { target: { value: 'Bharati Kundu' } });
+
+    // Section 3: Sibling & Household Income
+    fireEvent.click(screen.getByTestId('sibling-checkbox'));
+    fireEvent.change(screen.getByTestId('sibling-name-input'), { target: { value: 'Ananya Kundu' } });
+    fireEvent.change(screen.getByTestId('monthly-income-input'), { target: { value: '85000' } });
+
+    // Section 4: Upload Birth Certificate Document
+    fireEvent.click(screen.getByTestId('upload-doc-btn-BIRTH_CERT'));
+    await waitFor(() => {
+      expect(uploadedDocPayload).toMatchObject({
+        type: 'BIRTH_CERT',
+      });
+      expect(screen.getByTestId('doc-status-BIRTH_CERT')).toHaveTextContent('PENDING');
+    });
+
+    // Submit Complete Dossier for Verification
+    fireEvent.click(screen.getByTestId('submit-dossier-btn'));
+
+    await waitFor(() => {
+      expect(submittedPayload).toMatchObject({
+        fullNameEn: 'Aarav Rahman',
+        dob: '2015-04-12',
+        gender: 'Male',
+        fatherName: 'Debashish Kundu',
+        fatherPhone: '+8801711234567',
+        fatherNid: '19822694510982341',
+        motherName: 'Bharati Kundu',
+        guardianName: 'Debashish Kundu',
+        guardianPhone: '+8801711234567',
+        hasSibling: true,
+        siblingName: 'Ananya Kundu',
+        monthlyIncome: 85000,
+        submitForReview: true,
+      });
+      expect(screen.getByTestId('dossier-status-badge')).toHaveTextContent('Status: SUBMITTED');
+    });
+  });
 });
 

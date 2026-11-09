@@ -33,3 +33,4 @@
 - **What AI did wrong**: In `ParentPortal.tsx`, when a parent changed the 17-digit Birth Registration Number (`X-Student-Id`) to a new number that had no existing profile on the backend (404 response), the `catch` block kept the previous student's `profileForm` state in React memory and used a hardcoded fallback name.
 - **How I caught it**: During manual UI testing, changing the Birth Registration Number kept displaying the previous student's name instead of resetting to `null` / empty for the new student ID.
 - **How I fixed it**: Updated the `savedStudentId` effect and login/change-ID handlers to immediately clear `profile` (`null`) and reset `profileForm` fields (`fullNameEn: ''`) whenever the Birth Registration Number changes or returns 404, and removed hardcoded demo name fallbacks.
+

@@ -26,6 +26,7 @@ import {
   BadgeCheck,
   AlertCircle,
   Users,
+  User,
   UserPlus,
   Phone,
   Sparkles,
@@ -280,8 +281,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
 
   // --- Student Profile & Dossier State ---
   const [profile, setProfile] = useState<StudentProfile | null>(null);
-  const [dossierSection, setDossierSection] = useState(1);
+  const [dossierSection, setDossierSection] = useState<number>(0);
   const [profileForm, setProfileForm] = useState<SaveStudentProfilePayload>(EMPTY_PROFILE_FORM);
+  const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
+  const [selectedDocFiles, setSelectedDocFiles] = useState<Record<string, { name: string; size: number }>>({});
 
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
   const [_waitlistEntries, setWaitlistEntries] = useState<WaitlistEntry[]>([]);
@@ -388,47 +391,6 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
 
           if (loadedProfile) {
             setProfile(loadedProfile);
-            setProfileForm((prev) => ({
-              ...prev,
-              fullNameEn: loadedProfile.fullNameEn ?? '',
-              fullNameBn: loadedProfile.fullNameBn ?? '',
-              dob: loadedProfile.dob ?? '',
-              gender: loadedProfile.gender ?? '',
-              nationality: loadedProfile.nationality ?? 'Bangladeshi',
-              religion: loadedProfile.religion ?? '',
-              bloodGroup: loadedProfile.bloodGroup ?? '',
-              presentAddress: loadedProfile.presentAddress ?? '',
-              permanentAddress: loadedProfile.permanentAddress ?? '',
-              previousSchool: loadedProfile.previousSchool ?? '',
-              lastClassPassed: loadedProfile.lastClassPassed ?? '',
-              lastResult: loadedProfile.lastResult ?? '',
-              healthNotes: loadedProfile.healthNotes ?? '',
-              hasSibling: Boolean(loadedProfile.hasSibling),
-              siblingName: loadedProfile.siblingName ?? '',
-              siblingClass: loadedProfile.siblingClass ?? '',
-              siblingStudentId: loadedProfile.siblingStudentId ?? '',
-              fatherName: loadedProfile.fatherName ?? '',
-              fatherNid: loadedProfile.fatherNid ?? '',
-              fatherOccupation: loadedProfile.fatherOccupation ?? '',
-              fatherEmployer: loadedProfile.fatherEmployer ?? '',
-              fatherPhone: loadedProfile.fatherPhone ?? '',
-              fatherEmail: loadedProfile.fatherEmail ?? '',
-              motherName: loadedProfile.motherName ?? '',
-              motherNid: loadedProfile.motherNid ?? '',
-              motherOccupation: loadedProfile.motherOccupation ?? '',
-              motherEmployer: loadedProfile.motherEmployer ?? '',
-              motherPhone: loadedProfile.motherPhone ?? '',
-              motherEmail: loadedProfile.motherEmail ?? '',
-              guardianName: loadedProfile.guardianName ?? '',
-              guardianRelation: loadedProfile.guardianRelation ?? 'Father',
-              guardianPhone: loadedProfile.guardianPhone ?? '',
-              emergencyContact: loadedProfile.emergencyContact ?? '',
-              monthlyIncome: loadedProfile.monthlyIncome ?? 0,
-              incomeBracket: loadedProfile.incomeBracket ?? '',
-              incomeSource: loadedProfile.incomeSource ?? '',
-              dependents: loadedProfile.dependents ?? 0,
-              concessionRequested: Boolean(loadedProfile.concessionRequested),
-            }));
           }
         } else {
           setMyHolds([]);
@@ -477,44 +439,44 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
         if (cancelled) return;
         setProfile(loaded);
         setProfileForm((prev) => ({
-          fullNameEn: loaded.fullNameEn ?? (isChangedId ? '' : prev.fullNameEn),
-          fullNameBn: loaded.fullNameBn ?? '',
-          dob: loaded.dob ?? '',
-          gender: loaded.gender ?? '',
-          nationality: loaded.nationality ?? 'Bangladeshi',
-          religion: loaded.religion ?? '',
-          bloodGroup: loaded.bloodGroup ?? '',
-          presentAddress: loaded.presentAddress ?? (isChangedId ? '' : prev.presentAddress),
-          permanentAddress: loaded.permanentAddress ?? '',
-          previousSchool: loaded.previousSchool ?? '',
-          lastClassPassed: loaded.lastClassPassed ?? '',
-          lastResult: loaded.lastResult ?? '',
-          healthNotes: loaded.healthNotes ?? '',
-          hasSibling: Boolean(loaded.hasSibling),
-          siblingName: loaded.siblingName ?? '',
-          siblingClass: loaded.siblingClass ?? '',
-          siblingStudentId: loaded.siblingStudentId ?? '',
-          fatherName: loaded.fatherName ?? '',
-          fatherNid: loaded.fatherNid ?? '',
-          fatherOccupation: loaded.fatherOccupation ?? '',
-          fatherEmployer: loaded.fatherEmployer ?? '',
-          fatherPhone: loaded.fatherPhone ?? '',
-          fatherEmail: loaded.fatherEmail ?? '',
-          motherName: loaded.motherName ?? '',
-          motherNid: loaded.motherNid ?? '',
-          motherOccupation: loaded.motherOccupation ?? '',
-          motherEmployer: loaded.motherEmployer ?? '',
-          motherPhone: loaded.motherPhone ?? '',
-          motherEmail: loaded.motherEmail ?? '',
-          guardianName: loaded.guardianName ?? '',
-          guardianRelation: loaded.guardianRelation ?? 'Father',
-          guardianPhone: loaded.guardianPhone ?? '',
-          emergencyContact: loaded.emergencyContact ?? '',
-          monthlyIncome: loaded.monthlyIncome ?? 0,
-          incomeBracket: loaded.incomeBracket ?? '',
-          incomeSource: loaded.incomeSource ?? '',
-          dependents: loaded.dependents ?? 0,
-          concessionRequested: Boolean(loaded.concessionRequested),
+          fullNameEn: (isChangedId ? loaded.fullNameEn : (prev.fullNameEn || loaded.fullNameEn)) || '',
+          fullNameBn: (isChangedId ? loaded.fullNameBn : (prev.fullNameBn || loaded.fullNameBn)) || '',
+          dob: (isChangedId ? loaded.dob : (prev.dob || loaded.dob)) || '',
+          gender: (isChangedId ? loaded.gender : (prev.gender || loaded.gender)) || '',
+          nationality: (isChangedId ? loaded.nationality : (prev.nationality || loaded.nationality)) || 'Bangladeshi',
+          religion: (isChangedId ? loaded.religion : (prev.religion || loaded.religion)) || '',
+          bloodGroup: (isChangedId ? loaded.bloodGroup : (prev.bloodGroup || loaded.bloodGroup)) || '',
+          presentAddress: (isChangedId ? loaded.presentAddress : (prev.presentAddress || loaded.presentAddress)) || '',
+          permanentAddress: (isChangedId ? loaded.permanentAddress : (prev.permanentAddress || loaded.permanentAddress)) || '',
+          previousSchool: (isChangedId ? loaded.previousSchool : (prev.previousSchool || loaded.previousSchool)) || '',
+          lastClassPassed: (isChangedId ? loaded.lastClassPassed : (prev.lastClassPassed || loaded.lastClassPassed)) || '',
+          lastResult: (isChangedId ? loaded.lastResult : (prev.lastResult || loaded.lastResult)) || '',
+          healthNotes: (isChangedId ? loaded.healthNotes : (prev.healthNotes || loaded.healthNotes)) || '',
+          hasSibling: isChangedId ? Boolean(loaded.hasSibling) : (prev.hasSibling || Boolean(loaded.hasSibling)),
+          siblingName: (isChangedId ? loaded.siblingName : (prev.siblingName || loaded.siblingName)) || '',
+          siblingClass: (isChangedId ? loaded.siblingClass : (prev.siblingClass || loaded.siblingClass)) || '',
+          siblingStudentId: (isChangedId ? loaded.siblingStudentId : (prev.siblingStudentId || loaded.siblingStudentId)) || '',
+          fatherName: (isChangedId ? loaded.fatherName : (prev.fatherName || loaded.fatherName)) || '',
+          fatherNid: (isChangedId ? loaded.fatherNid : (prev.fatherNid || loaded.fatherNid)) || '',
+          fatherOccupation: (isChangedId ? loaded.fatherOccupation : (prev.fatherOccupation || loaded.fatherOccupation)) || '',
+          fatherEmployer: (isChangedId ? loaded.fatherEmployer : (prev.fatherEmployer || loaded.fatherEmployer)) || '',
+          fatherPhone: (isChangedId ? loaded.fatherPhone : (prev.fatherPhone || loaded.fatherPhone)) || '',
+          fatherEmail: (isChangedId ? loaded.fatherEmail : (prev.fatherEmail || loaded.fatherEmail)) || '',
+          motherName: (isChangedId ? loaded.motherName : (prev.motherName || loaded.motherName)) || '',
+          motherNid: (isChangedId ? loaded.motherNid : (prev.motherNid || loaded.motherNid)) || '',
+          motherOccupation: (isChangedId ? loaded.motherOccupation : (prev.motherOccupation || loaded.motherOccupation)) || '',
+          motherEmployer: (isChangedId ? loaded.motherEmployer : (prev.motherEmployer || loaded.motherEmployer)) || '',
+          motherPhone: (isChangedId ? loaded.motherPhone : (prev.motherPhone || loaded.motherPhone)) || '',
+          motherEmail: (isChangedId ? loaded.motherEmail : (prev.motherEmail || loaded.motherEmail)) || '',
+          guardianName: (isChangedId ? loaded.guardianName : (prev.guardianName || loaded.guardianName)) || '',
+          guardianRelation: (isChangedId ? loaded.guardianRelation : (prev.guardianRelation || loaded.guardianRelation)) || 'Father',
+          guardianPhone: (isChangedId ? loaded.guardianPhone : (prev.guardianPhone || loaded.guardianPhone)) || '',
+          emergencyContact: (isChangedId ? loaded.emergencyContact : (prev.emergencyContact || loaded.emergencyContact)) || '',
+          monthlyIncome: isChangedId ? (loaded.monthlyIncome ?? 0) : (prev.monthlyIncome || loaded.monthlyIncome || 0),
+          incomeBracket: (isChangedId ? loaded.incomeBracket : (prev.incomeBracket || loaded.incomeBracket)) || '',
+          incomeSource: (isChangedId ? loaded.incomeSource : (prev.incomeSource || loaded.incomeSource)) || '',
+          dependents: isChangedId ? (loaded.dependents ?? 0) : (prev.dependents || loaded.dependents || 0),
+          concessionRequested: isChangedId ? Boolean(loaded.concessionRequested) : (prev.concessionRequested || Boolean(loaded.concessionRequested)),
         }));
       } catch {
         if (cancelled) return;
@@ -646,11 +608,13 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
 
   // Calculate dynamic completeness %
   const calculateCompleteness = () => {
-    let score = 35;
+    let score = savedStudentId ? 15 : 0;
+    if (profileForm.fullNameEn || profile?.fullNameEn) score += 15;
     if (profileForm.dob || profile?.dob) score += 15;
     if (profileForm.gender || profile?.gender) score += 15;
-    if (profileForm.fatherName || profileForm.motherName || profile?.fatherName) score += 20;
-    if (profileForm.guardianPhone || profileForm.fatherPhone || profile?.fatherPhone) score += 15;
+    if (profileForm.fatherName || profileForm.motherName || profileForm.guardianName || profile?.fatherName || profile?.guardianName) score += 15;
+    if (profileForm.guardianPhone || profileForm.fatherPhone || profileForm.motherPhone || profile?.fatherPhone || profile?.guardianPhone) score += 15;
+    if (profileForm.presentAddress || profile?.presentAddress) score += 10;
     return Math.min(100, score);
   };
 
@@ -843,13 +807,39 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
   const handleQuickFillMandatory = () => {
     setProfileForm((prev) => ({
       ...prev,
-      dob: '2015-04-12',
-      gender: 'Male',
-      fatherName: 'Debashish Kundu',
-      motherName: 'Bharati Kundu',
-      fatherPhone: '+880 1711-234567',
-      guardianPhone: '+880 1711-234567',
-      presentAddress: 'House 42, Road 7, Dhanmondi, Dhaka-1209',
+      fullNameEn: prev.fullNameEn || 'Aarav Rahman',
+      fullNameBn: prev.fullNameBn || 'আরভ রহমান',
+      dob: prev.dob || '2015-04-12',
+      gender: prev.gender || 'Male',
+      bloodGroup: prev.bloodGroup || 'B+',
+      religion: prev.religion || 'Islam',
+      nationality: prev.nationality || 'Bangladeshi',
+      presentAddress: prev.presentAddress || 'House 42, Road 7, Dhanmondi, Dhaka-1209',
+      permanentAddress: prev.permanentAddress || 'House 42, Road 7, Dhanmondi, Dhaka-1209',
+      previousSchool: prev.previousSchool || 'Onnorokom Junior Preparatory School',
+      lastClassPassed: prev.lastClassPassed || 'Class 5',
+      lastResult: prev.lastResult || 'GPA 5.00 (Golden A+)',
+      healthNotes: prev.healthNotes || 'No known allergies; routine vaccinations up to date.',
+      fatherName: prev.fatherName || 'Debashish Kundu',
+      fatherNid: prev.fatherNid || '19822694510982341',
+      fatherOccupation: prev.fatherOccupation || 'Senior Software Architect',
+      fatherEmployer: prev.fatherEmployer || 'Onnorokom Group Ltd.',
+      fatherPhone: prev.fatherPhone || '+880 1711-234567',
+      fatherEmail: prev.fatherEmail || 'debashish.kundu@example.com',
+      motherName: prev.motherName || 'Bharati Kundu',
+      motherNid: prev.motherNid || '19862694510982399',
+      motherOccupation: prev.motherOccupation || 'Associate Professor',
+      motherEmployer: prev.motherEmployer || 'Dhaka City College',
+      motherPhone: prev.motherPhone || '+880 1711-987654',
+      motherEmail: prev.motherEmail || 'bharati.kundu@example.com',
+      guardianRelation: prev.guardianRelation || 'Father',
+      guardianName: prev.guardianName || prev.fatherName || 'Debashish Kundu',
+      guardianPhone: prev.guardianPhone || prev.fatherPhone || '+880 1711-234567',
+      emergencyContact: prev.emergencyContact || '+880 1711-987654',
+      monthlyIncome: prev.monthlyIncome || 85000,
+      incomeBracket: prev.incomeBracket || '৳60,000 – ৳1,00,000 / month',
+      incomeSource: prev.incomeSource || 'Private Sector Employment',
+      dependents: prev.dependents || 4,
     }));
     triggerToast('Mandatory Student & Guardian fields populated! Dossier is now 100% complete.');
   };
@@ -1047,7 +1037,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
     }
   };
 
-  const handleSaveProfile = async (e?: React.FormEvent) => {
+  const handleSaveProfile = async (e?: React.FormEvent, submitForReview = false) => {
     if (e) e.preventDefault();
     if (!savedStudentId) {
       setIsEditingStudentId(true);
@@ -1055,9 +1045,19 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
       return;
     }
 
+    const syncedPayload: SaveStudentProfilePayload = {
+      ...profileForm,
+      guardianName: profileForm.guardianName || profileForm.fatherName || profileForm.motherName || '',
+      guardianPhone: profileForm.guardianPhone || profileForm.fatherPhone || profileForm.motherPhone || '',
+      fatherPhone: profileForm.fatherPhone || profileForm.guardianPhone || '',
+      emergencyContact: profileForm.emergencyContact || profileForm.motherPhone || profileForm.guardianPhone || '',
+      submitForReview,
+    };
+
+    setProfileForm(syncedPayload);
     setIsSavingProfile(true);
     try {
-      const saved = await api.saveStudentProfile(savedStudentId, profileForm);
+      const saved = await api.saveStudentProfile(savedStudentId, syncedPayload);
       setProfile(saved);
       if (saved.fullNameEn) {
         setParentChildren((prev) => {
@@ -1075,12 +1075,41 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
         });
       }
       setSuccessMessage(STRINGS.profileSavedSuccess);
-      notifyToast('Dossier Saved', 'Child and guardian details saved to school records.', 'success');
-      triggerToast('Child Information saved as draft.');
+      if (submitForReview) {
+        notifyToast('Dossier Submitted for Verification', 'Complete Child & Guardian Dossier sent to Admissions Office.', 'success');
+        triggerToast('Complete Dossier submitted to Onnorokom Projukti School Admissions Office for verification!');
+      } else {
+        notifyToast('Dossier Saved', 'Child and guardian details saved to school records.', 'success');
+        triggerToast('Child & Guardian Dossier saved as draft.');
+      }
     } catch (err) {
       showError(err);
     } finally {
       setIsSavingProfile(false);
+    }
+  };
+
+  const handleUploadDocument = async (type: string, label: string) => {
+    if (!savedStudentId) {
+      setIsEditingStudentId(true);
+      setStudentIdError(STRINGS.studentIdRequiredHint);
+      return;
+    }
+
+    const chosen = selectedDocFiles[type];
+    const fileName = chosen?.name || `${type.toLowerCase()}_${savedStudentId}.pdf`;
+    const fileSize = chosen?.size || 253952;
+
+    setUploadingDocType(type);
+    try {
+      const updatedProfile = await api.uploadDocument(savedStudentId, type, label, fileName, fileSize);
+      setProfile(updatedProfile);
+      notifyToast('Document Uploaded', `${label} (${fileName}) attached to student dossier.`, 'success');
+      triggerToast(`Uploaded ${label} (${fileName}) for verification.`);
+    } catch (err) {
+      showError(err);
+    } finally {
+      setUploadingDocType(null);
     }
   };
 
@@ -2181,14 +2210,14 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                       </div>
                       <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
                         <span className="text-slate-400 block font-semibold">Guardian Name</span>
-                        <span className={`font-bold mt-0.5 block ${profileForm.fatherName || profile?.fatherName ? 'text-slate-900' : 'text-rose-600'}`}>
-                          {profileForm.fatherName || profile?.fatherName || 'Missing Guardian *'}
+                        <span className={`font-bold mt-0.5 block ${profileForm.guardianName || profileForm.fatherName || profileForm.motherName || profile?.fatherName || profile?.guardianName ? 'text-slate-900' : 'text-rose-600'}`}>
+                          {profileForm.guardianName || profileForm.fatherName || profileForm.motherName || profile?.guardianName || profile?.fatherName || 'Missing Guardian *'}
                         </span>
                       </div>
                       <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
                         <span className="text-slate-400 block font-semibold">Guardian Mobile</span>
-                        <span className={`font-bold mt-0.5 block ${profileForm.guardianPhone || profileForm.fatherPhone || profile?.fatherPhone ? 'text-slate-900' : 'text-rose-600'}`}>
-                          {profileForm.guardianPhone || profileForm.fatherPhone || profile?.fatherPhone || 'Missing Mobile *'}
+                        <span className={`font-bold mt-0.5 block ${profileForm.guardianPhone || profileForm.fatherPhone || profileForm.motherPhone || profile?.fatherPhone || profile?.guardianPhone ? 'text-slate-900' : 'text-rose-600'}`}>
+                          {profileForm.guardianPhone || profileForm.fatherPhone || profileForm.motherPhone || profile?.guardianPhone || profile?.fatherPhone || 'Missing Mobile *'}
                         </span>
                       </div>
                     </div>
@@ -2741,24 +2770,53 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
               4. CHILD INFORMATION, GUARDIANS, INCOME & DOCUMENTS DOSSIER
              ========================================================= */}
           {showDossier && (
-            <section className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-              <div className="p-3 sm:p-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <section className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden" data-testid="child-guardian-dossier-section">
+              {/* Header Bar */}
+              <div className="p-3 sm:p-4 bg-[#014d33] text-white flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div>
-                  <h2 className="text-base sm:text-lg font-extrabold text-slate-900">
-                    Child Information, Guardians, Income & Documents
-                  </h2>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    Pre-fill or complete your child’s admission dossier. Fast-lane seat booking only requires the 17-digit Birth Registration Number.
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-base sm:text-lg font-extrabold text-white flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-emerald-300" />
+                      Child & Guardian Admission Dossier
+                    </h2>
+                    <span
+                      data-testid="dossier-status-badge"
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                        profile?.applicationStatus === 'APPROVED' || profile?.applicationStatus === 'ENROLLED'
+                          ? 'bg-emerald-400 text-slate-950'
+                          : profile?.applicationStatus === 'SUBMITTED' || profile?.applicationStatus === 'UNDER_REVIEW'
+                          ? 'bg-amber-300 text-slate-950'
+                          : profile?.applicationStatus === 'NEEDS_CORRECTION'
+                          ? 'bg-rose-400 text-slate-950'
+                          : 'bg-white/15 text-emerald-100 border border-white/20'
+                      }`}
+                    >
+                      Status: {profile?.applicationStatus || 'DRAFT'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-emerald-100/90 mt-0.5">
+                    Complete your child’s identity, parent/guardian records, household income, and supporting documents for official school enrollment.
                   </p>
                 </div>
-                <div className="flex items-center gap-2.5 self-start sm:self-center">
-                  <div className="text-right">
-                    <span className="text-[11px] font-extrabold text-slate-900 block">
-                      Dossier Completeness: {completeness}%
-                    </span>
-                    <div className="w-28 h-1.5 bg-slate-200 rounded-full overflow-hidden mt-1">
+
+                <div className="flex flex-wrap items-center gap-2.5 self-start md:self-center">
+                  <button
+                    type="button"
+                    data-testid="quick-fill-dossier-btn"
+                    onClick={handleQuickFillMandatory}
+                    className="px-3 py-1.5 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-slate-950 text-xs font-extrabold transition flex items-center gap-1.5 shadow-2xs"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Auto-Fill Demo Details
+                  </button>
+                  <div className="bg-emerald-950/60 border border-emerald-700/60 px-3 py-1.5 rounded-lg text-right min-w-[140px]">
+                    <div className="flex items-center justify-between gap-2 text-[10px] font-extrabold text-emerald-200">
+                      <span>Completeness</span>
+                      <span className="text-white">{completeness}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-emerald-950 rounded-full overflow-hidden mt-1">
                       <div
-                        className="h-full bg-emerald-600 transition-all"
+                        className="h-full bg-emerald-400 transition-all"
                         style={{ width: `${completeness}%` }}
                       />
                     </div>
@@ -2766,238 +2824,1037 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 </div>
               </div>
 
-              {/* 4 Step Section Selector inside Dossier */}
-              <div className="px-3 sm:px-3.5 pt-2 bg-slate-50 border-b border-slate-200 flex flex-wrap gap-1.5">
-                {[
-                  { id: 1, title: '1. Child Profile & Identity' },
-                  { id: 2, title: '2. Father, Mother & Guardian' },
-                  { id: 3, title: '3. Household Income & Concession' },
-                  { id: 4, title: '4. Document Uploads' },
-                ].map((step) => (
-                  <button
-                    key={step.id}
-                    onClick={() => setDossierSection(step.id)}
-                    className={`px-3 py-1.5 rounded-t-lg text-xs font-extrabold border-t border-x transition ${
-                      dossierSection === step.id
-                        ? 'bg-white text-slate-900 border-slate-200'
-                        : 'bg-slate-100 text-slate-600 border-transparent hover:bg-slate-200/70'
-                    }`}
-                  >
-                    {step.title}
-                  </button>
-                ))}
-              </div>
-
-              {/* Form Fields */}
-              <div className="p-3 sm:p-3.5 space-y-3">
-                {dossierSection === 1 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs">
-                    <div>
-                      <label className="font-bold text-slate-700 block mb-0.5">Child Full Name (English) *</label>
-                      <input
-                        type="text"
-                        data-testid="child-name-en-input"
-                        value={profileForm.fullNameEn}
-                        onChange={(e) => setProfileForm({ ...profileForm, fullNameEn: e.target.value })}
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-bold text-slate-700 block mb-0.5">Child Full Name (Bangla)</label>
-                      <input
-                        type="text"
-                        value={profileForm.fullNameBn}
-                        onChange={(e) => setProfileForm({ ...profileForm, fullNameBn: e.target.value })}
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-bold text-slate-700 block mb-0.5">Date of Birth *</label>
-                      <input
-                        type="date"
-                        value={profileForm.dob}
-                        onChange={(e) => setProfileForm({ ...profileForm, dob: e.target.value })}
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-bold text-slate-700 block mb-0.5">Gender *</label>
-                      <select
-                        value={profileForm.gender}
-                        onChange={(e) => setProfileForm({ ...profileForm, gender: e.target.value })}
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-slate-900"
-                      >
-                        <option value="">Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="font-bold text-slate-700 block mb-0.5">Blood Group</label>
-                      <select
-                        value={profileForm.bloodGroup}
-                        onChange={(e) => setProfileForm({ ...profileForm, bloodGroup: e.target.value })}
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-slate-900"
-                      >
-                        <option value="">Select Blood Group</option>
-                        {['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'].map((bg) => (
-                          <option key={bg} value={bg}>{bg}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="font-bold text-slate-700 block mb-0.5">Nationality</label>
-                      <input
-                        type="text"
-                        value={profileForm.nationality}
-                        onChange={(e) => setProfileForm({ ...profileForm, nationality: e.target.value })}
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className="font-bold text-slate-700 block mb-0.5">Present Residential Address *</label>
-                      <input
-                        type="text"
-                        data-testid="child-address-input"
-                        value={profileForm.presentAddress}
-                        onChange={(e) => setProfileForm({ ...profileForm, presentAddress: e.target.value })}
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-bold text-slate-700 block mb-0.5">Permanent Address</label>
-                      <input
-                        type="text"
-                        value={profileForm.permanentAddress}
-                        onChange={(e) => setProfileForm({ ...profileForm, permanentAddress: e.target.value })}
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-bold text-slate-700 block mb-0.5">Previous School (Class 2+)</label>
-                      <input
-                        type="text"
-                        value={profileForm.previousSchool}
-                        onChange={(e) => setProfileForm({ ...profileForm, previousSchool: e.target.value })}
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className="font-bold text-slate-700 block mb-0.5">Last Class Passed & Result</label>
-                      <input
-                        type="text"
-                        value={profileForm.lastResult}
-                        onChange={(e) => setProfileForm({ ...profileForm, lastResult: e.target.value })}
-                        className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-900"
-                      />
-                    </div>
+              {/* Reviewer Notes Banner (if any) */}
+              {profile?.reviewerNote && (
+                <div className="px-3.5 py-2.5 bg-amber-50 border-b border-amber-200 flex items-start gap-2 text-xs text-amber-950">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-extrabold">Admissions Office Reviewer Note: </span>
+                    <span>{profile.reviewerNote}</span>
                   </div>
-                )}
-
-                {dossierSection === 2 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-                    <div>
-                      <label className="font-bold text-slate-700 block mb-1">Father / Legal Guardian Name *</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Debashish Kundu"
-                        value={profileForm.fatherName}
-                        onChange={(e) => setProfileForm({ ...profileForm, fatherName: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-slate-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-bold text-slate-700 block mb-1">Mother Name *</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Bharati Kundu"
-                        value={profileForm.motherName}
-                        onChange={(e) => setProfileForm({ ...profileForm, motherName: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-slate-900"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-bold text-slate-700 block mb-1">Guardian Contact Mobile *</label>
-                      <input
-                        type="text"
-                        placeholder="+880 1711-XXXXXX"
-                        value={profileForm.guardianPhone || profileForm.fatherPhone}
-                        onChange={(e) => setProfileForm({ ...profileForm, guardianPhone: e.target.value, fatherPhone: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-slate-900"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {dossierSection === 3 && (
-                  <div className="space-y-4 text-xs">
-                    <div className="max-w-sm">
-                      <label className="font-bold text-slate-700 block mb-1">Approximate Monthly Household Income (BDT)</label>
-                      <input
-                        type="number"
-                        value={profileForm.monthlyIncome}
-                        onChange={(e) => setProfileForm({ ...profileForm, monthlyIncome: Number(e.target.value) })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-slate-900"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {dossierSection === 4 && (
-                  <div className="grid sm:grid-cols-2 gap-4 text-xs">
-                    <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
-                      <div>
-                        <span className="font-bold text-emerald-950 block">17-Digit Birth Registration Certificate</span>
-                        <span className="text-emerald-700">Verified: {savedStudentId || '12345678912345678'}.pdf</span>
-                      </div>
-                      <span className="px-2.5 py-1 rounded bg-emerald-600 text-white font-bold">Uploaded</span>
-                    </div>
-                    <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
-                      <div>
-                        <span className="font-bold text-emerald-950 block">Passport Size Color Photograph</span>
-                        <span className="text-emerald-700">Verified: applicant_photo.jpg</span>
-                      </div>
-                      <span className="px-2.5 py-1 rounded bg-emerald-600 text-white font-bold">Uploaded</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Sibling Concession Checkbox */}
-                <label className="flex items-center gap-3 p-4 rounded-xl bg-amber-50/90 border border-amber-200 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={profileForm.hasSibling}
-                    onChange={(e) => setProfileForm({ ...profileForm, hasSibling: e.target.checked })}
-                    className="w-4 h-4 accent-slate-900 rounded"
-                  />
-                  <span className="text-xs font-bold text-amber-950">
-                    Sibling Currently Studying at Onnorokom Projukti School (Grants an automatic 10% concession on the Admission Fee)
-                  </span>
-                </label>
-
-                <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-200">
-                  <button
-                    type="button"
-                    data-testid="save-profile-btn"
-                    disabled={isSavingProfile}
-                    onClick={handleSaveProfile}
-                    className="px-5 py-2.5 rounded-xl border border-slate-300 bg-white text-slate-800 font-bold text-xs hover:bg-slate-50 transition"
-                  >
-                    {isSavingProfile ? 'Saving...' : 'Save Child Information (Draft)'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      void handleSaveProfile();
-                      triggerToast('Complete Dossier submitted to Onnorokom Projukti School Admissions Office for verification!');
-                    }}
-                    className="px-5 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 transition shadow-sm"
-                  >
-                    Submit Complete Dossier for Verification
-                  </button>
                 </div>
+              )}
+
+              {/* Section Filter Tabs (All Sections + 4 Step Tabs) */}
+              <div className="px-3 sm:px-3.5 pt-2 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-1.5">
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { id: 0, title: 'All Sections (Full View)', done: isMandatoryComplete },
+                    {
+                      id: 1,
+                      title: '1. Child Profile & Identity',
+                      done: Boolean(profileForm.fullNameEn && profileForm.dob && profileForm.gender && profileForm.presentAddress),
+                    },
+                    {
+                      id: 2,
+                      title: '2. Father, Mother & Guardian',
+                      done: Boolean((profileForm.fatherName || profileForm.motherName || profileForm.guardianName) && (profileForm.guardianPhone || profileForm.fatherPhone || profileForm.motherPhone)),
+                    },
+                    {
+                      id: 3,
+                      title: '3. Sibling, Income & Concession',
+                      done: Boolean((profileForm.monthlyIncome ?? 0) > 0 || profileForm.incomeBracket || profileForm.hasSibling),
+                    },
+                    {
+                      id: 4,
+                      title: '4. Document Uploads (5 Slots)',
+                      done: Boolean((profile?.documents || []).some((d) => d.status !== 'NOT_UPLOADED')),
+                    },
+                  ].map((step) => (
+                    <button
+                      key={step.id}
+                      type="button"
+                      data-testid={`dossier-tab-${step.id}`}
+                      onClick={() => setDossierSection(step.id)}
+                      className={`px-3 py-1.5 rounded-t-lg text-xs font-extrabold border-t border-x transition flex items-center gap-1.5 ${
+                        dossierSection === step.id
+                          ? 'bg-white text-[#014d33] border-slate-200 shadow-2xs'
+                          : 'bg-slate-100 text-slate-600 border-transparent hover:bg-slate-200/70'
+                      }`}
+                    >
+                      <span>{step.title}</span>
+                      {step.done && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+                <span className="text-[10px] font-bold text-slate-500 pb-1.5">
+                  Fields marked with <span className="text-rose-600 font-extrabold">*</span> are mandatory for seat reservation
+                </span>
               </div>
+
+              {/* Form Fields Container */}
+              <form onSubmit={(e) => void handleSaveProfile(e, false)} className="p-3 sm:p-4 space-y-4">
+                {/* =====================================================
+                    SECTION 1: CHILD PROFILE, IDENTITY & ACADEMIC HISTORY
+                   ===================================================== */}
+                {(dossierSection === 0 || dossierSection === 1) && (
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:p-3.5 space-y-3" data-testid="dossier-section-1">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-[#014d33] text-white font-extrabold text-xs flex items-center justify-center">
+                          1
+                        </span>
+                        <div>
+                          <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">
+                            Child Profile, Identity & Academic Background
+                          </h3>
+                          <p className="text-[10px] text-slate-500">
+                            Official student identity matched with the 17-digit Birth Registration Certificate.
+                          </p>
+                        </div>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px] font-mono font-bold text-emerald-900">
+                        Birth Reg ID: {savedStudentId || 'Not Logged In'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
+                      <div className="sm:col-span-2">
+                        <label className="font-bold text-slate-700 block mb-0.5">
+                          Child Full Name (English) <span className="text-rose-600">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          data-testid="child-name-en-input"
+                          placeholder="e.g. Aarav Rahman"
+                          value={profileForm.fullNameEn}
+                          onChange={(e) => setProfileForm({ ...profileForm, fullNameEn: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="font-bold text-slate-700 block mb-0.5">
+                          Child Full Name (Bangla / বাংলা নাম)
+                        </label>
+                        <input
+                          type="text"
+                          data-testid="child-name-bn-input"
+                          placeholder="যেমন: আরভ রহমান"
+                          value={profileForm.fullNameBn}
+                          onChange={(e) => setProfileForm({ ...profileForm, fullNameBn: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-0.5">
+                          Date of Birth <span className="text-rose-600">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          data-testid="child-dob-input"
+                          value={profileForm.dob}
+                          onChange={(e) => setProfileForm({ ...profileForm, dob: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-0.5">
+                          Gender <span className="text-rose-600">*</span>
+                        </label>
+                        <select
+                          data-testid="child-gender-select"
+                          value={profileForm.gender}
+                          onChange={(e) => setProfileForm({ ...profileForm, gender: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        >
+                          <option value="">Select Gender</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-0.5">Blood Group</label>
+                        <select
+                          data-testid="child-blood-group-select"
+                          value={profileForm.bloodGroup}
+                          onChange={(e) => setProfileForm({ ...profileForm, bloodGroup: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        >
+                          <option value="">Select Blood Group</option>
+                          {['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'].map((bg) => (
+                            <option key={bg} value={bg}>{bg}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-0.5">Religion</label>
+                        <select
+                          data-testid="child-religion-select"
+                          value={profileForm.religion}
+                          onChange={(e) => setProfileForm({ ...profileForm, religion: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        >
+                          <option value="">Select Religion</option>
+                          <option value="Islam">Islam</option>
+                          <option value="Hinduism">Hinduism</option>
+                          <option value="Christianity">Christianity</option>
+                          <option value="Buddhism">Buddhism</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-0.5">Nationality</label>
+                        <input
+                          type="text"
+                          data-testid="child-nationality-input"
+                          placeholder="Bangladeshi"
+                          value={profileForm.nationality}
+                          onChange={(e) => setProfileForm({ ...profileForm, nationality: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-3">
+                        <label className="font-bold text-slate-700 block mb-0.5">
+                          Present Residential Address <span className="text-rose-600">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          data-testid="child-address-input"
+                          placeholder="House, Road, Block/Sector, Thana, District (e.g. House 42, Road 7, Dhanmondi, Dhaka-1209)"
+                          value={profileForm.presentAddress}
+                          onChange={(e) => setProfileForm({ ...profileForm, presentAddress: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <label className="font-bold text-slate-700">Permanent Address</label>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setProfileForm((prev) => ({
+                                ...prev,
+                                permanentAddress: prev.presentAddress,
+                              }))
+                            }
+                            className="text-[10px] font-extrabold text-[#014d33] hover:underline"
+                          >
+                            Same as Present Address
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          data-testid="child-permanent-address-input"
+                          placeholder="Permanent home/village address"
+                          value={profileForm.permanentAddress}
+                          onChange={(e) => setProfileForm({ ...profileForm, permanentAddress: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="font-bold text-slate-700 block mb-0.5">Previous School Name (If Applicable)</label>
+                        <input
+                          type="text"
+                          data-testid="child-prev-school-input"
+                          placeholder="e.g. Onnorokom Junior Prep School (or N/A)"
+                          value={profileForm.previousSchool}
+                          onChange={(e) => setProfileForm({ ...profileForm, previousSchool: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-0.5">Last Class Completed</label>
+                        <select
+                          data-testid="child-last-class-select"
+                          value={profileForm.lastClassPassed}
+                          onChange={(e) => setProfileForm({ ...profileForm, lastClassPassed: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        >
+                          <option value="">First Admission / N/A</option>
+                          {['Playgroup', 'Nursery', 'KG', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9'].map((clsName) => (
+                            <option key={clsName} value={clsName}>{clsName}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-0.5">Last Academic Result / GPA</label>
+                        <input
+                          type="text"
+                          data-testid="child-last-result-input"
+                          placeholder="e.g. GPA 5.00 / Grade A+"
+                          value={profileForm.lastResult}
+                          onChange={(e) => setProfileForm({ ...profileForm, lastResult: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="font-bold text-slate-700 block mb-0.5">Medical / Allergy / Special Care Notes</label>
+                        <input
+                          type="text"
+                          data-testid="child-health-notes-input"
+                          placeholder="Any allergies, asthma, medications, or special care requirements (or None)"
+                          value={profileForm.healthNotes}
+                          onChange={(e) => setProfileForm({ ...profileForm, healthNotes: e.target.value })}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* =====================================================
+                    SECTION 2: FATHER, MOTHER & PRIMARY LEGAL GUARDIAN
+                   ===================================================== */}
+                {(dossierSection === 0 || dossierSection === 2) && (
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:p-3.5 space-y-3" data-testid="dossier-section-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-[#014d33] text-white font-extrabold text-xs flex items-center justify-center">
+                          2
+                        </span>
+                        <div>
+                          <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">
+                            Father, Mother & Primary Legal Guardian Details
+                          </h3>
+                          <p className="text-[10px] text-slate-500">
+                            Parent National ID, occupation, and primary guardian emergency contact numbers.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 text-xs">
+                      {/* Father's Details Card */}
+                      <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-2.5">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                          <span className="font-extrabold text-slate-900 flex items-center gap-1.5">
+                            <User className="w-3.5 h-3.5 text-[#014d33]" />
+                            Father’s Particulars
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-400">Parent 1</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <div>
+                            <label className="font-bold text-slate-700 block mb-0.5">
+                              Father’s Full Name <span className="text-rose-600">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              data-testid="father-name-input"
+                              placeholder="e.g. Debashish Kundu"
+                              value={profileForm.fatherName}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setProfileForm((prev) => ({
+                                  ...prev,
+                                  fatherName: val,
+                                  guardianName:
+                                    prev.guardianRelation === 'Father' && (!prev.guardianName || prev.guardianName === prev.fatherName)
+                                      ? val
+                                      : prev.guardianName,
+                                }));
+                              }}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-bold text-slate-700 block mb-0.5">
+                              Father’s Mobile Number <span className="text-rose-600">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              data-testid="father-phone-input"
+                              placeholder="+880 1711-XXXXXX"
+                              value={profileForm.fatherPhone}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setProfileForm((prev) => ({
+                                  ...prev,
+                                  fatherPhone: val,
+                                  guardianPhone:
+                                    prev.guardianRelation === 'Father' && (!prev.guardianPhone || prev.guardianPhone === prev.fatherPhone)
+                                      ? val
+                                      : prev.guardianPhone,
+                                }));
+                              }}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-bold text-slate-700 block mb-0.5">Father’s NID / Smart Card No.</label>
+                            <input
+                              type="text"
+                              data-testid="father-nid-input"
+                              placeholder="10 or 17-digit National ID"
+                              value={profileForm.fatherNid}
+                              onChange={(e) => setProfileForm({ ...profileForm, fatherNid: e.target.value })}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-bold text-slate-700 block mb-0.5">Father’s Occupation</label>
+                            <input
+                              type="text"
+                              data-testid="father-occupation-input"
+                              placeholder="e.g. Engineer / Business / Govt. Service"
+                              value={profileForm.fatherOccupation}
+                              onChange={(e) => setProfileForm({ ...profileForm, fatherOccupation: e.target.value })}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-bold text-slate-700 block mb-0.5">Father’s Organization / Employer</label>
+                            <input
+                              type="text"
+                              data-testid="father-employer-input"
+                              placeholder="Organization / Company Name"
+                              value={profileForm.fatherEmployer}
+                              onChange={(e) => setProfileForm({ ...profileForm, fatherEmployer: e.target.value })}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-bold text-slate-700 block mb-0.5">Father’s Email Address</label>
+                            <input
+                              type="email"
+                              data-testid="father-email-input"
+                              placeholder="father@example.com"
+                              value={profileForm.fatherEmail}
+                              onChange={(e) => setProfileForm({ ...profileForm, fatherEmail: e.target.value })}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Mother's Details Card */}
+                      <div className="p-3 rounded-xl bg-white border border-slate-200 space-y-2.5">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
+                          <span className="font-extrabold text-slate-900 flex items-center gap-1.5">
+                            <User className="w-3.5 h-3.5 text-[#014d33]" />
+                            Mother’s Particulars
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-400">Parent 2</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <div>
+                            <label className="font-bold text-slate-700 block mb-0.5">
+                              Mother’s Full Name <span className="text-rose-600">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              data-testid="mother-name-input"
+                              placeholder="e.g. Bharati Kundu"
+                              value={profileForm.motherName}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setProfileForm((prev) => ({
+                                  ...prev,
+                                  motherName: val,
+                                  guardianName:
+                                    prev.guardianRelation === 'Mother' && (!prev.guardianName || prev.guardianName === prev.motherName)
+                                      ? val
+                                      : prev.guardianName,
+                                }));
+                              }}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-bold text-slate-700 block mb-0.5">Mother’s Mobile Number</label>
+                            <input
+                              type="text"
+                              data-testid="mother-phone-input"
+                              placeholder="+880 1711-XXXXXX"
+                              value={profileForm.motherPhone}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setProfileForm((prev) => ({
+                                  ...prev,
+                                  motherPhone: val,
+                                  guardianPhone:
+                                    prev.guardianRelation === 'Mother' && (!prev.guardianPhone || prev.guardianPhone === prev.motherPhone)
+                                      ? val
+                                      : prev.guardianPhone,
+                                }));
+                              }}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-bold text-slate-700 block mb-0.5">Mother’s NID / Smart Card No.</label>
+                            <input
+                              type="text"
+                              data-testid="mother-nid-input"
+                              placeholder="10 or 17-digit National ID"
+                              value={profileForm.motherNid}
+                              onChange={(e) => setProfileForm({ ...profileForm, motherNid: e.target.value })}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-bold text-slate-700 block mb-0.5">Mother’s Occupation</label>
+                            <input
+                              type="text"
+                              data-testid="mother-occupation-input"
+                              placeholder="e.g. Teacher / Doctor / Homemaker"
+                              value={profileForm.motherOccupation}
+                              onChange={(e) => setProfileForm({ ...profileForm, motherOccupation: e.target.value })}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-bold text-slate-700 block mb-0.5">Mother’s Organization / Employer</label>
+                            <input
+                              type="text"
+                              data-testid="mother-employer-input"
+                              placeholder="Organization / Institution Name"
+                              value={profileForm.motherEmployer}
+                              onChange={(e) => setProfileForm({ ...profileForm, motherEmployer: e.target.value })}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-bold text-slate-700 block mb-0.5">Mother’s Email Address</label>
+                            <input
+                              type="email"
+                              data-testid="mother-email-input"
+                              placeholder="mother@example.com"
+                              value={profileForm.motherEmail}
+                              onChange={(e) => setProfileForm({ ...profileForm, motherEmail: e.target.value })}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Primary Legal Guardian & Emergency Contact Card */}
+                    <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200 space-y-2.5 text-xs">
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-200/70 pb-1.5">
+                        <div>
+                          <span className="font-extrabold text-emerald-950 flex items-center gap-1.5">
+                            <ShieldCheck className="w-4 h-4 text-[#014d33]" />
+                            Primary Legal Guardian & Emergency SMS Contact
+                          </span>
+                          <span className="text-[10px] text-emerald-800">
+                            Designated guardian authorized for school pickup, SMS alerts, and official correspondence.
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            data-testid="guardian-sync-father-btn"
+                            onClick={() =>
+                              setProfileForm((prev) => ({
+                                ...prev,
+                                guardianRelation: 'Father',
+                                guardianName: prev.fatherName || prev.guardianName,
+                                guardianPhone: prev.fatherPhone || prev.guardianPhone,
+                                emergencyContact: prev.motherPhone || prev.emergencyContact || prev.fatherPhone,
+                              }))
+                            }
+                            className="px-2.5 py-1 rounded-md bg-white border border-emerald-300 text-emerald-900 font-bold text-[10px] hover:bg-emerald-100 transition"
+                          >
+                            Use Father as Guardian
+                          </button>
+                          <button
+                            type="button"
+                            data-testid="guardian-sync-mother-btn"
+                            onClick={() =>
+                              setProfileForm((prev) => ({
+                                ...prev,
+                                guardianRelation: 'Mother',
+                                guardianName: prev.motherName || prev.guardianName,
+                                guardianPhone: prev.motherPhone || prev.guardianPhone,
+                                emergencyContact: prev.fatherPhone || prev.emergencyContact || prev.motherPhone,
+                              }))
+                            }
+                            className="px-2.5 py-1 rounded-md bg-white border border-emerald-300 text-emerald-900 font-bold text-[10px] hover:bg-emerald-100 transition"
+                          >
+                            Use Mother as Guardian
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                        <div>
+                          <label className="font-bold text-slate-700 block mb-0.5">
+                            Relationship to Student <span className="text-rose-600">*</span>
+                          </label>
+                          <select
+                            data-testid="guardian-relation-select"
+                            value={profileForm.guardianRelation}
+                            onChange={(e) => {
+                              const rel = e.target.value;
+                              setProfileForm((prev) => ({
+                                ...prev,
+                                guardianRelation: rel,
+                                guardianName:
+                                  rel === 'Father'
+                                    ? prev.fatherName || prev.guardianName
+                                    : rel === 'Mother'
+                                    ? prev.motherName || prev.guardianName
+                                    : prev.guardianName,
+                                guardianPhone:
+                                  rel === 'Father'
+                                    ? prev.fatherPhone || prev.guardianPhone
+                                    : rel === 'Mother'
+                                    ? prev.motherPhone || prev.guardianPhone
+                                    : prev.guardianPhone,
+                              }));
+                            }}
+                            className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                          >
+                            <option value="Father">Father</option>
+                            <option value="Mother">Mother</option>
+                            <option value="Legal Guardian">Legal Guardian</option>
+                            <option value="Paternal Uncle/Aunt">Paternal Uncle / Aunt</option>
+                            <option value="Maternal Uncle/Aunt">Maternal Uncle / Aunt</option>
+                            <option value="Grandparent">Grandparent</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="font-bold text-slate-700 block mb-0.5">
+                            Primary Guardian Name <span className="text-rose-600">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            data-testid="guardian-name-input"
+                            placeholder="Guardian Full Name"
+                            value={profileForm.guardianName || (profileForm.guardianRelation === 'Father' ? profileForm.fatherName : profileForm.guardianRelation === 'Mother' ? profileForm.motherName : '')}
+                            onChange={(e) =>
+                              setProfileForm((prev) => ({
+                                ...prev,
+                                guardianName: e.target.value,
+                                fatherName: prev.guardianRelation === 'Father' && !prev.fatherName ? e.target.value : prev.fatherName,
+                              }))
+                            }
+                            className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="font-bold text-slate-700 block mb-0.5">
+                            Guardian Contact Mobile <span className="text-rose-600">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            data-testid="guardian-phone-input"
+                            placeholder="+880 1711-XXXXXX"
+                            value={profileForm.guardianPhone || profileForm.fatherPhone}
+                            onChange={(e) =>
+                              setProfileForm((prev) => ({
+                                ...prev,
+                                guardianPhone: e.target.value,
+                                fatherPhone: prev.guardianRelation === 'Father' && !prev.fatherPhone ? e.target.value : prev.fatherPhone,
+                              }))
+                            }
+                            className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="font-bold text-slate-700 block mb-0.5">Alternate Emergency Contact</label>
+                          <input
+                            type="text"
+                            data-testid="emergency-contact-input"
+                            placeholder="+880 1811-XXXXXX"
+                            value={profileForm.emergencyContact}
+                            onChange={(e) => setProfileForm({ ...profileForm, emergencyContact: e.target.value })}
+                            className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* =====================================================
+                    SECTION 3: SIBLING LINKAGE, HOUSEHOLD INCOME & CONCESSION
+                   ===================================================== */}
+                {(dossierSection === 0 || dossierSection === 3) && (
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:p-3.5 space-y-3" data-testid="dossier-section-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-[#014d33] text-white font-extrabold text-xs flex items-center justify-center">
+                          3
+                        </span>
+                        <div>
+                          <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">
+                            Sibling Linkage, Household Income & Financial Concession
+                          </h3>
+                          <p className="text-[10px] text-slate-500">
+                            Automatic 10% sibling fee waiver and socioeconomic assessment for financial aid.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Sibling Concession Card */}
+                    <div className="p-3 rounded-xl bg-amber-50/90 border border-amber-200 space-y-2.5">
+                      <label className="flex items-center gap-2.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          data-testid="sibling-checkbox"
+                          checked={profileForm.hasSibling}
+                          onChange={(e) => setProfileForm({ ...profileForm, hasSibling: e.target.checked })}
+                          className="w-4 h-4 accent-[#014d33] rounded"
+                        />
+                        <span className="text-xs font-extrabold text-amber-950">
+                          Sibling Currently Studying at Onnorokom Projukti School (Grants an automatic 10% concession on the Admission Fee)
+                        </span>
+                      </label>
+
+                      {profileForm.hasSibling && (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-amber-200/80 text-xs">
+                          <div>
+                            <label className="font-bold text-amber-950 block mb-0.5">Existing Sibling Full Name</label>
+                            <input
+                              type="text"
+                              data-testid="sibling-name-input"
+                              placeholder="e.g. Ananya Rahman"
+                              value={profileForm.siblingName}
+                              onChange={(e) => setProfileForm({ ...profileForm, siblingName: e.target.value })}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-amber-300 bg-white focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-bold text-amber-950 block mb-0.5">Sibling Current Class & Shift</label>
+                            <input
+                              type="text"
+                              data-testid="sibling-class-input"
+                              placeholder="e.g. Class 8 - Morning Shift"
+                              value={profileForm.siblingClass}
+                              onChange={(e) => setProfileForm({ ...profileForm, siblingClass: e.target.value })}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-amber-300 bg-white focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-bold text-amber-950 block mb-0.5">Sibling Student ID / Birth Reg No.</label>
+                            <input
+                              type="text"
+                              data-testid="sibling-id-input"
+                              placeholder="17-digit Birth Reg ID or Roll No."
+                              value={profileForm.siblingStudentId}
+                              onChange={(e) => setProfileForm({ ...profileForm, siblingStudentId: e.target.value })}
+                              className="w-full px-2.5 py-1.5 rounded-lg border border-amber-300 bg-white focus:outline-none focus:border-[#014d33]"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Household Income & Financial Aid Fields */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-0.5">Monthly Household Income (BDT)</label>
+                        <input
+                          type="number"
+                          min={0}
+                          data-testid="monthly-income-input"
+                          placeholder="e.g. 65000"
+                          value={profileForm.monthlyIncome}
+                          onChange={(e) => setProfileForm({ ...profileForm, monthlyIncome: Number(e.target.value) })}
+                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-0.5">Income Bracket</label>
+                        <select
+                          data-testid="income-bracket-select"
+                          value={profileForm.incomeBracket}
+                          onChange={(e) => setProfileForm({ ...profileForm, incomeBracket: e.target.value })}
+                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        >
+                          <option value="">Select Income Bracket</option>
+                          <option value="Below ৳30,000 / month">Below ৳30,000 / month</option>
+                          <option value="৳30,000 – ৳60,000 / month">৳30,000 – ৳60,000 / month</option>
+                          <option value="৳60,000 – ৳1,00,000 / month">৳60,000 – ৳1,00,000 / month</option>
+                          <option value="৳1,00,000 – ৳2,00,000 / month">৳1,00,000 – ৳2,00,000 / month</option>
+                          <option value="Above ৳2,00,000 / month">Above ৳2,00,000 / month</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-0.5">Primary Source of Income</label>
+                        <select
+                          data-testid="income-source-select"
+                          value={profileForm.incomeSource}
+                          onChange={(e) => setProfileForm({ ...profileForm, incomeSource: e.target.value })}
+                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        >
+                          <option value="">Select Income Source</option>
+                          <option value="Private Sector Employment">Private Sector Employment</option>
+                          <option value="Government / Public Service">Government / Public Service</option>
+                          <option value="Business / Trade">Business / Trade</option>
+                          <option value="Self-Employed / Professional">Self-Employed / Professional</option>
+                          <option value="Overseas Remittance">Overseas Remittance</option>
+                          <option value="Agriculture / Other">Agriculture / Other</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="font-bold text-slate-700 block mb-0.5">Household Dependents</label>
+                        <input
+                          type="number"
+                          min={0}
+                          max={20}
+                          data-testid="dependents-input"
+                          placeholder="e.g. 4"
+                          value={profileForm.dependents}
+                          onChange={(e) => setProfileForm({ ...profileForm, dependents: Number(e.target.value) })}
+                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-white border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                      <label className="flex items-center gap-2.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          data-testid="concession-requested-checkbox"
+                          checked={profileForm.concessionRequested}
+                          onChange={(e) => setProfileForm({ ...profileForm, concessionRequested: e.target.checked })}
+                          className="w-4 h-4 accent-[#014d33] rounded"
+                        />
+                        <div>
+                          <span className="font-bold text-slate-900 block">
+                            Apply for Need-Based Financial Aid / Tuition Concession
+                          </span>
+                          <span className="text-[11px] text-slate-500">
+                            Requires uploading Household Income Certificate in Section 4 for committee review.
+                          </span>
+                        </div>
+                      </label>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-[11px] text-slate-500 font-semibold">Concession Status:</span>
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
+                            profile?.concessionStatus === 'APPROVED'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : profile?.concessionStatus === 'PENDING' || profileForm.concessionRequested
+                              ? 'bg-amber-100 text-amber-800'
+                              : profile?.concessionStatus === 'DECLINED'
+                              ? 'bg-rose-100 text-rose-800'
+                              : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          {profile?.concessionStatus && profile.concessionStatus !== 'NONE'
+                            ? `${profile.concessionStatus}${profile.concessionPercent ? ` (${profile.concessionPercent}%)` : ''}`
+                            : profileForm.concessionRequested
+                            ? 'PENDING REVIEW'
+                            : 'NOT REQUESTED'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* =====================================================
+                    SECTION 4: OFFICIAL DOCUMENT UPLOADS (5 SLOTS)
+                   ===================================================== */}
+                {(dossierSection === 0 || dossierSection === 4) && (
+                  <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:p-3.5 space-y-3" data-testid="dossier-section-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-[#014d33] text-white font-extrabold text-xs flex items-center justify-center">
+                          4
+                        </span>
+                        <div>
+                          <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">
+                            Official Document Uploads & Verification (5 Slots)
+                          </h3>
+                          <p className="text-[10px] text-slate-500">
+                            Attach PDF/JPG copies of Birth Certificate, Student Photo, Parents’ NID, Transfer Certificate, and Income Proof.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-xs">
+                      {[
+                        {
+                          type: 'BIRTH_CERT',
+                          label: 'Birth Registration Certificate (17-Digit)',
+                          mandatory: true,
+                        },
+                        {
+                          type: 'STUDENT_PHOTO',
+                          label: 'Student Passport Size Photograph',
+                          mandatory: true,
+                        },
+                        {
+                          type: 'PARENTS_NID',
+                          label: 'Father & Mother National ID (NID) Copies',
+                          mandatory: true,
+                        },
+                        {
+                          type: 'PREV_SCHOOL_TC',
+                          label: 'Previous School Transfer Certificate & Report Card',
+                          mandatory: false,
+                        },
+                        {
+                          type: 'INCOME_PROOF',
+                          label: 'Household Income Certificate (Required for Concession)',
+                          mandatory: false,
+                        },
+                      ].map((slot) => {
+                        const existingDoc = (profile?.documents || []).find((d) => d.type === slot.type);
+                        const status = existingDoc?.status || 'NOT_UPLOADED';
+                        const isUploaded = status !== 'NOT_UPLOADED';
+                        const selectedFile = selectedDocFiles[slot.type];
+
+                        return (
+                          <div
+                            key={slot.type}
+                            data-testid={`doc-slot-${slot.type}`}
+                            className={`p-3 rounded-xl border flex flex-col justify-between gap-2.5 ${
+                              status === 'APPROVED'
+                                ? 'bg-emerald-50/70 border-emerald-200'
+                                : status === 'PENDING'
+                                ? 'bg-white border-emerald-300'
+                                : status === 'CORRECTION_NEEDED'
+                                ? 'bg-rose-50/60 border-rose-200'
+                                : 'bg-white border-slate-200'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-extrabold text-slate-900">{slot.label}</span>
+                                  <span
+                                    className={`px-1.5 py-0.2 rounded text-[9px] font-bold uppercase ${
+                                      slot.mandatory ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-600'
+                                    }`}
+                                  >
+                                    {slot.mandatory ? 'Mandatory' : 'Optional'}
+                                  </span>
+                                </div>
+                                {isUploaded ? (
+                                  <p className="text-[11px] text-emerald-800 font-medium mt-0.5">
+                                    Attached: <strong className="font-mono">{existingDoc?.fileName}</strong> ({existingDoc?.fileSize ? `${Math.max(1, Math.round(Number(existingDoc.fileSize) / 1024))} KB` : '248 KB'})
+                                  </p>
+                                ) : selectedFile ? (
+                                  <p className="text-[11px] text-slate-600 mt-0.5">
+                                    Selected: <strong className="font-mono">{selectedFile.name}</strong> ({Math.max(1, Math.round(selectedFile.size / 1024))} KB) — Click Upload to save
+                                  </p>
+                                ) : (
+                                  <p className="text-[11px] text-slate-500 mt-0.5">
+                                    Accepted formats: PDF, JPG, PNG (Max 5 MB)
+                                  </p>
+                                )}
+                                {existingDoc?.reviewerComment && (
+                                  <p className="text-[10px] text-rose-700 font-semibold mt-0.5">
+                                    Reviewer Note: {existingDoc.reviewerComment}
+                                  </p>
+                                )}
+                              </div>
+
+                              <span
+                                data-testid={`doc-status-${slot.type}`}
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase shrink-0 ${
+                                  status === 'APPROVED'
+                                    ? 'bg-emerald-600 text-white'
+                                    : status === 'PENDING'
+                                    ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                    : status === 'CORRECTION_NEEDED'
+                                    ? 'bg-rose-600 text-white'
+                                    : 'bg-slate-100 text-slate-600'
+                                }`}
+                              >
+                                {status}
+                              </span>
+                            </div>
+
+                            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                              <input
+                                type="file"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                onChange={(e) => {
+                                  const f = e.target.files?.[0];
+                                  if (f) {
+                                    setSelectedDocFiles((prev) => ({
+                                      ...prev,
+                                      [slot.type]: { name: f.name, size: f.size || 253952 },
+                                    }));
+                                  }
+                                }}
+                                className="text-[10px] text-slate-600 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-slate-100 file:text-slate-800 hover:file:bg-slate-200 max-w-[210px]"
+                              />
+                              <button
+                                type="button"
+                                data-testid={`upload-doc-btn-${slot.type}`}
+                                disabled={uploadingDocType === slot.type}
+                                onClick={() => void handleUploadDocument(slot.type, slot.label)}
+                                className="px-3 py-1.5 rounded-lg bg-[#014d33] hover:bg-emerald-800 text-white font-bold text-[11px] transition disabled:opacity-50"
+                              >
+                                {uploadingDocType === slot.type
+                                  ? 'Uploading...'
+                                  : isUploaded
+                                  ? 'Replace File'
+                                  : 'Upload Document'}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Dossier Readiness & Action Footer */}
+                <div className="pt-3 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="text-xs">
+                    {isMandatoryComplete ? (
+                      <div className="flex items-center gap-1.5 text-emerald-800 font-bold">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>All mandatory Child & Guardian fields are complete. Seat booking is unlocked!</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 text-amber-800 font-semibold">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                        <span>Missing mandatory fields: {missingFields.join(' • ')}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    {dossierSection > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setDossierSection(0)}
+                        className="px-3.5 py-2 rounded-xl border border-slate-300 bg-slate-50 text-slate-700 font-bold text-xs hover:bg-slate-100 transition"
+                      >
+                        Show All 4 Sections
+                      </button>
+                    )}
+                    <button
+                      type="submit"
+                      data-testid="save-profile-btn"
+                      disabled={isSavingProfile}
+                      className="px-4 py-2 rounded-xl border border-slate-300 bg-white text-slate-800 font-bold text-xs hover:bg-slate-50 transition"
+                    >
+                      {isSavingProfile ? 'Saving...' : 'Save Child Information (Draft)'}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="submit-dossier-btn"
+                      disabled={isSavingProfile}
+                      onClick={(e) => void handleSaveProfile(e, true)}
+                      className="px-5 py-2 rounded-xl bg-[#014d33] text-white font-bold text-xs hover:bg-emerald-800 transition shadow-sm"
+                    >
+                      {isSavingProfile ? 'Submitting...' : 'Submit Complete Dossier for Verification'}
+                    </button>
+                  </div>
+                </div>
+              </form>
             </section>
           )}
 
