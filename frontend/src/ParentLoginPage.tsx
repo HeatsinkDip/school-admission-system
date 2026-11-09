@@ -10,11 +10,13 @@ import {
   ChevronRight,
   MapPin,
   Home,
+  LogOut,
+  X,
 } from 'lucide-react';
 import { STRINGS } from './strings';
 import { isValidStudentId } from './ParentPortal';
 import { STUDENT_ID_STORAGE_KEY } from './config';
-import { loginWithGoogle } from './firebase';
+import { loginWithGoogle, logoutFirebase, User } from './firebase';
 import './ParentPortal.css';
 import './LandingPage.css';
 
@@ -32,6 +34,8 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
   const [parentNameInput, setParentNameInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isFirebaseLoading, setIsFirebaseLoading] = useState(false);
+  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  const [showFirebaseModal, setShowFirebaseModal] = useState(false);
 
   const handleQuickFill = () => {
     setStudentIdInput('20152691234567890');
@@ -55,6 +59,41 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
     if (parentNameInput.trim()) {
       localStorage.setItem('school_parent_name', parentNameInput.trim());
     }
+    onLoginSuccess(trimmed, parentPhoneInput.trim(), parentNameInput.trim());
+  };
+
+  const handleCancelFirebase = async () => {
+    try {
+      await logoutFirebase();
+    } catch {
+      // ignore
+    }
+    setFirebaseUser(null);
+    setShowFirebaseModal(false);
+    setError('Logged out. Student 17-digit Birth Registration Number is mandatory to access the parent dashboard.');
+  };
+
+  const handleConfirmFirebaseStudent = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = studentIdInput.trim();
+    if (!isValidStudentId(trimmed)) {
+      setError(STRINGS.studentIdValidationError);
+      return;
+    }
+    if (!parentPhoneInput.trim()) {
+      setError('Parent / Guardian Mobile Phone is required.');
+      return;
+    }
+    setError(null);
+    localStorage.setItem(STUDENT_ID_STORAGE_KEY, trimmed);
+    localStorage.setItem('school_parent_phone', parentPhoneInput.trim());
+    if (parentNameInput.trim()) {
+      localStorage.setItem('school_parent_name', parentNameInput.trim());
+    }
+    if (firebaseUser?.email) {
+      localStorage.setItem('school_firebase_email', firebaseUser.email);
+    }
+    setShowFirebaseModal(false);
     onLoginSuccess(trimmed, parentPhoneInput.trim(), parentNameInput.trim());
   };
 
@@ -258,10 +297,12 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
                     onClick={async () => {
                       try {
                         setIsFirebaseLoading(true);
-                        const { user } = await loginWithGoogle();
-                        if (user.displayName) setParentNameInput(user.displayName);
-                        if (user.phoneNumber) setParentPhoneInput(user.phoneNumber);
                         setError(null);
+                        const { user } = await loginWithGoogle();
+                        setFirebaseUser(user);
+                        if (user.displayName && !parentNameInput) setParentNameInput(user.displayName);
+                        if (user.phoneNumber && !parentPhoneInput) setParentPhoneInput(user.phoneNumber);
+                        setShowFirebaseModal(true);
                       } catch (err: unknown) {
                         const message = err instanceof Error ? err.message : 'Firebase Google Sign-In cancelled or failed.';
                         setError(message);
@@ -278,7 +319,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
                       <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                     </svg>
-                    <span>{isFirebaseLoading ? 'Connecting to Firebase...' : 'Sign in with Google (Firebase Auth)'}</span>
+                    <span>{isFirebaseLoading ? 'Connecting to Google...' : 'Sign in with Google'}</span>
                   </button>
                 </div>
               </div>
@@ -341,6 +382,139 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
           </div>
         </div>
       </main>
+
+      {/* =========================================================================
+          FIREBASE MANDATORY POST-LOGIN LINKING MODAL
+          ========================================================================= */}
+      {showFirebaseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
+            {/* Header */}
+            <div className="bg-[#03130e] text-white p-5 sm:p-6 border-b border-emerald-950">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold uppercase tracking-wider">
+                  <Shield size={12} className="text-emerald-400" />
+                  <span>Google Authentication Verified</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCancelFirebase}
+                  className="text-slate-400 hover:text-white transition p-1 rounded-md"
+                  title="Cancel & Log Out"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <h2 className="text-lg sm:text-xl font-serif font-black text-white mt-2.5">
+                Link Student Birth Registration & Family Account
+              </h2>
+              <p className="text-slate-300 text-xs mt-1.5 leading-relaxed">
+                Signed in as <strong className="text-white">{firebaseUser?.displayName || 'Google User'}</strong> ({firebaseUser?.email || ''}). 
+                Please enter your child's 17-digit Birth Registration Number and contact phone to proceed to the Parent Dashboard. Otherwise, you will be logged out.
+              </p>
+            </div>
+
+            {/* Body */}
+            <form onSubmit={handleConfirmFirebaseStudent} className="p-5 sm:p-6 space-y-4">
+              <div>
+                <label className="text-xs font-black text-slate-800 uppercase tracking-wider block mb-1">
+                  Student Birth Registration Number (17 Digits) <span className="text-rose-600">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    maxLength={17}
+                    placeholder="e.g. 20152691234567890"
+                    value={studentIdInput}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '').slice(0, 17);
+                      setStudentIdInput(val);
+                      if (error) setError(null);
+                    }}
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 font-mono text-sm tracking-wider focus:outline-none focus:border-[#014d33] focus:ring-2 focus:ring-emerald-700/20 bg-slate-50/40 text-slate-900"
+                    autoFocus
+                  />
+                  {studentIdInput.length === 17 && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600 flex items-center gap-1 text-[11px] font-bold bg-white px-2 py-0.5 rounded border border-emerald-200">
+                      <CheckCircle2 size={14} />
+                      <span>17 Digits</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center justify-between mt-1 text-[11px] text-slate-500">
+                  <span>Must be exactly 17 numeric digits from government birth certificate.</span>
+                  <span className="font-mono text-slate-400 font-bold">{studentIdInput.length}/17 digits</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-black text-slate-800 uppercase tracking-wider block mb-1">
+                  Parent / Guardian Mobile Phone <span className="text-rose-600">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="tel"
+                    placeholder="01749822422"
+                    value={parentPhoneInput}
+                    onChange={(e) => {
+                      setParentPhoneInput(e.target.value);
+                      if (error) setError(null);
+                    }}
+                    className="w-full px-4 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#014d33] focus:ring-2 focus:ring-emerald-700/20 bg-slate-50/40 text-slate-900"
+                  />
+                  <Phone size={15} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Acts as your family account login.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-xs font-black text-slate-800 uppercase tracking-wider block mb-1">
+                  Parent / Guardian Full Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="GK"
+                  value={parentNameInput}
+                  onChange={(e) => setParentNameInput(e.target.value)}
+                  className="w-full px-4 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#014d33] focus:ring-2 focus:ring-emerald-700/20 bg-slate-50/40 text-slate-900"
+                />
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Primary contact for all children.
+                </p>
+              </div>
+
+              {error && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-start gap-2">
+                  <AlertCircle size={15} className="text-rose-600 shrink-0 mt-0.5" />
+                  <span className="font-semibold">{error}</span>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="pt-2 flex items-center justify-between gap-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={handleCancelFirebase}
+                  className="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-bold transition flex items-center gap-1.5"
+                >
+                  <LogOut size={14} className="text-slate-500" />
+                  <span>Cancel & Log Out</span>
+                </button>
+
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-[#014d33] hover:bg-emerald-800 text-white font-extrabold text-xs transition shadow-md flex items-center gap-1.5"
+                >
+                  <span>Proceed to Dashboard</span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* =========================================================================
           INSTITUTIONAL FOOTER (White & Emerald)

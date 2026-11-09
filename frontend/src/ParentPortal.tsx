@@ -38,7 +38,7 @@ import { ActionAlertModal } from './ActionAlertModal';
 import { K8sSpikeModal } from './K8sSpikeModal';
 import { SystemSpecModal } from './SystemSpecModal';
 import { TalkToHawkBotModal } from './TalkToHawkBotModal';
-import { loginWithGoogle } from './firebase';
+import { loginWithGoogle, logoutFirebase, type User as FirebaseUser } from './firebase';
 import {
   api,
   ApiClientError,
@@ -304,6 +304,8 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
   const [simulateRaceCondition, setSimulateRaceCondition] = useState<boolean>(false);
   const [isCounselorModalOpen, setIsCounselorModalOpen] = useState<boolean>(false);
   const [isFirebaseLoading, setIsFirebaseLoading] = useState<boolean>(false);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
+  const [showFirebaseModal, setShowFirebaseModal] = useState<boolean>(false);
 
   // --- Action Alert Modal State ---
   const [actionModal, setActionModal] = useState<{
@@ -726,6 +728,69 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
     setIsEditingStudentId(false);
     setStudentIdError(null);
     triggerToast('Login successful! Welcome to Onnorokom School Admission Portal.');
+  };
+
+  const handleCancelFirebase = async () => {
+    try {
+      await logoutFirebase();
+    } catch {
+      // ignore
+    }
+    setFirebaseUser(null);
+    setShowFirebaseModal(false);
+    setStudentIdError('Logged out. Student 17-digit Birth Registration Number is mandatory to access the parent dashboard.');
+  };
+
+  const handleConfirmFirebaseStudent = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const candidate = studentIdInput.trim();
+    if (!isValidStudentId(candidate)) {
+      setStudentIdError(STRINGS.studentIdValidationError);
+      return;
+    }
+    const phoneVal = (parentPhoneInput || parentPhone || '').trim();
+    if (!phoneVal) {
+      setStudentIdError('Parent / Guardian Mobile Phone is required.');
+      return;
+    }
+    const nameVal = (parentNameInput || parentName || '').trim();
+    setStudentIdError(null);
+
+    localStorage.setItem(STUDENT_ID_STORAGE_KEY, candidate);
+    localStorage.setItem(PARENT_PHONE_STORAGE_KEY, phoneVal);
+    setParentPhone(phoneVal);
+    if (nameVal) {
+      localStorage.setItem(PARENT_NAME_STORAGE_KEY, nameVal);
+      setParentName(nameVal);
+    }
+    if (firebaseUser?.email) {
+      localStorage.setItem('school_firebase_email', firebaseUser.email);
+    }
+    setSavedStudentId(candidate);
+    setIsEditingStudentId(false);
+    setShowFirebaseModal(false);
+
+    // Register or update in family children list
+    setParentChildren((prev) => {
+      const existingIdx = prev.findIndex((c) => c.studentId === candidate);
+      if (existingIdx >= 0) return prev;
+      const updated = [
+        ...prev,
+        {
+          studentId: candidate,
+          fullNameEn: nameVal || '',
+          isComplete: false,
+        },
+      ];
+      try {
+        localStorage.setItem(PARENT_CHILDREN_STORAGE_KEY, JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+
+    triggerToast('Login verified with Google & 17-digit Birth Registration Number.');
   };
 
   const handleClearStudentId = () => {
@@ -1367,9 +1432,8 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 </span>
                 <span
                   data-testid="active-student-name"
-                  className={`font-semibold hidden md:inline truncate max-w-[120px] ${
-                    activeStudentName ? 'text-slate-800' : 'text-slate-400 italic font-mono'
-                  }`}
+                  className={`font-semibold hidden md:inline truncate max-w-[120px] ${activeStudentName ? 'text-slate-800' : 'text-slate-400 italic font-mono'
+                    }`}
                 >
                   {activeStudentName ?? 'null'}
                 </span>
@@ -1541,167 +1605,163 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
         {/* Left Sidebar Navigation (Compact High-Density) - Visible ONLY to authenticated parents */}
         {savedStudentId && (
           <aside
-            className={`fixed lg:sticky top-13 left-0 z-30 w-60 bg-white border-r border-slate-200 flex flex-col justify-between transition-transform duration-200 h-[calc(100vh-3.25rem)] overflow-y-auto shrink-0 ${
-              mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-            }`}
+            className={`fixed lg:sticky top-13 left-0 z-30 w-60 bg-white border-r border-slate-200 flex flex-col justify-between transition-transform duration-200 h-[calc(100vh-3.25rem)] overflow-y-auto shrink-0 ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+              }`}
           >
-          <div className="p-2.5 space-y-3">
-            {/* Student Mini-Card in Sidebar (Compact) */}
-            <div className="p-2.5 rounded-xl bg-slate-900 text-white space-y-1.5 border border-slate-800 shadow-xs">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-emerald-500 text-slate-950 font-extrabold flex items-center justify-center text-xs shrink-0">
-                  {activeStudentName
-                    ? activeStudentName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-                    : '—'}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div
-                    data-testid="sidebar-student-name"
-                    className={`text-xs font-bold truncate ${
-                      activeStudentName ? 'text-white' : 'text-slate-400 italic font-mono'
-                    }`}
-                  >
-                    {activeStudentName ?? 'null'}
+            <div className="p-2.5 space-y-3">
+              {/* Student Mini-Card in Sidebar (Compact) */}
+              <div className="p-2.5 rounded-xl bg-slate-900 text-white space-y-1.5 border border-slate-800 shadow-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-500 text-slate-950 font-extrabold flex items-center justify-center text-xs shrink-0">
+                    {activeStudentName
+                      ? activeStudentName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+                      : '—'}
                   </div>
-                  <div className="text-[10px] font-mono text-amber-300 truncate">
-                    {savedStudentId || 'Not Logged In'}
+                  <div className="min-w-0 flex-1">
+                    <div
+                      data-testid="sidebar-student-name"
+                      className={`text-xs font-bold truncate ${activeStudentName ? 'text-white' : 'text-slate-400 italic font-mono'
+                        }`}
+                    >
+                      {activeStudentName ?? 'null'}
+                    </div>
+                    <div className="text-[10px] font-mono text-amber-300 truncate">
+                      {savedStudentId || 'Not Logged In'}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="pt-1.5 border-t border-slate-800 flex items-center justify-between text-[10px]">
-                <span className="text-slate-400">Roll No:</span>
-                <span className="font-mono font-bold text-emerald-400">
-                  {profile?.enrolledStudentNo || 'Pending'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-[10px]">
-                <span className="text-slate-400">Section:</span>
-                <span className="font-bold text-amber-300 truncate max-w-[100px]">
-                  {profile?.assignedSection || (confirmedHold ? `Sec A (${confirmedHold.className})` : (focusedHold ? focusedHold.className : 'Not Assigned'))}
-                </span>
-              </div>
-              {savedStudentId && (
-                <button
-                  type="button"
-                  onClick={handleClearStudentId}
-                  data-testid="sidebar-logout-btn"
-                  className="w-full mt-1 py-1 px-2 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-[10px] font-bold flex items-center justify-center gap-1.5 transition"
-                >
-                  <LogOut size={11} />
-                  <span>Parent Logout</span>
-                </button>
-              )}
-            </div>
-
-            {/* Sidebar Navigation Menu */}
-            <div>
-              <div className="px-2 mb-1 text-[9px] font-extrabold uppercase tracking-widest text-slate-400">
-                Menu
-              </div>
-              <nav className="space-y-0.5">
-                {onOpenLanding && (
+                <div className="pt-1.5 border-t border-slate-800 flex items-center justify-between text-[10px]">
+                  <span className="text-slate-400">Roll No:</span>
+                  <span className="font-mono font-bold text-emerald-400">
+                    {profile?.enrolledStudentNo || 'Pending'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="text-slate-400">Section:</span>
+                  <span className="font-bold text-amber-300 truncate max-w-[100px]">
+                    {profile?.assignedSection || (confirmedHold ? `Sec A (${confirmedHold.className})` : (focusedHold ? focusedHold.className : 'Not Assigned'))}
+                  </span>
+                </div>
+                {savedStudentId && (
                   <button
                     type="button"
-                    onClick={() => {
-                      setMobileSidebarOpen(false);
-                      onOpenLanding();
-                    }}
-                    data-testid="nav-school-home-btn"
-                    className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all"
+                    onClick={handleClearStudentId}
+                    data-testid="sidebar-logout-btn"
+                    className="w-full mt-1 py-1 px-2 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-[10px] font-bold flex items-center justify-center gap-1.5 transition"
                   >
-                    <div className="flex items-center gap-2">
-                      <Home className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>School Home</span>
-                    </div>
+                    <LogOut size={11} />
+                    <span>Parent Logout</span>
                   </button>
                 )}
+              </div>
 
-                {SIDEBAR_ITEMS.map((item) => {
-                  const Icon = item.icon;
-                  const isActive =
-                    activeNav === item.id ||
-                    (item.id === 'classes' && activeNav === 'classes') ||
-                    (item.id === 'payment' && activeNav === 'active_hold') ||
-                    (item.id === 'dossier' && activeNav === 'child_dossier') ||
-                    (item.id === 'receipts' && activeNav === 'applications');
-
-                  return (
+              {/* Sidebar Navigation Menu */}
+              <div>
+                <div className="px-2 mb-1 text-[9px] font-extrabold uppercase tracking-widest text-slate-400">
+                  Menu
+                </div>
+                <nav className="space-y-0.5">
+                  {onOpenLanding && (
                     <button
-                      key={item.id}
-                      data-testid={item.testId}
+                      type="button"
                       onClick={() => {
-                        setActiveNav(item.id as ParentNavTab);
                         setMobileSidebarOpen(false);
+                        onOpenLanding();
                       }}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        isActive
-                          ? 'bg-slate-900 text-white shadow-xs'
-                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                      }`}
+                      data-testid="nav-school-home-btn"
+                      className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all"
                     >
                       <div className="flex items-center gap-2">
-                        <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-amber-400' : 'text-slate-400'}`} />
-                        <span className="truncate">{item.label}</span>
+                        <Home className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>School Home</span>
                       </div>
-                      {item.badge && (
-                        <span
-                          className={`px-1.5 py-0.2 rounded-full text-[9px] font-extrabold ${
-                            isActive
-                              ? 'bg-amber-400 text-slate-950'
-                              : item.badge === 'PAID' || item.badge === 'Live'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-slate-200 text-slate-700'
-                          }`}
-                        >
-                          {item.badge}
-                        </span>
-                      )}
                     </button>
-                  );
-                })}
-              </nav>
+                  )}
+
+                  {SIDEBAR_ITEMS.map((item) => {
+                    const Icon = item.icon;
+                    const isActive =
+                      activeNav === item.id ||
+                      (item.id === 'classes' && activeNav === 'classes') ||
+                      (item.id === 'payment' && activeNav === 'active_hold') ||
+                      (item.id === 'dossier' && activeNav === 'child_dossier') ||
+                      (item.id === 'receipts' && activeNav === 'applications');
+
+                    return (
+                      <button
+                        key={item.id}
+                        data-testid={item.testId}
+                        onClick={() => {
+                          setActiveNav(item.id as ParentNavTab);
+                          setMobileSidebarOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${isActive
+                            ? 'bg-slate-900 text-white shadow-xs'
+                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                          }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-amber-400' : 'text-slate-400'}`} />
+                          <span className="truncate">{item.label}</span>
+                        </div>
+                        {item.badge && (
+                          <span
+                            className={`px-1.5 py-0.2 rounded-full text-[9px] font-extrabold ${isActive
+                                ? 'bg-amber-400 text-slate-950'
+                                : item.badge === 'PAID' || item.badge === 'Live'
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : 'bg-slate-200 text-slate-700'
+                              }`}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+
+              {/* Sidebar Dossier Progress Widget (Compact) */}
+              <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200/80 space-y-1.5">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="font-extrabold text-amber-950">Dossier Progress</span>
+                  <span className="font-extrabold text-amber-800">{completeness}%</span>
+                </div>
+                <div className="w-full h-1.5 bg-amber-200/70 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-amber-600 transition-all duration-300"
+                    style={{ width: `${completeness}%` }}
+                  />
+                </div>
+                <p className="text-[10px] text-amber-900 leading-snug">
+                  {isMandatoryComplete
+                    ? 'Mandatory details verified!'
+                    : `${missingFields.length} mandatory fields missing.`}
+                </p>
+                {!isMandatoryComplete && (
+                  <button
+                    onClick={handleQuickFillMandatory}
+                    className="w-full py-1 rounded-md bg-amber-600 text-white text-[10px] font-bold hover:bg-amber-700 transition"
+                  >
+                    Auto-Complete Demo
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* Sidebar Dossier Progress Widget (Compact) */}
-            <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200/80 space-y-1.5">
-              <div className="flex items-center justify-between text-[11px]">
-                <span className="font-extrabold text-amber-950">Dossier Progress</span>
-                <span className="font-extrabold text-amber-800">{completeness}%</span>
+            {/* Sidebar Footer Helpline Card (Compact) */}
+            <div className="p-2.5 border-t border-slate-200 bg-slate-50 text-[11px] space-y-0.5">
+              <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                Helpline
               </div>
-              <div className="w-full h-1.5 bg-amber-200/70 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-amber-600 transition-all duration-300"
-                  style={{ width: `${completeness}%` }}
-                />
-              </div>
-              <p className="text-[10px] text-amber-900 leading-snug">
-                {isMandatoryComplete
-                  ? 'Mandatory details verified!'
-                  : `${missingFields.length} mandatory fields missing.`}
+              <p className="text-[10px] text-slate-500">
+                09:00 AM – 05:00 PM (Sun–Thu)
               </p>
-              {!isMandatoryComplete && (
-                <button
-                  onClick={handleQuickFillMandatory}
-                  className="w-full py-1 rounded-md bg-amber-600 text-white text-[10px] font-bold hover:bg-amber-700 transition"
-                >
-                  Auto-Complete Demo
-                </button>
-              )}
+              <div className="font-mono text-[10px] font-bold text-slate-700">+880 1700-002027</div>
             </div>
-          </div>
-
-          {/* Sidebar Footer Helpline Card (Compact) */}
-          <div className="p-2.5 border-t border-slate-200 bg-slate-50 text-[11px] space-y-0.5">
-            <div className="font-bold text-slate-800 flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              Helpline
-            </div>
-            <p className="text-[10px] text-slate-500">
-              09:00 AM – 05:00 PM (Sun–Thu)
-            </p>
-            <div className="font-mono text-[10px] font-bold text-slate-700">+880 1700-002027</div>
-          </div>
-        </aside>
+          </aside>
         )}
 
         {/* Main Content Workspace (Compact 50%) */}
@@ -1788,17 +1848,15 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   return (
                     <div
                       key={child.studentId}
-                      className={`p-4 rounded-xl border transition ${
-                        isActive
+                      className={`p-4 rounded-xl border transition ${isActive
                           ? 'bg-slate-900 text-white border-emerald-500 shadow-md ring-1 ring-emerald-500'
                           : 'bg-white text-slate-900 border-slate-200 hover:border-slate-300 shadow-2xs'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <div className={`w-8 h-8 rounded-lg font-extrabold flex items-center justify-center text-xs ${
-                            isActive ? 'bg-emerald-400 text-slate-950' : 'bg-slate-100 text-slate-700'
-                          }`}>
+                          <div className={`w-8 h-8 rounded-lg font-extrabold flex items-center justify-center text-xs ${isActive ? 'bg-emerald-400 text-slate-950' : 'bg-slate-100 text-slate-700'
+                            }`}>
                             {child.fullNameEn ? child.fullNameEn[0].toUpperCase() : `#${idx + 1}`}
                           </div>
                           <div>
@@ -1959,10 +2017,12 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                             onClick={async () => {
                               try {
                                 setIsFirebaseLoading(true);
-                                const { user } = await loginWithGoogle();
-                                if (user.displayName) setParentNameInput(user.displayName);
-                                if (user.phoneNumber) setParentPhoneInput(user.phoneNumber);
                                 setStudentIdError(null);
+                                const { user } = await loginWithGoogle();
+                                setFirebaseUser(user);
+                                if (user.displayName && !parentNameInput) setParentNameInput(user.displayName);
+                                if (user.phoneNumber && !parentPhoneInput) setParentPhoneInput(user.phoneNumber);
+                                setShowFirebaseModal(true);
                               } catch (err: unknown) {
                                 const msg = err instanceof Error ? err.message : 'Firebase Google Sign-In cancelled or failed.';
                                 setStudentIdError(msg);
@@ -1979,7 +2039,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                             </svg>
-                            <span>{isFirebaseLoading ? 'Connecting to Firebase...' : 'Sign in with Google (Firebase Auth)'}</span>
+                            <span>{isFirebaseLoading ? 'Connecting to Google...' : 'Sign in with Google'}</span>
                           </button>
                         </div>
                       </div>
@@ -2065,11 +2125,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                     {/* Step 1 */}
-                    <div className={`p-2.5 rounded-lg border transition ${
-                      isMandatoryComplete
+                    <div className={`p-2.5 rounded-lg border transition ${isMandatoryComplete
                         ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950'
                         : 'bg-amber-50 border-amber-300 text-amber-950 ring-1 ring-amber-400'
-                    }`}>
+                      }`}>
                       <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
                         <span>Step 1</span>
                         <span>{isMandatoryComplete ? '✓ Done' : '⚠️ Pending'}</span>
@@ -2089,15 +2148,14 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     </div>
 
                     {/* Step 2 */}
-                    <div className={`p-2.5 rounded-lg border transition ${
-                      confirmedHold
+                    <div className={`p-2.5 rounded-lg border transition ${confirmedHold
                         ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950'
                         : focusedHold
-                        ? 'bg-sky-50 border-sky-300 text-sky-950'
-                        : isMandatoryComplete
-                        ? 'bg-slate-50 border-slate-300 text-slate-900 ring-1 ring-emerald-500/40'
-                        : 'bg-slate-50 border-slate-200 text-slate-400'
-                    }`}>
+                          ? 'bg-sky-50 border-sky-300 text-sky-950'
+                          : isMandatoryComplete
+                            ? 'bg-slate-50 border-slate-300 text-slate-900 ring-1 ring-emerald-500/40'
+                            : 'bg-slate-50 border-slate-200 text-slate-400'
+                      }`}>
                       <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
                         <span>Step 2</span>
                         <span>{confirmedHold || focusedHold ? '✓ Selected' : isMandatoryComplete ? 'Ready' : 'Locked'}</span>
@@ -2117,13 +2175,12 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     </div>
 
                     {/* Step 3 */}
-                    <div className={`p-2.5 rounded-lg border transition ${
-                      confirmedHold
+                    <div className={`p-2.5 rounded-lg border transition ${confirmedHold
                         ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950'
                         : focusedHold
-                        ? 'bg-amber-50 border-amber-300 text-amber-950 ring-1 ring-amber-400 animate-pulse'
-                        : 'bg-slate-50 border-slate-200 text-slate-400'
-                    }`}>
+                          ? 'bg-amber-50 border-amber-300 text-amber-950 ring-1 ring-amber-400 animate-pulse'
+                          : 'bg-slate-50 border-slate-200 text-slate-400'
+                      }`}>
                       <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
                         <span>Step 3</span>
                         <span>{confirmedHold ? '✓ Paid' : focusedHold ? '⏳ Hold' : 'Pending'}</span>
@@ -2143,11 +2200,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     </div>
 
                     {/* Step 4 */}
-                    <div className={`p-2.5 rounded-lg border transition ${
-                      confirmedHold
+                    <div className={`p-2.5 rounded-lg border transition ${confirmedHold
                         ? 'bg-emerald-50/60 border-emerald-300 text-emerald-950 ring-1 ring-emerald-500'
                         : 'bg-slate-50 border-slate-200 text-slate-400'
-                    }`}>
+                      }`}>
                       <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
                         <span>Step 4</span>
                         <span>{confirmedHold ? '✓ Enrolled' : 'Pending'}</span>
@@ -2176,303 +2232,303 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     </div>
                   </div>
 
-              {/* 4 Key Status KPI Cards (Compact) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Enrollment</span>
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-emerald-100 text-emerald-800">
-                      {confirmedHold ? 'CONFIRMED' : (focusedHold?.status === 'HELD' ? 'HOLD ACTIVE' : 'UNENROLLED')}
-                    </span>
-                  </div>
-                  <div className="text-sm font-extrabold text-slate-900 truncate">
-                    {confirmedHold?.className || focusedHold?.className || (confirmedHold ? 'Class Confirmed' : 'None Selected')}
-                  </div>
-                  <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-                    <span>Sec: <strong className="text-slate-800">{profile?.assignedSection || 'Pending'}</strong></span>
-                    <span className="font-mono font-bold text-emerald-700">
-                      {profile?.enrolledStudentNo || 'Pending'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Admission Fee</span>
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-emerald-100 text-emerald-800">
-                      {confirmedHold ? 'PAID' : (focusedHold ? 'DUE' : 'READY')}
-                    </span>
-                  </div>
-                  <div className="text-sm font-extrabold text-slate-900">৳{netPayable.toLocaleString()} BDT</div>
-                  <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-                    <span>Ref: <strong className="font-mono text-slate-800">{focusedHold?.holdId || confirmedHold?.holdId || '—'}</strong></span>
-                    <span className="font-mono text-[10px] text-slate-600">
-                      {payments[0]?.receiptNo || (confirmedHold ? 'Receipt Verified' : '—')}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Child Dossier</span>
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-amber-100 text-amber-800">{completeness}% Done</span>
-                  </div>
-                  <div className="text-sm font-extrabold text-slate-900 truncate">
-                    {isMandatoryComplete ? 'Ready for Verification' : `${missingFields.length} Pending`}
-                  </div>
-                  <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-                    <span>Eligibility: <strong className="text-emerald-700">Unlocked</strong></span>
-                    <button onClick={() => setActiveNav('dossier')} className="text-indigo-600 font-bold hover:underline">
-                      Edit →
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">School Hours</span>
-                    <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-indigo-100 text-indigo-800">SUN–THU</span>
-                  </div>
-                  <div className="text-sm font-extrabold text-slate-900">12:30 – 17:00</div>
-                  <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
-                    <span>Room: <strong className="text-slate-800">Room 102</strong></span>
-                    <button onClick={() => setActiveNav('routines')} className="text-indigo-600 font-bold hover:underline">
-                      Routine →
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Student Profile & Current Information Grid */}
-              <div className="grid lg:grid-cols-12 gap-3.5">
-                {/* Left Column: Detailed Student Profile Card */}
-                <div className="lg:col-span-7 bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
-                  <div className="p-3.5 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-slate-950 font-extrabold text-lg flex items-center justify-center shadow-md border-2 border-white/20 shrink-0">
-                        {activeStudentName
-                          ? activeStudentName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-                          : '—'}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <h3
-                            data-testid="profile-card-student-name"
-                            className={`text-sm font-extrabold ${activeStudentName ? 'text-white' : 'text-slate-400 italic font-mono'}`}
-                          >
-                            {activeStudentName ?? 'null'}
-                          </h3>
-                          {profileForm.fullNameBn && (
-                            <span className="text-[11px] text-amber-300 font-medium">({profileForm.fullNameBn})</span>
-                          )}
-                        </div>
-                        <p className="text-[11px] font-mono text-slate-300 mt-0.5">
-                          Birth Reg ID: <strong className="text-white">{savedStudentId || 'Not Logged In'}</strong>
-                        </p>
-                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                          <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[9px] font-bold uppercase">
-                            Roll: {profile?.enrolledStudentNo || 'Pending'}
-                          </span>
-                          <span className="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[9px] font-bold uppercase">
-                            {profile?.assignedSection || 'Section Pending'} • {confirmedHold?.className || focusedHold?.className || 'Not Enrolled'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => setActiveNav('dossier')}
-                      className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-bold border border-white/15 flex items-center gap-1 self-start sm:self-center"
-                    >
-                      <Edit3 className="w-3.5 h-3.5 text-amber-400" />
-                      Update Profile
-                    </button>
-                  </div>
-
-                  {/* Student Information Grid */}
-                  <div className="p-3 sm:p-3.5 space-y-3">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-                      <div className="p-2 rounded-lg bg-slate-50 border border-slate-200/70">
-                        <span className="text-slate-400 block font-semibold text-[10px]">Date of Birth</span>
-                        <span className={`font-bold mt-0.5 block ${profileForm.dob || profile?.dob ? 'text-slate-900' : 'text-rose-600'}`}>
-                          {profileForm.dob || profile?.dob || 'Not Provided *'}
+                  {/* 4 Key Status KPI Cards (Compact) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Enrollment</span>
+                        <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-emerald-100 text-emerald-800">
+                          {confirmedHold ? 'CONFIRMED' : (focusedHold?.status === 'HELD' ? 'HOLD ACTIVE' : 'UNENROLLED')}
                         </span>
                       </div>
-                      <div className="p-2 rounded-lg bg-slate-50 border border-slate-200/70">
-                        <span className="text-slate-400 block font-semibold text-[10px]">Gender</span>
-                        <span className={`font-bold mt-0.5 block ${profileForm.gender || profile?.gender ? 'text-slate-900' : 'text-rose-600'}`}>
-                          {profileForm.gender || profile?.gender || 'Not Provided *'}
-                        </span>
+                      <div className="text-sm font-extrabold text-slate-900 truncate">
+                        {confirmedHold?.className || focusedHold?.className || (confirmedHold ? 'Class Confirmed' : 'None Selected')}
                       </div>
-                      <div className="p-2 rounded-lg bg-slate-50 border border-slate-200/70">
-                        <span className="text-slate-400 block font-semibold text-[10px]">Blood Group</span>
-                        <span className="font-bold text-slate-900 mt-0.5 block">{profileForm.bloodGroup || 'B+'}</span>
-                      </div>
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
-                        <span className="text-slate-400 block font-semibold">Nationality</span>
-                        <span className="font-bold text-slate-900 mt-0.5 block">{profileForm.nationality || 'Bangladeshi'}</span>
-                      </div>
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
-                        <span className="text-slate-400 block font-semibold">Guardian Name</span>
-                        <span className={`font-bold mt-0.5 block ${profileForm.guardianName || profileForm.fatherName || profileForm.motherName || profile?.fatherName || profile?.guardianName ? 'text-slate-900' : 'text-rose-600'}`}>
-                          {profileForm.guardianName || profileForm.fatherName || profileForm.motherName || profile?.guardianName || profile?.fatherName || 'Missing Guardian *'}
-                        </span>
-                      </div>
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
-                        <span className="text-slate-400 block font-semibold">Guardian Mobile</span>
-                        <span className={`font-bold mt-0.5 block ${profileForm.guardianPhone || profileForm.fatherPhone || profileForm.motherPhone || profile?.fatherPhone || profile?.guardianPhone ? 'text-slate-900' : 'text-rose-600'}`}>
-                          {profileForm.guardianPhone || profileForm.fatherPhone || profileForm.motherPhone || profile?.guardianPhone || profile?.fatherPhone || 'Missing Mobile *'}
+                      <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                        <span>Sec: <strong className="text-slate-800">{profile?.assignedSection || 'Pending'}</strong></span>
+                        <span className="font-mono font-bold text-emerald-700">
+                          {profile?.enrolledStudentNo || 'Pending'}
                         </span>
                       </div>
                     </div>
 
-                    <div className="grid sm:grid-cols-2 gap-4 text-xs pt-2 border-t border-slate-100">
-                      <div>
-                        <span className="text-slate-400 font-semibold block">Present Residential Address</span>
-                        <span className="text-slate-800 font-medium mt-0.5 block">
-                          {profileForm.presentAddress || profile?.presentAddress || 'House 42, Road 7, Dhanmondi, Dhaka-1209'}
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Admission Fee</span>
+                        <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-emerald-100 text-emerald-800">
+                          {confirmedHold ? 'PAID' : (focusedHold ? 'DUE' : 'READY')}
                         </span>
                       </div>
-                      <div>
-                        <span className="text-slate-400 font-semibold block">Previous School & Last Result</span>
-                        <span className="text-slate-800 font-medium mt-0.5 block">
-                          {profileForm.previousSchool || 'Onnorokom Junior Prep School'} •{' '}
-                          <strong className="text-emerald-700">{profileForm.lastResult || 'GPA 5.00'}</strong>
+                      <div className="text-sm font-extrabold text-slate-900">৳{netPayable.toLocaleString()} BDT</div>
+                      <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                        <span>Ref: <strong className="font-mono text-slate-800">{focusedHold?.holdId || confirmedHold?.holdId || '—'}</strong></span>
+                        <span className="font-mono text-[10px] text-slate-600">
+                          {payments[0]?.receiptNo || (confirmedHold ? 'Receipt Verified' : '—')}
                         </span>
                       </div>
                     </div>
 
-                    {/* Missing Mandatory Information Banner */}
-                    {!isMandatoryComplete && (
-                      <div className="p-4 rounded-xl bg-amber-50 border border-amber-300/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="space-y-1">
-                          <div className="text-xs font-extrabold text-amber-950 flex items-center gap-1.5">
-                            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                            Mandatory Profile Details Missing ({missingFields.length})
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Child Dossier</span>
+                        <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-amber-100 text-amber-800">{completeness}% Done</span>
+                      </div>
+                      <div className="text-sm font-extrabold text-slate-900 truncate">
+                        {isMandatoryComplete ? 'Ready for Verification' : `${missingFields.length} Pending`}
+                      </div>
+                      <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                        <span>Eligibility: <strong className="text-emerald-700">Unlocked</strong></span>
+                        <button onClick={() => setActiveNav('dossier')} className="text-indigo-600 font-bold hover:underline">
+                          Edit →
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">School Hours</span>
+                        <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-indigo-100 text-indigo-800">SUN–THU</span>
+                      </div>
+                      <div className="text-sm font-extrabold text-slate-900">12:30 – 17:00</div>
+                      <div className="text-[11px] text-slate-500 flex items-center justify-between pt-1 border-t border-slate-100">
+                        <span>Room: <strong className="text-slate-800">Room 102</strong></span>
+                        <button onClick={() => setActiveNav('routines')} className="text-indigo-600 font-bold hover:underline">
+                          Routine →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Student Profile & Current Information Grid */}
+                  <div className="grid lg:grid-cols-12 gap-3.5">
+                    {/* Left Column: Detailed Student Profile Card */}
+                    <div className="lg:col-span-7 bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+                      <div className="p-3.5 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-slate-950 font-extrabold text-lg flex items-center justify-center shadow-md border-2 border-white/20 shrink-0">
+                            {activeStudentName
+                              ? activeStudentName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+                              : '—'}
                           </div>
-                          <p className="text-[11px] text-amber-800">
-                            Missing: {missingFields.join(' • ')}
-                          </p>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <h3
+                                data-testid="profile-card-student-name"
+                                className={`text-sm font-extrabold ${activeStudentName ? 'text-white' : 'text-slate-400 italic font-mono'}`}
+                              >
+                                {activeStudentName ?? 'null'}
+                              </h3>
+                              {profileForm.fullNameBn && (
+                                <span className="text-[11px] text-amber-300 font-medium">({profileForm.fullNameBn})</span>
+                              )}
+                            </div>
+                            <p className="text-[11px] font-mono text-slate-300 mt-0.5">
+                              Birth Reg ID: <strong className="text-white">{savedStudentId || 'Not Logged In'}</strong>
+                            </p>
+                            <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                              <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[9px] font-bold uppercase">
+                                Roll: {profile?.enrolledStudentNo || 'Pending'}
+                              </span>
+                              <span className="px-2 py-0.5 rounded-md bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[9px] font-bold uppercase">
+                                {profile?.assignedSection || 'Section Pending'} • {confirmedHold?.className || focusedHold?.className || 'Not Enrolled'}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => setActiveNav('dossier')}
+                          className="px-2.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-bold border border-white/15 flex items-center gap-1 self-start sm:self-center"
+                        >
+                          <Edit3 className="w-3.5 h-3.5 text-amber-400" />
+                          Update Profile
+                        </button>
+                      </div>
+
+                      {/* Student Information Grid */}
+                      <div className="p-3 sm:p-3.5 space-y-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                          <div className="p-2 rounded-lg bg-slate-50 border border-slate-200/70">
+                            <span className="text-slate-400 block font-semibold text-[10px]">Date of Birth</span>
+                            <span className={`font-bold mt-0.5 block ${profileForm.dob || profile?.dob ? 'text-slate-900' : 'text-rose-600'}`}>
+                              {profileForm.dob || profile?.dob || 'Not Provided *'}
+                            </span>
+                          </div>
+                          <div className="p-2 rounded-lg bg-slate-50 border border-slate-200/70">
+                            <span className="text-slate-400 block font-semibold text-[10px]">Gender</span>
+                            <span className={`font-bold mt-0.5 block ${profileForm.gender || profile?.gender ? 'text-slate-900' : 'text-rose-600'}`}>
+                              {profileForm.gender || profile?.gender || 'Not Provided *'}
+                            </span>
+                          </div>
+                          <div className="p-2 rounded-lg bg-slate-50 border border-slate-200/70">
+                            <span className="text-slate-400 block font-semibold text-[10px]">Blood Group</span>
+                            <span className="font-bold text-slate-900 mt-0.5 block">{profileForm.bloodGroup || 'B+'}</span>
+                          </div>
+                          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
+                            <span className="text-slate-400 block font-semibold">Nationality</span>
+                            <span className="font-bold text-slate-900 mt-0.5 block">{profileForm.nationality || 'Bangladeshi'}</span>
+                          </div>
+                          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
+                            <span className="text-slate-400 block font-semibold">Guardian Name</span>
+                            <span className={`font-bold mt-0.5 block ${profileForm.guardianName || profileForm.fatherName || profileForm.motherName || profile?.fatherName || profile?.guardianName ? 'text-slate-900' : 'text-rose-600'}`}>
+                              {profileForm.guardianName || profileForm.fatherName || profileForm.motherName || profile?.guardianName || profile?.fatherName || 'Missing Guardian *'}
+                            </span>
+                          </div>
+                          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
+                            <span className="text-slate-400 block font-semibold">Guardian Mobile</span>
+                            <span className={`font-bold mt-0.5 block ${profileForm.guardianPhone || profileForm.fatherPhone || profileForm.motherPhone || profile?.fatherPhone || profile?.guardianPhone ? 'text-slate-900' : 'text-rose-600'}`}>
+                              {profileForm.guardianPhone || profileForm.fatherPhone || profileForm.motherPhone || profile?.guardianPhone || profile?.fatherPhone || 'Missing Mobile *'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="grid sm:grid-cols-2 gap-4 text-xs pt-2 border-t border-slate-100">
+                          <div>
+                            <span className="text-slate-400 font-semibold block">Present Residential Address</span>
+                            <span className="text-slate-800 font-medium mt-0.5 block">
+                              {profileForm.presentAddress || profile?.presentAddress || 'House 42, Road 7, Dhanmondi, Dhaka-1209'}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 font-semibold block">Previous School & Last Result</span>
+                            <span className="text-slate-800 font-medium mt-0.5 block">
+                              {profileForm.previousSchool || 'Onnorokom Junior Prep School'} •{' '}
+                              <strong className="text-emerald-700">{profileForm.lastResult || 'GPA 5.00'}</strong>
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Missing Mandatory Information Banner */}
+                        {!isMandatoryComplete && (
+                          <div className="p-4 rounded-xl bg-amber-50 border border-amber-300/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="space-y-1">
+                              <div className="text-xs font-extrabold text-amber-950 flex items-center gap-1.5">
+                                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                                Mandatory Profile Details Missing ({missingFields.length})
+                              </div>
+                              <p className="text-[11px] text-amber-800">
+                                Missing: {missingFields.join(' • ')}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <button
+                                onClick={handleQuickFillMandatory}
+                                className="px-3 py-1.5 rounded-lg bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition"
+                              >
+                                Auto-Fill Now
+                              </button>
+                              <button
+                                onClick={() => setActiveNav('dossier')}
+                                className="px-3 py-1.5 rounded-lg bg-white border border-amber-300 text-amber-900 text-xs font-bold hover:bg-amber-100 transition"
+                              >
+                                Complete Child Dossier →
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Right Column: Current Seat Reservation Card & Policy Info */}
+                    <div className="lg:col-span-5 space-y-4">
+                      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-4">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                          <div>
+                            <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-700">
+                              Current Seat Reservation
+                            </span>
+                            <h3 className="text-base font-extrabold text-slate-900">
+                              Application Ref: <span className="font-mono">{focusedHold?.holdId || confirmedHold?.holdId || 'None'}</span>
+                            </h3>
+                          </div>
+                          <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800 flex items-center gap-1">
+                            <BadgeCheck className="w-3.5 h-3.5" /> {confirmedHold ? 'CONFIRMED' : (focusedHold?.status === 'HELD' ? 'HOLD ACTIVE' : 'RESERVED')}
+                          </span>
+                        </div>
+
+                        <div className="space-y-2.5 text-xs">
+                          <div className="flex justify-between py-1 border-b border-slate-100">
+                            <span className="text-slate-500">Assigned Class / Shift:</span>
+                            <span className="font-bold text-slate-900">{confirmedHold?.className || focusedHold?.className || 'Class Selection Pending'}</span>
+                          </div>
+                          <div className="flex justify-between py-1 border-b border-slate-100">
+                            <span className="text-slate-500">Seat Hold Timer:</span>
+                            <span className="font-mono font-bold text-slate-700">
+                              {confirmedHold ? '00:00 (Fee Paid)' : (focusedHold?.status === 'HELD' ? formatRemainingSeconds(focusedRemainingSeconds) : '00:00')}
+                            </span>
+                          </div>
+                          <div className="flex justify-between py-1 border-b border-slate-100">
+                            <span className="text-slate-500">Total Net Fee Paid:</span>
+                            <span className="font-extrabold text-emerald-700">৳{netPayable.toLocaleString()} BDT</span>
+                          </div>
+                          <div className="flex justify-between py-1">
+                            <span className="text-slate-500">Official Receipt Voucher:</span>
+                            <span className="font-mono font-bold text-slate-800">
+                              {payments[0]?.receiptNo || (confirmedHold ? 'Receipt Generated' : '—')}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="pt-2 flex flex-wrap gap-2">
                           <button
-                            onClick={handleQuickFillMandatory}
-                            className="px-3 py-1.5 rounded-lg bg-amber-600 text-white text-xs font-bold hover:bg-amber-700 transition"
+                            onClick={() => {
+                              generateAndDownloadPdfReceipt(
+                                {
+                                  receiptNo: payments[0]?.receiptNo || (confirmedHold ? `REC-${confirmedHold.holdId}` : 'REC-PENDING'),
+                                  studentId: savedStudentId || 'STUDENT',
+                                  className: confirmedHold?.className || focusedHold?.className || 'Class',
+                                  grossAmount: grossTotal,
+                                  discountAmount: siblingDiscount,
+                                  netAmount: netPayable,
+                                  paidAt: new Date().toISOString(),
+                                  status: 'SUCCESS',
+                                },
+                                profile,
+                              );
+                            }}
+                            className="flex-1 py-2.5 px-3 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition flex items-center justify-center gap-1.5"
                           >
-                            Auto-Fill Now
+                            <Download className="w-3.5 h-3.5 text-amber-400" />
+                            Download Receipt
                           </button>
                           <button
-                            onClick={() => setActiveNav('dossier')}
-                            className="px-3 py-1.5 rounded-lg bg-white border border-amber-300 text-amber-900 text-xs font-bold hover:bg-amber-100 transition"
+                            onClick={() => setActiveNav('payment')}
+                            className="py-2.5 px-3 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition"
                           >
-                            Complete Child Dossier →
+                            Fee Breakdown
                           </button>
                         </div>
                       </div>
-                    )}
-                  </div>
-                </div>
 
-                {/* Right Column: Current Seat Reservation Card & Policy Info */}
-                <div className="lg:col-span-5 space-y-4">
-                  <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-4">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                      <div>
-                        <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-700">
-                          Current Seat Reservation
-                        </span>
-                        <h3 className="text-base font-extrabold text-slate-900">
-                          Application Ref: <span className="font-mono">{focusedHold?.holdId || confirmedHold?.holdId || 'None'}</span>
-                        </h3>
+                      {/* Single Shift Policy & Eligibility Card */}
+                      <div className="bg-indigo-950 text-white rounded-2xl p-5 border border-indigo-800 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-400 text-slate-950">
+                            ENROLLMENT UNLOCKED
+                          </span>
+                          <span className="text-[11px] font-mono text-indigo-300">Zero-Lottery Policy</span>
+                        </div>
+                        <h4 className="text-sm font-bold">
+                          Single Shift/Class Enrollment Active (Confirmed Seat)
+                        </h4>
+                        <p className="text-xs text-indigo-200 leading-relaxed">
+                          This student has an active reservation in <strong className="text-white">{confirmedHold?.className || focusedHold?.className || 'Test 3'}</strong>. Under school rules, students cannot attend Morning and Day shifts simultaneously or attend two classes at once.
+                        </p>
+                        <div className="pt-1 flex items-center justify-between text-xs border-t border-indigo-800/80">
+                          <span className="text-indigo-300">{classes.length || 29} Total Classes Available</span>
+                          <button
+                            onClick={() => setActiveNav('classes')}
+                            className="text-amber-300 font-bold hover:underline flex items-center gap-1"
+                          >
+                            Browse Classes <ArrowRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                      <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800 flex items-center gap-1">
-                        <BadgeCheck className="w-3.5 h-3.5" /> {confirmedHold ? 'CONFIRMED' : (focusedHold?.status === 'HELD' ? 'HOLD ACTIVE' : 'RESERVED')}
-                      </span>
-                    </div>
-
-                    <div className="space-y-2.5 text-xs">
-                      <div className="flex justify-between py-1 border-b border-slate-100">
-                        <span className="text-slate-500">Assigned Class / Shift:</span>
-                        <span className="font-bold text-slate-900">{confirmedHold?.className || focusedHold?.className || 'Class Selection Pending'}</span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b border-slate-100">
-                        <span className="text-slate-500">Seat Hold Timer:</span>
-                        <span className="font-mono font-bold text-slate-700">
-                          {confirmedHold ? '00:00 (Fee Paid)' : (focusedHold?.status === 'HELD' ? formatRemainingSeconds(focusedRemainingSeconds) : '00:00')}
-                        </span>
-                      </div>
-                      <div className="flex justify-between py-1 border-b border-slate-100">
-                        <span className="text-slate-500">Total Net Fee Paid:</span>
-                        <span className="font-extrabold text-emerald-700">৳{netPayable.toLocaleString()} BDT</span>
-                      </div>
-                      <div className="flex justify-between py-1">
-                        <span className="text-slate-500">Official Receipt Voucher:</span>
-                        <span className="font-mono font-bold text-slate-800">
-                          {payments[0]?.receiptNo || (confirmedHold ? 'Receipt Generated' : '—')}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="pt-2 flex flex-wrap gap-2">
-                      <button
-                        onClick={() => {
-                          generateAndDownloadPdfReceipt(
-                            {
-                              receiptNo: payments[0]?.receiptNo || (confirmedHold ? `REC-${confirmedHold.holdId}` : 'REC-PENDING'),
-                              studentId: savedStudentId || 'STUDENT',
-                              className: confirmedHold?.className || focusedHold?.className || 'Class',
-                              grossAmount: grossTotal,
-                              discountAmount: siblingDiscount,
-                              netAmount: netPayable,
-                              paidAt: new Date().toISOString(),
-                              status: 'SUCCESS',
-                            },
-                            profile,
-                          );
-                        }}
-                        className="flex-1 py-2.5 px-3 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800 transition flex items-center justify-center gap-1.5"
-                      >
-                        <Download className="w-3.5 h-3.5 text-amber-400" />
-                        Download Receipt
-                      </button>
-                      <button
-                        onClick={() => setActiveNav('payment')}
-                        className="py-2.5 px-3 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition"
-                      >
-                        Fee Breakdown
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Single Shift Policy & Eligibility Card */}
-                  <div className="bg-indigo-950 text-white rounded-2xl p-5 border border-indigo-800 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-emerald-400 text-slate-950">
-                        ENROLLMENT UNLOCKED
-                      </span>
-                      <span className="text-[11px] font-mono text-indigo-300">Zero-Lottery Policy</span>
-                    </div>
-                    <h4 className="text-sm font-bold">
-                      Single Shift/Class Enrollment Active (Confirmed Seat)
-                    </h4>
-                    <p className="text-xs text-indigo-200 leading-relaxed">
-                      This student has an active reservation in <strong className="text-white">{confirmedHold?.className || focusedHold?.className || 'Test 3'}</strong>. Under school rules, students cannot attend Morning and Day shifts simultaneously or attend two classes at once.
-                    </p>
-                    <div className="pt-1 flex items-center justify-between text-xs border-t border-indigo-800/80">
-                      <span className="text-indigo-300">{classes.length || 29} Total Classes Available</span>
-                      <button
-                        onClick={() => setActiveNav('classes')}
-                        className="text-amber-300 font-bold hover:underline flex items-center gap-1"
-                      >
-                        Browse Classes <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              )}
+            </section>
           )}
-        </section>
-      )}
 
           {/* =========================================================
               2. AVAILABLE CLASSES & SHIFTS (FAST-LANE SEAT BOOKING)
@@ -2609,11 +2665,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                           <td className="py-2 px-2.5 text-center">
                             <span
                               data-testid={`class-available-${cls.id}`}
-                              className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-extrabold ${
-                                cls.availableSeats > 0
+                              className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-extrabold ${cls.availableSeats > 0
                                   ? 'bg-emerald-100 text-emerald-800'
                                   : 'bg-rose-100 text-rose-800'
-                              }`}
+                                }`}
                             >
                               {cls.availableSeats} Available
                             </span>
@@ -2626,11 +2681,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                                   data-testid={`apply-btn-${cls.id}`}
                                   disabled={!canApply || applyingClassId === cls.id}
                                   onClick={() => handleApply(cls)}
-                                  className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition ${
-                                    canApply
+                                  className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition ${canApply
                                       ? 'bg-slate-900 text-white hover:bg-slate-800'
                                       : 'bg-slate-200 text-slate-500 cursor-not-allowed'
-                                  }`}
+                                    }`}
                                 >
                                   {applyingClassId === cls.id ? 'Holding...' : isCurrentHold ? 'Held' : 'Apply'}
                                 </button>
@@ -2681,11 +2735,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     <button
                       key={page}
                       onClick={() => setClassPage(page)}
-                      className={`w-8 h-8 rounded-lg font-bold transition ${
-                        classPage === page
+                      className={`w-8 h-8 rounded-lg font-bold transition ${classPage === page
                           ? 'bg-slate-900 text-white'
                           : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-100'
-                      }`}
+                        }`}
                     >
                       {page}
                     </button>
@@ -2750,8 +2803,8 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                           {focusedHold?.status === 'CONFIRMED'
                             ? 'CONFIRMED (Admission Fee Paid)'
                             : focusedHold?.status === 'HELD'
-                            ? 'HELD (Countdown Active)'
-                            : 'CONFIRMED'}
+                              ? 'HELD (Countdown Active)'
+                              : 'CONFIRMED'}
                         </span>
                       </div>
                     </div>
@@ -2822,11 +2875,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                           confirmingHoldId === focusedHold.holdId
                         }
                         onClick={() => focusedHold && handleConfirm(focusedHold)}
-                        className={`px-3.5 py-2 rounded-lg font-bold text-xs transition ${
-                          focusedHold && getEffectiveHoldStatus(focusedHold, nowMs) === 'HELD'
+                        className={`px-3.5 py-2 rounded-lg font-bold text-xs transition ${focusedHold && getEffectiveHoldStatus(focusedHold, nowMs) === 'HELD'
                             ? 'bg-slate-900 text-white hover:bg-slate-800'
                             : 'bg-slate-200 text-slate-500 cursor-not-allowed'
-                        }`}
+                          }`}
                       >
                         {confirmingHoldId ? 'Processing...' : 'Pay admission fee'}
                       </button>
@@ -2924,15 +2976,14 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                     </h2>
                     <span
                       data-testid="dossier-status-badge"
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
-                        profile?.applicationStatus === 'APPROVED' || profile?.applicationStatus === 'ENROLLED'
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${profile?.applicationStatus === 'APPROVED' || profile?.applicationStatus === 'ENROLLED'
                           ? 'bg-emerald-400 text-slate-950'
                           : profile?.applicationStatus === 'SUBMITTED' || profile?.applicationStatus === 'UNDER_REVIEW'
-                          ? 'bg-amber-300 text-slate-950'
-                          : profile?.applicationStatus === 'NEEDS_CORRECTION'
-                          ? 'bg-rose-400 text-slate-950'
-                          : 'bg-white/15 text-emerald-100 border border-white/20'
-                      }`}
+                            ? 'bg-amber-300 text-slate-950'
+                            : profile?.applicationStatus === 'NEEDS_CORRECTION'
+                              ? 'bg-rose-400 text-slate-950'
+                              : 'bg-white/15 text-emerald-100 border border-white/20'
+                        }`}
                     >
                       Status: {profile?.applicationStatus || 'DRAFT'}
                     </span>
@@ -2998,11 +3049,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                       type="button"
                       data-testid="dossier-tab-0"
                       onClick={() => setDossierSection(0)}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${
-                        dossierSection === 0
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition border ${dossierSection === 0
                           ? 'bg-[#014d33] text-white border-transparent shadow-xs'
                           : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-100'
-                      }`}
+                        }`}
                     >
                       All Sections (Full View)
                     </button>
@@ -3025,22 +3075,20 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                         type="button"
                         data-testid={`dossier-tab-${s.id}`}
                         onClick={() => setDossierSection(s.id)}
-                        className={`text-left p-2.5 rounded-xl border transition relative flex items-start gap-2 ${
-                          isCurrent
+                        className={`text-left p-2.5 rounded-xl border transition relative flex items-start gap-2 ${isCurrent
                             ? 'bg-white border-[#014d33] ring-2 ring-emerald-700/20 shadow-xs'
                             : s.done
-                            ? 'bg-emerald-50/70 border-emerald-200 hover:bg-emerald-50'
-                            : 'bg-white/80 border-slate-200 hover:bg-white'
-                        }`}
+                              ? 'bg-emerald-50/70 border-emerald-200 hover:bg-emerald-50'
+                              : 'bg-white/80 border-slate-200 hover:bg-white'
+                          }`}
                       >
                         <div
-                          className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black shrink-0 ${
-                            isCurrent
+                          className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black shrink-0 ${isCurrent
                               ? 'bg-[#014d33] text-white'
                               : s.done
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-slate-100 text-slate-500'
-                          }`}
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-slate-100 text-slate-500'
+                            }`}
                         >
                           {s.done ? <Check size={13} strokeWidth={3} /> : s.id}
                         </div>
@@ -3573,14 +3621,14 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                                   rel === 'Father'
                                     ? prev.fatherName || prev.guardianName
                                     : rel === 'Mother'
-                                    ? prev.motherName || prev.guardianName
-                                    : prev.guardianName,
+                                      ? prev.motherName || prev.guardianName
+                                      : prev.guardianName,
                                 guardianPhone:
                                   rel === 'Father'
                                     ? prev.fatherPhone || prev.guardianPhone
                                     : rel === 'Mother'
-                                    ? prev.motherPhone || prev.guardianPhone
-                                    : prev.guardianPhone,
+                                      ? prev.motherPhone || prev.guardianPhone
+                                      : prev.guardianPhone,
                               }));
                             }}
                             className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white focus:outline-none focus:border-[#014d33]"
@@ -3812,21 +3860,20 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                       <div className="flex items-center gap-2 shrink-0">
                         <span className="text-[11px] text-slate-500 font-semibold">Concession Status:</span>
                         <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${
-                            profile?.concessionStatus === 'APPROVED'
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${profile?.concessionStatus === 'APPROVED'
                               ? 'bg-emerald-100 text-emerald-800'
                               : profile?.concessionStatus === 'PENDING' || profileForm.concessionRequested
-                              ? 'bg-amber-100 text-amber-800'
-                              : profile?.concessionStatus === 'DECLINED'
-                              ? 'bg-rose-100 text-rose-800'
-                              : 'bg-slate-100 text-slate-600'
-                          }`}
+                                ? 'bg-amber-100 text-amber-800'
+                                : profile?.concessionStatus === 'DECLINED'
+                                  ? 'bg-rose-100 text-rose-800'
+                                  : 'bg-slate-100 text-slate-600'
+                            }`}
                         >
                           {profile?.concessionStatus && profile.concessionStatus !== 'NONE'
                             ? `${profile.concessionStatus}${profile.concessionPercent ? ` (${profile.concessionPercent}%)` : ''}`
                             : profileForm.concessionRequested
-                            ? 'PENDING REVIEW'
-                            : 'NOT REQUESTED'}
+                              ? 'PENDING REVIEW'
+                              : 'NOT REQUESTED'}
                         </span>
                       </div>
                     </div>
@@ -3891,24 +3938,22 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                           <div
                             key={slot.type}
                             data-testid={`doc-slot-${slot.type}`}
-                            className={`p-3 rounded-xl border flex flex-col justify-between gap-2.5 ${
-                              status === 'APPROVED'
+                            className={`p-3 rounded-xl border flex flex-col justify-between gap-2.5 ${status === 'APPROVED'
                                 ? 'bg-emerald-50/70 border-emerald-200'
                                 : status === 'PENDING'
-                                ? 'bg-white border-emerald-300'
-                                : status === 'CORRECTION_NEEDED'
-                                ? 'bg-rose-50/60 border-rose-200'
-                                : 'bg-white border-slate-200'
-                            }`}
+                                  ? 'bg-white border-emerald-300'
+                                  : status === 'CORRECTION_NEEDED'
+                                    ? 'bg-rose-50/60 border-rose-200'
+                                    : 'bg-white border-slate-200'
+                              }`}
                           >
                             <div className="flex items-start justify-between gap-2">
                               <div>
                                 <div className="flex items-center gap-1.5">
                                   <span className="font-extrabold text-slate-900">{slot.label}</span>
                                   <span
-                                    className={`px-1.5 py-0.2 rounded text-[9px] font-bold uppercase ${
-                                      slot.mandatory ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-600'
-                                    }`}
+                                    className={`px-1.5 py-0.2 rounded text-[9px] font-bold uppercase ${slot.mandatory ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-600'
+                                      }`}
                                   >
                                     {slot.mandatory ? 'Mandatory' : 'Optional'}
                                   </span>
@@ -3935,15 +3980,14 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
 
                               <span
                                 data-testid={`doc-status-${slot.type}`}
-                                className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase shrink-0 ${
-                                  status === 'APPROVED'
+                                className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase shrink-0 ${status === 'APPROVED'
                                     ? 'bg-emerald-600 text-white'
                                     : status === 'PENDING'
-                                    ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                                    : status === 'CORRECTION_NEEDED'
-                                    ? 'bg-rose-600 text-white'
-                                    : 'bg-slate-100 text-slate-600'
-                                }`}
+                                      ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                      : status === 'CORRECTION_NEEDED'
+                                        ? 'bg-rose-600 text-white'
+                                        : 'bg-slate-100 text-slate-600'
+                                  }`}
                               >
                                 {status}
                               </span>
@@ -3974,8 +4018,8 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                                 {uploadingDocType === slot.type
                                   ? 'Uploading...'
                                   : isUploaded
-                                  ? 'Replace File'
-                                  : 'Upload Document'}
+                                    ? 'Replace File'
+                                    : 'Upload Document'}
                               </button>
                             </div>
                           </div>
@@ -4136,8 +4180,8 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                           const remaining =
                             status === 'HELD'
                               ? formatRemainingSeconds(
-                                  Math.max(0, (Date.parse(app.expiresAt) - nowMs) / 1000),
-                                )
+                                Math.max(0, (Date.parse(app.expiresAt) - nowMs) / 1000),
+                              )
                               : '00:00';
 
                           return (
@@ -4146,13 +4190,12 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                               <td className="py-1.5 px-3 font-bold text-slate-800">{app.className || app.classId}</td>
                               <td className="py-1.5 px-3">
                                 <span
-                                  className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
-                                    status === 'CONFIRMED'
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${status === 'CONFIRMED'
                                       ? 'bg-emerald-100 text-emerald-800'
                                       : status === 'HELD'
-                                      ? 'bg-amber-100 text-amber-800'
-                                      : 'bg-rose-100 text-rose-800'
-                                  }`}
+                                        ? 'bg-amber-100 text-amber-800'
+                                        : 'bg-rose-100 text-rose-800'
+                                    }`}
                                 >
                                   {status}
                                 </span>
@@ -4164,11 +4207,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                                   data-testid={`pay-btn-${app.holdId}`}
                                   disabled={status !== 'HELD' || confirmingHoldId === app.holdId}
                                   onClick={() => handleConfirm(app)}
-                                  className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
-                                    status === 'HELD'
+                                  className={`px-3 py-1 rounded-lg text-xs font-bold transition ${status === 'HELD'
                                       ? 'bg-slate-900 text-white hover:bg-slate-800'
                                       : 'bg-slate-200 text-slate-500 cursor-not-allowed'
-                                  }`}
+                                    }`}
                                 >
                                   {confirmingHoldId === app.holdId ? 'Paying...' : 'Pay admission fee'}
                                 </button>
@@ -4233,11 +4275,10 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                             <td className="py-4 px-4 font-mono font-extrabold text-slate-900">৳{rcp.netAmount.toLocaleString()}</td>
                             <td className="py-4 px-4">
                               <span
-                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                                  rcp.status === 'SUCCESS' || rcp.status === 'CONFIRMED'
+                                className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${rcp.status === 'SUCCESS' || rcp.status === 'CONFIRMED'
                                     ? 'bg-emerald-100 text-emerald-800'
                                     : 'bg-amber-100 text-amber-800'
-                                }`}
+                                  }`}
                               >
                                 {rcp.status}
                               </span>
@@ -4313,17 +4354,15 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                 <div className="inline-flex p-0.5 rounded-lg bg-slate-200/80 border border-slate-300 self-start">
                   <button
                     onClick={() => setSelectedShiftTab('Morning')}
-                    className={`px-2.5 py-1 rounded-md text-xs font-bold transition ${
-                      selectedShiftTab === 'Morning' ? 'bg-slate-900 text-white' : 'text-slate-700'
-                    }`}
+                    className={`px-2.5 py-1 rounded-md text-xs font-bold transition ${selectedShiftTab === 'Morning' ? 'bg-slate-900 text-white' : 'text-slate-700'
+                      }`}
                   >
                     Morning Shift
                   </button>
                   <button
                     onClick={() => setSelectedShiftTab('Standard')}
-                    className={`px-2.5 py-1 rounded-md text-xs font-bold transition ${
-                      selectedShiftTab === 'Standard' ? 'bg-slate-900 text-white' : 'text-slate-700'
-                    }`}
+                    className={`px-2.5 py-1 rounded-md text-xs font-bold transition ${selectedShiftTab === 'Standard' ? 'bg-slate-900 text-white' : 'text-slate-700'
+                      }`}
                   >
                     Standard Shift Schedule
                   </button>
@@ -4351,28 +4390,28 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   const operatingHours = activeRoutine
                     ? `${activeRoutine.startTime} — ${activeRoutine.endTime}`
                     : isMorningShift
-                    ? '07:30 — 12:00'
-                    : '12:30 — 17:00';
+                      ? '07:30 — 12:00'
+                      : '12:30 — 17:00';
 
                   const timeSlots = isMorningShift
                     ? [
-                        { period: 1, label: 'Period 1', startTime: '07:30', endTime: '08:15' },
-                        { period: 2, label: 'Period 2', startTime: '08:15', endTime: '09:00' },
-                        { period: 3, label: 'Period 3', startTime: '09:00', endTime: '09:45' },
-                        { period: 0, label: 'Tiffin & Recess Break', startTime: '09:45', endTime: '10:15', isBreak: true },
-                        { period: 4, label: 'Period 4', startTime: '10:15', endTime: '11:00' },
-                        { period: 5, label: 'Period 5', startTime: '11:00', endTime: '11:30' },
-                        { period: 6, label: 'Period 6', startTime: '11:30', endTime: '12:00' },
-                      ]
+                      { period: 1, label: 'Period 1', startTime: '07:30', endTime: '08:15' },
+                      { period: 2, label: 'Period 2', startTime: '08:15', endTime: '09:00' },
+                      { period: 3, label: 'Period 3', startTime: '09:00', endTime: '09:45' },
+                      { period: 0, label: 'Tiffin & Recess Break', startTime: '09:45', endTime: '10:15', isBreak: true },
+                      { period: 4, label: 'Period 4', startTime: '10:15', endTime: '11:00' },
+                      { period: 5, label: 'Period 5', startTime: '11:00', endTime: '11:30' },
+                      { period: 6, label: 'Period 6', startTime: '11:30', endTime: '12:00' },
+                    ]
                     : [
-                        { period: 1, label: 'Period 1', startTime: '12:30', endTime: '13:15' },
-                        { period: 2, label: 'Period 2', startTime: '13:15', endTime: '14:00' },
-                        { period: 3, label: 'Period 3', startTime: '14:00', endTime: '14:45' },
-                        { period: 0, label: 'Tiffin & Prayer Break', startTime: '14:45', endTime: '15:15', isBreak: true },
-                        { period: 4, label: 'Period 4', startTime: '15:15', endTime: '16:00' },
-                        { period: 5, label: 'Period 5', startTime: '16:00', endTime: '16:30' },
-                        { period: 6, label: 'Period 6', startTime: '16:30', endTime: '17:00' },
-                      ];
+                      { period: 1, label: 'Period 1', startTime: '12:30', endTime: '13:15' },
+                      { period: 2, label: 'Period 2', startTime: '13:15', endTime: '14:00' },
+                      { period: 3, label: 'Period 3', startTime: '14:00', endTime: '14:45' },
+                      { period: 0, label: 'Tiffin & Prayer Break', startTime: '14:45', endTime: '15:15', isBreak: true },
+                      { period: 4, label: 'Period 4', startTime: '15:15', endTime: '16:00' },
+                      { period: 5, label: 'Period 5', startTime: '16:00', endTime: '16:30' },
+                      { period: 6, label: 'Period 6', startTime: '16:30', endTime: '17:00' },
+                    ];
 
                   return (
                     <>
@@ -4699,6 +4738,139 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
           setActiveNav('dashboard');
         }}
       />
+
+      {/* =========================================================================
+          FIREBASE MANDATORY POST-LOGIN LINKING MODAL
+          ========================================================================= */}
+      {showFirebaseModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
+            {/* Header */}
+            <div className="bg-[#03130e] text-white p-5 sm:p-6 border-b border-emerald-950">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold uppercase tracking-wider">
+                  <ShieldCheck size={12} className="text-emerald-400" />
+                  <span>Google Authentication Verified</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCancelFirebase}
+                  className="text-slate-400 hover:text-white transition p-1 rounded-md"
+                  title="Cancel & Log Out"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <h2 className="text-lg sm:text-xl font-serif font-black text-white mt-2.5">
+                Link Student Birth Registration & Family Account
+              </h2>
+              <p className="text-slate-300 text-xs mt-1.5 leading-relaxed">
+                Signed in as <strong className="text-white">{firebaseUser?.displayName || 'Google User'}</strong> ({firebaseUser?.email || ''}). 
+                Please enter your child's 17-digit Birth Registration Number and contact phone to proceed to the Parent Dashboard. Otherwise, you will be logged out.
+              </p>
+            </div>
+
+            {/* Body */}
+            <form onSubmit={handleConfirmFirebaseStudent} className="p-5 sm:p-6 space-y-4">
+              <div>
+                <label className="text-xs font-black text-slate-800 uppercase tracking-wider block mb-1">
+                  Student Birth Registration Number (17 Digits) <span className="text-rose-600">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    maxLength={17}
+                    placeholder="e.g. 20152691234567890"
+                    value={studentIdInput}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '').slice(0, 17);
+                      setStudentIdInput(val);
+                      if (studentIdError) setStudentIdError(null);
+                    }}
+                    className="w-full px-4 py-2.5 rounded-xl border border-slate-300 font-mono text-sm tracking-wider focus:outline-none focus:border-[#014d33] focus:ring-2 focus:ring-emerald-700/20 bg-slate-50/40 text-slate-900"
+                    autoFocus
+                  />
+                  {studentIdInput.length === 17 && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-600 flex items-center gap-1 text-[11px] font-bold bg-white px-2 py-0.5 rounded border border-emerald-200">
+                      <CheckCircle2 size={14} />
+                      <span>17 Digits</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center justify-between mt-1 text-[11px] text-slate-500">
+                  <span>Must be exactly 17 numeric digits from government birth certificate.</span>
+                  <span className="font-mono text-slate-400 font-bold">{studentIdInput.length}/17 digits</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-black text-slate-800 uppercase tracking-wider block mb-1">
+                  Parent / Guardian Mobile Phone <span className="text-rose-600">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="tel"
+                    placeholder="01749822422"
+                    value={parentPhoneInput}
+                    onChange={(e) => {
+                      setParentPhoneInput(e.target.value);
+                      if (studentIdError) setStudentIdError(null);
+                    }}
+                    className="w-full px-4 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#014d33] focus:ring-2 focus:ring-emerald-700/20 bg-slate-50/40 text-slate-900"
+                  />
+                  <Phone size={15} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Acts as your family account login.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-xs font-black text-slate-800 uppercase tracking-wider block mb-1">
+                  Parent / Guardian Full Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="GK"
+                  value={parentNameInput}
+                  onChange={(e) => setParentNameInput(e.target.value)}
+                  className="w-full px-4 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-[#014d33] focus:ring-2 focus:ring-emerald-700/20 bg-slate-50/40 text-slate-900"
+                />
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Primary contact for all children.
+                </p>
+              </div>
+
+              {studentIdError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-start gap-2">
+                  <AlertCircle size={15} className="text-rose-600 shrink-0 mt-0.5" />
+                  <span className="font-semibold">{studentIdError}</span>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="pt-2 flex items-center justify-between gap-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={handleCancelFirebase}
+                  className="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-bold transition flex items-center gap-1.5"
+                >
+                  <LogOut size={14} className="text-slate-500" />
+                  <span>Cancel & Log Out</span>
+                </button>
+
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-[#014d33] hover:bg-emerald-800 text-white font-extrabold text-xs transition shadow-md flex items-center gap-1.5"
+                >
+                  <span>Proceed to Dashboard</span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
