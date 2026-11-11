@@ -102,9 +102,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
-      {/* =========================================================================
-          TOP UTILITY BAR (Deep Green `#014d33`)
-          ========================================================================= */}
+      {/* TOP UTILITY BAR (Deep Green `#014d33`) */}
       <div className="isd-top-utility-bar">
         <div className="landing-container flex items-center justify-between text-xs py-1.5 text-emerald-100">
           <div className="flex items-center gap-3">
@@ -130,9 +128,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
         </div>
       </div>
 
-      {/* =========================================================================
-          MAIN INSTITUTIONAL HEADER (White & Emerald)
-          ========================================================================= */}
+      {/* MAIN INSTITUTIONAL HEADER (White & Emerald) */}
       <header className="isd-main-header">
         <div className="landing-container flex items-center justify-between h-20">
           <div
@@ -177,12 +173,10 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
         </div>
       </header>
 
-      {/* =========================================================================
-          LOGIN BODY (Exact Match to Image 2: Centered Wide Card + 3-Column Info Cards)
-          ========================================================================= */}
+      {/* LOGIN BODY */}
       <main className="flex-1 py-10 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto space-y-6">
-          {/* Main Registration & Admission Login Card (Matching Image 2) */}
+          {/* Main Registration & Admission Login Card */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
             {/* Dark Top Banner */}
             <div className="bg-[#03130e] text-white p-6 sm:p-7 border-b border-emerald-950">
@@ -351,7 +345,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
             </form>
           </div>
 
-          {/* 3 Value Proposition Cards (Anti-AI-Slop compliant: no emojis, no scale-105, disciplined radius) */}
+          {/* 3 Value Proposition Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-2xs space-y-1.5 hover:border-emerald-700/30 transition-colors">
               <div className="font-semibold text-slate-900 text-xs flex items-center gap-2">
@@ -392,9 +386,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
         </div>
       </main>
 
-      {/* =========================================================================
-          FIREBASE MANDATORY POST-LOGIN LINKING MODAL
-          ========================================================================= */}
+      {/* FIREBASE MANDATORY POST-LOGIN LINKING MODAL */}
       {showFirebaseModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
@@ -525,9 +517,7 @@ export const ParentLoginPage: React.FC<ParentLoginPageProps> = ({
         </div>
       )}
 
-      {/* =========================================================================
-          INSTITUTIONAL FOOTER (White & Emerald)
-          ========================================================================= */}
+      {/* INSTITUTIONAL FOOTER (White & Emerald) */}
       <footer className="isd-white-footer mt-auto">
         <div className="landing-container">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-slate-200">

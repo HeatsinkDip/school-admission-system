@@ -1,6 +1,6 @@
 # Onnorokom School, Bangladesh — Architectural Specifications & System Assumptions (`ASSUMPTIONS.md`)
 
-This document provides a comprehensive technical blueprint of the **Onnorokom School, Bangladesh Online Admission System** (Tejgaon Campus, Dhaka-1208). It details the architectural decisions, database schemas, entity relationships, concurrency row-locking algorithms, complete admission lifecycle, and state machine transitions implemented to satisfy and exceed the take-home technical requirements of Onnorokom Projukti Limited.
+This document describes the architecture, database schema, entity relationships, concurrency row-locking design, admission lifecycle, and explicit engineering assumptions for the **Onnorokom School, Bangladesh Online Admission System** (Tejgaon Campus, Dhaka-1208).
 
 ---
 
@@ -11,7 +11,7 @@ Onnorokom School operates on a strict **Zero-Lottery, First-Come, First-Served (
 ### Core System Principles
 1. **Zero Overselling Guarantee:** Under no circumstance may the count of `held + confirmed` seats exceed `totalSeats`, regardless of concurrent load or distributed backend instances.
 2. **Atomic Row-Level Locking:** Seat availability and hold allocation are serialized using PostgreSQL pessimistic row-level locks (`SELECT ... FOR UPDATE`) inside atomic database transactions.
-3. **No Active Cron Dependency for Seat Release:** Expired holds release their seats dynamically upon query and transaction time using database server `clock_timestamp()`. No background scheduler is required to unblock seats.
+3. **Query-Time Clock Expiry:** Active seat counts evaluate `expires_at > now()` directly against the PostgreSQL server clock, and `ApplyAsync` marks expired rows inside the class-locked transaction (`expires_at <= clock_timestamp()`). Waiting applicants see freed seats immediately without waiting for `HoldExpirySweeper`.
 4. **Mandatory 17-Digit Government Birth Registration Number (BRN):** The primary student identity key is validated via the regular expression `^[0-9]{17}$`.
 5. **Unified Family Multi-Child Accounts:** A single parent mobile phone can manage multiple siblings under one family umbrella with automatic 10% sibling fee concessions.
 6. **Strict Privacy & Password Gates:** Unauthenticated public visitors cannot view internal routines, rosters, or applicant data. Every entry to the `/admin` console requires explicit password authentication.
@@ -38,15 +38,15 @@ flowchart TD
     subgraph ServiceLayer ["Application Backend (.NET 8 Minimal API)"]
         Backend1["Backend Process 1 (Port 8080)"]
         Backend2["Backend Process 2 (Port 8081 - Multi-Instance Bonus §1.6)"]
-        HoldService["HoldService & Advisory Lock Coordinator"]
-        AdminService["AdminService (Role-Based Controls)"]
+        HoldService["HoldService (Advisory & Row Locks)"]
+        PortalService["PortalService (Dossier, Payments, Admin)"]
     end
 
     subgraph PersistenceLayer ["Database & Storage Engine (PostgreSQL 16)"]
         DB[("PostgreSQL 16 Engine\n(Port 5432)")]
         ClassTable[("classes table (FOR UPDATE Row Locks)")]
         HoldTable[("holds table (Active Partial Unique Index)")]
-        ProfileTable[("student_profiles & documents table")]
+        ProfileTable[("student_profiles table (documents_json)")]
     end
 
     ParentPortal -->|Firebase JWT / Token| FirebaseAuth
@@ -69,7 +69,7 @@ flowchart LR
     A["Parent Browser\n(17-digit BRN + Phone)"] -->|"POST /classes/{id}/holds\nX-Student-Id: 20152691234567890"| B["ASP.NET Core 8\n(Minimal API Endpoint)"]
     B -->|"1. Advisory Lock\npg_advisory_xact_lock"| C["PostgreSQL 16 Engine"]
     C -->|"2. Pessimistic Row Lock\nSELECT ... FOR UPDATE"| D["classes row"]
-    D -->|"3. Count active seats\nclock_timestamp() < expires_at"| E{"Available > 0?"}
+    D -->|"3. Count active seats\nexpires_at > clock_timestamp()"| E{"Available > 0?"}
     E -- "Yes" -->|"4. INSERT INTO holds (HELD)\n10-Min Expiry Window"| F["201 Created\nholdId: h_xxx"]
     E -- "No" -->|"Rollback Transaction"| G["409 Conflict\nSEATS_FULL"]
     F -->|"5. POST /holds/{id}/confirm\nTuition Fee Paid"| H["Atomically update\nstatus='CONFIRMED'"]
@@ -85,60 +85,59 @@ The PostgreSQL database utilizes strict foreign keys, check constraints, and par
 ```mermaid
 erDiagram
     CLASSES ||--o{ HOLDS : contains
-    CLASSES ||--o{ CLASS_ROUTINES : schedules
+    CLASSES ||--o{ PAYMENTS : bills
+    CLASSES ||--o{ WAITLIST : queues
     STUDENT_PROFILES ||--o{ HOLDS : submits
-    STUDENT_PROFILES ||--o{ STUDENT_DOCUMENTS : owns
     HOLDS ||--o| PAYMENTS : settles
-    STUDENT_PROFILES ||--o{ WAITLIST_ENTRIES : joins
-    ADMIN_USERS ||--o{ ADMIN_SESSIONS : authenticates
-    ADMIN_USERS ||--o{ AUDIT_LOGS : records
+    STUDENT_PROFILES ||--o{ WAITLIST : joins
 
     CLASSES {
-        string id PK
+        bigint id PK
         string name
         int total_seats
-        int held_seats
-        int confirmed_seats
-        int available_seats
-        decimal tuition_fee
+        string shift
+        string academic_year
+        string status "DRAFT | OPEN | CLOSED"
+        decimal admission_fee
         timestamp created_at
-        timestamp updated_at
     }
 
     HOLDS {
-        string id PK
-        string class_id FK
-        string student_id FK
+        bigint id PK
+        bigint class_id FK
+        char student_id "17-digit BRN"
         string status "HELD | CONFIRMED | EXPIRED | CANCELLED"
-        timestamp expires_at
         timestamp created_at
+        timestamp expires_at
         timestamp confirmed_at
         timestamp cancelled_at
     }
 
     STUDENT_PROFILES {
-        string student_id PK "17-digit BRN"
+        char student_id PK "17-digit BRN"
         string full_name_en
         string full_name_bn
-        date dob
+        string dob
         string gender
         string father_name
         string mother_name
         string guardian_phone
-        string application_status "DRAFT | SUBMITTED | APPROVED | ENROLLED"
+        string application_status "DRAFT | SUBMITTED | UNDER_REVIEW | APPROVED | ENROLLED"
         string assigned_section
         string enrolled_student_no
-        timestamp created_at
+        timestamp updated_at
     }
 
     PAYMENTS {
-        string receipt_no PK "OPS-2027-REC-XXXX"
-        string hold_id FK
-        string student_id FK
+        bigint id PK
+        bigint hold_id FK
+        bigint class_id FK
+        char student_id FK
+        string receipt_no "RCP-2027-XXXXX"
         decimal gross_amount
         decimal discount_amount
         decimal net_amount
-        string payment_status "SUCCESS | REFUNDED"
+        string status "SUCCESS | REFUNDED"
         timestamp paid_at
     }
 ```
@@ -146,74 +145,84 @@ erDiagram
 ### Table Definitions & Concurrency Indexes
 
 #### A. `classes` Table
-Stores each distinct class and shift combination (e.g., `Class 6 – Morning Shift` vs. `Class 6 – Day Shift`).
+Stores each distinct class and shift combination (e.g., `Class 6 – Morning Shift` vs. `Class 6 – Day Shift`). Numeric `BIGSERIAL` primary keys are exposed in the API with type prefixes (`c_123`).
 ```sql
-CREATE TABLE IF NOT EXISTS classes (
-    id VARCHAR(64) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    total_seats INT NOT NULL CHECK (total_seats >= 0),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+CREATE TABLE classes (
+    id                  BIGSERIAL     PRIMARY KEY,
+    name                VARCHAR(200)  NOT NULL,
+    total_seats         INTEGER       NOT NULL CHECK (total_seats > 0),
+    shift               VARCHAR(50)   NOT NULL DEFAULT 'Morning',
+    academic_year       VARCHAR(20)   NOT NULL DEFAULT '2027',
+    status              VARCHAR(20)   NOT NULL DEFAULT 'OPEN',
+    admission_fee       NUMERIC(12,2) NOT NULL DEFAULT 15000,
+    session_charge      NUMERIC(12,2) NOT NULL DEFAULT 8000,
+    development_fee     NUMERIC(12,2) NOT NULL DEFAULT 10000,
+    security_deposit    NUMERIC(12,2) NOT NULL DEFAULT 5000,
+    first_month_tuition NUMERIC(12,2) NOT NULL DEFAULT 6000,
+    created_at          TIMESTAMPTZ   NOT NULL DEFAULT now()
 );
 ```
 
 #### B. `holds` Table & Partial Unique Indexes
-The core concurrency ledger. Expired holds remain as audit records without consuming seat counts.
+The core concurrency ledger. Expired holds remain as audit records without consuming seat counts (`h_789` in API responses).
 ```sql
-CREATE TABLE IF NOT EXISTS holds (
-    id VARCHAR(64) PRIMARY KEY,
-    class_id VARCHAR(64) NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
-    student_id VARCHAR(32) NOT NULL,
-    status VARCHAR(32) NOT NULL CHECK (status IN ('HELD', 'CONFIRMED', 'EXPIRED', 'CANCELLED')),
-    expires_at TIMESTAMPTZ NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
+CREATE TABLE holds (
+    id           BIGSERIAL   PRIMARY KEY,
+    class_id     BIGINT      NOT NULL REFERENCES classes(id),
+    student_id   CHAR(17)    NOT NULL CHECK (student_id ~ '^[0-9]{17}$'),
+    status       VARCHAR(16) NOT NULL CHECK (status IN ('HELD', 'CONFIRMED', 'EXPIRED', 'CANCELLED')),
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+    expires_at   TIMESTAMPTZ NOT NULL,
     confirmed_at TIMESTAMPTZ NULL,
     cancelled_at TIMESTAMPTZ NULL
 );
 
 -- Partial index: guarantees a student can hold at most ONE seat per class
-CREATE UNIQUE INDEX IF NOT EXISTS ux_holds_active_student_class
+CREATE UNIQUE INDEX ux_holds_active_student_class
 ON holds (class_id, student_id)
 WHERE status IN ('HELD', 'CONFIRMED');
 
--- Index for high-speed active seat counting:
-CREATE INDEX IF NOT EXISTS ix_holds_active_count
-ON holds (class_id, status, expires_at);
+CREATE INDEX ix_holds_class_status ON holds (class_id, status);
+CREATE INDEX ix_holds_student      ON holds (student_id);
+CREATE INDEX ix_holds_expires_at   ON holds (expires_at);
 ```
 
 #### C. `student_profiles` Table
-Tracks governmental student identity, parental contacts, document verifications, and academic section allotments.
+Tracks student identity (17-digit BRN), guardian contacts, uploaded document state (`documents_json`), fee concession requests, and section assignment.
 ```sql
 CREATE TABLE IF NOT EXISTS student_profiles (
-    student_id VARCHAR(32) PRIMARY KEY,
-    full_name_en VARCHAR(255) NOT NULL DEFAULT '',
-    full_name_bn VARCHAR(255) NOT NULL DEFAULT '',
-    dob DATE NULL,
-    gender VARCHAR(32) NOT NULL DEFAULT '',
-    father_name VARCHAR(255) NOT NULL DEFAULT '',
-    mother_name VARCHAR(255) NOT NULL DEFAULT '',
-    father_phone VARCHAR(32) NOT NULL DEFAULT '',
-    guardian_phone VARCHAR(32) NOT NULL DEFAULT '',
-    present_address TEXT NOT NULL DEFAULT '',
-    application_status VARCHAR(32) NOT NULL DEFAULT 'DRAFT',
-    assigned_section VARCHAR(64) NULL,
-    enrolled_student_no VARCHAR(64) NULL,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+    student_id          CHAR(17)     PRIMARY KEY CHECK (student_id ~ '^[0-9]{17}$'),
+    full_name_en        VARCHAR(200) NOT NULL DEFAULT '',
+    full_name_bn        VARCHAR(200) NOT NULL DEFAULT '',
+    dob                 VARCHAR(30)  NOT NULL DEFAULT '',
+    gender              VARCHAR(30)  NOT NULL DEFAULT '',
+    father_name         VARCHAR(200) NOT NULL DEFAULT '',
+    mother_name         VARCHAR(200) NOT NULL DEFAULT '',
+    father_phone        VARCHAR(40)  NOT NULL DEFAULT '',
+    guardian_phone      VARCHAR(40)  NOT NULL DEFAULT '',
+    present_address     TEXT         NOT NULL DEFAULT '',
+    application_status  VARCHAR(30)  NOT NULL DEFAULT 'DRAFT',
+    assigned_section    VARCHAR(50)  NOT NULL DEFAULT '',
+    enrolled_student_no VARCHAR(50)  NOT NULL DEFAULT '',
+    updated_at          TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 ```
 
 #### D. `payments` Table
-Maintains financial audit trails with immutable receipt vouchers and discount records.
+Maintains immutable payment receipts, sibling concession discounts, and refund audit fields.
 ```sql
 CREATE TABLE IF NOT EXISTS payments (
-    receipt_no VARCHAR(64) PRIMARY KEY,
-    hold_id VARCHAR(64) NOT NULL REFERENCES holds(id),
-    student_id VARCHAR(32) NOT NULL,
-    gross_amount NUMERIC(12,2) NOT NULL,
+    id              BIGSERIAL     PRIMARY KEY,
+    hold_id         BIGINT        NOT NULL UNIQUE REFERENCES holds(id),
+    class_id        BIGINT        NOT NULL REFERENCES classes(id),
+    student_id      CHAR(17)      NOT NULL,
+    receipt_no      VARCHAR(64)   NOT NULL,
+    gross_amount    NUMERIC(12,2) NOT NULL,
     discount_amount NUMERIC(12,2) NOT NULL DEFAULT 0,
-    net_amount NUMERIC(12,2) NOT NULL,
-    payment_status VARCHAR(32) NOT NULL DEFAULT 'SUCCESS',
-    paid_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp()
+    discount_reason VARCHAR(200)  NOT NULL DEFAULT '',
+    net_amount      NUMERIC(12,2) NOT NULL,
+    status          VARCHAR(30)   NOT NULL DEFAULT 'SUCCESS',
+    paid_at         TIMESTAMPTZ   NOT NULL DEFAULT now()
 );
 ```
 
@@ -251,9 +260,9 @@ stateDiagram-v2
 | **1. Unenrolled / Registration** | Ad-hoc | Parent enters 17-digit BRN and phone. Parent can link multiple children. Unauthenticated users see only Landing Page. |
 | **2. Dossier Verification** | Prior to Hold | Child information, guardian NID, and contact data are submitted. Eligibility gate unlocks class selection. |
 | **3. Temporary Seat Hold** | 600 Seconds (`HOLD_DURATION_SECONDS`) | First-come, first-served. Transaction acquires `SELECT ... FOR UPDATE` on `classes`. Exactly `totalSeats` can be held. |
-| **4. Expiration / Release** | Immediate on `now > expires_at` | No background worker or cron needed. If time passes 10 minutes, the hold status evaluates as `EXPIRED` and available seat count increments immediately. |
+| **4. Expiration / Release** | Immediate on `now > expires_at` | Effective status evaluates as `EXPIRED` immediately at query time (`expires_at <= now()` / `clock_timestamp()`), so waiting applicants never wait on a background sweep tick. `HoldExpirySweeper` periodically persists `EXPIRED` status for storage hygiene. |
 | **5. Confirmation & Payment** | Within 600s | Atomic transition from `HELD` to `CONFIRMED`. Multiple rapid clicks are idempotent (`200 OK`, seats increment only once). |
-| **6. Official Digital Receipt** | Upon Confirmation | Generates unique voucher (`OPS-2027-REC-XXXX`), assigns student roll, and issues downloadable/printable official PDF. |
+| **6. Official Digital Receipt** | Upon Confirmation | Generates unique voucher (`RCP-2027-XXXXX`), records payment ledger entry, and enables downloadable/printable PDF receipt. |
 
 ---
 
@@ -276,7 +285,7 @@ sequenceDiagram
     Note over DB: Serializes concurrent applicants on this class row
     API->>DB: Active Seats Query (confirmed + active unexpired holds)
     alt Available Seats > 0
-        API->>DB: INSERT INTO holds (id, class_id, student_id, 'HELD', clock_timestamp() + interval '600s')
+        API->>DB: INSERT INTO holds (class_id, student_id, 'HELD', clock_timestamp(), expires_at)
         DB-->>API: Hold row created
         Note over API: Commit Transaction
         API-->>Parent: 201 Created (holdId, expiresAt: 10 mins)
@@ -305,10 +314,9 @@ sequenceDiagram
         API-->>Parent: 200 OK (holdId, status: CONFIRMED)
     else Hold is HELD and clock_timestamp() <= expires_at
         API->>DB: UPDATE holds SET status = 'CONFIRMED', confirmed_at = clock_timestamp()
-        API->>DB: INSERT INTO payments (receipt_no, hold_id, student_id, gross, discount, net)
-        API->>DB: UPDATE student_profiles SET application_status = 'APPROVED'
+        API->>DB: INSERT INTO payments (hold_id, class_id, student_id, receipt_no, gross, discount, net)
         Note over API: Commit Transaction
-        API-->>Parent: 200 OK (status: CONFIRMED, receiptNo)
+        API-->>Parent: 200 OK (status: CONFIRMED)
     else Hold is EXPIRED or CANCELLED
         Note over API: Rollback Transaction
         API-->>Parent: 409 Conflict (code: HOLD_EXPIRED_OR_INVALID)
@@ -326,14 +334,14 @@ sequenceDiagram
     participant API as Backend (ASP.NET Core 8)
     participant DB as PostgreSQL 16
     
-    Note over DB: Original hold h_123 expired 1 second ago (clock_timestamp() > expires_at)
+    Note over DB: Original hold h_123 expired 1 second ago (expires_at <= now())
     Parent2->>API: GET /classes
-    API->>DB: SELECT total_seats, COUNT(confirmed), COUNT(held WHERE clock_timestamp() < expires_at)
+    API->>DB: COUNT(*) FILTER (WHERE status = 'HELD' AND expires_at > now())
     Note over DB: Expired hold is dynamically filtered out in SQL
     DB-->>API: availableSeats: 1
     API-->>Parent2: 200 OK (availableSeats: 1)
     Parent2->>API: POST /classes/{id}/holds
-    API->>DB: SELECT FOR UPDATE -> Seats Available -> Allocates to Parent2
+    API->>DB: SELECT ... FOR UPDATE -> UPDATE expired holds -> Seats Available -> Allocates to Parent2
     API-->>Parent2: 201 Created (holdId: h_999)
 ```
 
@@ -402,13 +410,13 @@ Where the take-home specification left design details open, the following intent
   ```
   PostgreSQL grants the row lock to only one process at a time. The second process waits at the database level until the first commits or aborts, ensuring total synchronization across infinite container replicas.
 
-### 2. Time Authority & Zero Cron Expiration
+### 2. Time Authority & Query-Time Expiration
 * **Requirement:** Holds must expire automatically without requiring any user to trigger an expiration API call.
-* **Architectural Decision:** We make PostgreSQL's `clock_timestamp()` the single source of truth for time. Active holds are defined as:
+* **Architectural Decision:** PostgreSQL's database clock (`now()` / `clock_timestamp()`) is the single source of truth for time. Seat availability queries filter holds using:
   ```sql
-  status = 'HELD' AND expires_at > clock_timestamp()
+  status = 'HELD' AND expires_at > now()
   ```
-  If a hold expires at `12:00:00`, a query arriving at `12:00:01` immediately treats that seat as available. No background workers or cron jobs are necessary to make the seat available to waiting parents. A lightweight background sweeper runs periodically solely to mark old rows as `EXPIRED` for database hygiene and historical reporting.
+  If a hold expires at `12:00:00`, a read arriving at `12:00:01` immediately sees that seat as available, and `ApplyAsync` updates expired rows to `EXPIRED` inside the class-locked transaction (`expires_at <= clock_timestamp()`). A lightweight `HoldExpirySweeper` background service also runs periodically so stale rows are persisted as `EXPIRED` in the database even during idle periods.
 
 ### 3. Single Admission Rule (Multi-Class / Shift Conflict)
 * **Requirement:** An applicant should not occupy multiple seats across different shifts.
@@ -436,10 +444,10 @@ Where the take-home specification left design details open, the following intent
 
 | Requirement | Implementation Mechanism | Test Verification |
 | :--- | :--- | :--- |
-| **No Overselling** | `SELECT ... FOR UPDATE` + partial unique index | `HoldService_ShouldNeverOversell_When100ConcurrentRequestsHit50Seats` |
-| **Multi-Instance Bonus §1.6** | Database-level row lock (no in-memory locks) | `Bonus_TwoBackendProcesses_ShareSameDatabase_NeverOversells` |
-| **Single Admission Rule** | `pg_advisory_xact_lock` + cross-class conflict check | `ApplyForSeat_WhenAlreadyAdmittedElsewhere_Returns409` |
-| **Idempotent Confirmation** | Check `status == 'CONFIRMED'` within transaction | `ConfirmHold_WhenCalledMultipleTimes_IncrementsConfirmedSeatsOnce` |
-| **Automatic Seat Return** | Query-level evaluation with `clock_timestamp()` | `Hold_WhenExpired_AutomaticallyReleasesSeatWithoutApiCall` |
-| **Input Validation** | 17-digit numeric regex + 4xx error formatting | `Validates 17-digit Student ID and persists in localStorage` |
-| **Frontend UI Testing** | React Testing Library + Vitest (15 tests) | `cd frontend && npm test -- --run` (15/15 passed) |
+| **No Overselling** | `SELECT ... FOR UPDATE` + PostgreSQL partial unique index | `TwoHundredSimultaneousApplicants_For50Seats_ExactlyFiftyGetASeat` |
+| **Multi-Instance Bonus §1.6** | Database-level row lock (no in-memory locks) | `TwoInstances_SharingOneDatabase_NeverOversell` |
+| **Single Admission Rule** | `pg_advisory_xact_lock` + cross-class active hold check | `SameStudent_CannotHoldMorningAndDayShift_AtTheSameTime` |
+| **Idempotent Confirmation** | Transactional status check before updating hold/payment | `Confirm_IsIdempotent_ConfirmedSeatsIncreasesOnce` |
+| **Automatic Seat Return** | Query-level evaluation with PostgreSQL server clock | `ExpiredHold_ReleasesSeat_ReadsAsExpired_AndCannotBeConfirmed` |
+| **Input Validation** | 17-digit numeric regex + 4xx JSON error responses | `validates 17-digit Student ID and persists valid ID in localStorage` |
+| **Frontend UI Testing** | React Testing Library + Vitest (15 tests) | `cd frontend && npm test -- --run` (15 passed) |

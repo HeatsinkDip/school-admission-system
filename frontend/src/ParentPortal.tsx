@@ -1292,9 +1292,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
         onClose={() => setIsSystemSpecModalOpen(false)}
       />
 
-      {/* =========================================================================
-          TOP APPLICANT IDENTITY BAR (White & Deep Emerald Green `#014d33` ISD Header)
-          ========================================================================= */}
+      {/* TOP APPLICANT IDENTITY BAR (White & Deep Emerald Green `#014d33` ISD Header) */}
       {/* 1. Top Utility Bar */}
       <div className="isd-top-utility-bar">
         <div className="px-3 sm:px-6 flex items-center justify-between text-xs py-1 text-emerald-100">
@@ -1590,9 +1588,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
         </div>
       )}
 
-      {/* =========================================================================
-          MAIN WORKSPACE WITH LEFT SIDEBAR
-          ========================================================================= */}
+      {/* MAIN WORKSPACE WITH LEFT SIDEBAR */}
       <div className="flex-1 flex relative">
         {/* Mobile Backdrop */}
         {mobileSidebarOpen && (
@@ -1807,9 +1803,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             </div>
           )}
 
-          {/* =========================================================
-              FAMILY ACCOUNT & MULTI-CHILD MANAGEMENT VIEW
-             ========================================================= */}
+          {/* FAMILY ACCOUNT & MULTI-CHILD MANAGEMENT VIEW */}
           {showChildren && (
             <section className="bg-white rounded-xl border border-slate-200 shadow-xs p-4 sm:p-5 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
@@ -1918,9 +1912,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             </section>
           )}
 
-          {/* =========================================================
-              1. OVERVIEW DASHBOARD (Compact High-Density)
-             ========================================================= */}
+          {/* 1. OVERVIEW DASHBOARD (Compact High-Density) */}
           {showOverview && (
             <section className="space-y-4" data-testid="overview-dashboard-section">
               {/* Parent Registration & Admission Login Card (when not yet logged in or editing ID) */}
@@ -2536,9 +2528,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             </section>
           )}
 
-          {/* =========================================================
-              2. AVAILABLE CLASSES & SHIFTS (FAST-LANE SEAT BOOKING)
-             ========================================================= */}
+          {/* 2. AVAILABLE CLASSES & SHIFTS (FAST-LANE SEAT BOOKING) */}
           {showClasses && !savedStudentId && (
             <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-4 max-w-xl mx-auto shadow-sm my-8">
               <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-200 text-[#014d33] flex items-center justify-center mx-auto">
@@ -2761,9 +2751,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             </section>
           )}
 
-          {/* =========================================================
-              3. CURRENT APPLICATION & FEE PAYMENT (BDT)
-             ========================================================= */}
+          {/* 3. CURRENT APPLICATION & FEE PAYMENT (BDT) */}
           {showPayment && (
             <section className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
               <div className="p-3 sm:p-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -2967,9 +2955,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             </section>
           )}
 
-          {/* =========================================================
-              4. CHILD INFORMATION, GUARDIANS, INCOME & DOCUMENTS DOSSIER
-             ========================================================= */}
+          {/* 4. CHILD INFORMATION, GUARDIANS, INCOME & DOCUMENTS DOSSIER */}
           {showDossier && (
             <section className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden" data-testid="child-guardian-dossier-section">
               {/* Header Bar */}
@@ -3114,9 +3100,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
 
               {/* Form Fields Container */}
               <form onSubmit={(e) => void handleSaveProfile(e, false)} className="p-3 sm:p-4 space-y-4">
-                {/* =====================================================
-                    SECTION 1: CHILD PROFILE, IDENTITY & ACADEMIC HISTORY
-                   ===================================================== */}
+                {/* SECTION 1: CHILD PROFILE, IDENTITY & ACADEMIC HISTORY */}
                 {(dossierSection === 0 || dossierSection === 1) && (
                   <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:p-3.5 space-y-3" data-testid="dossier-section-1">
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
@@ -3335,9 +3319,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   </div>
                 )}
 
-                {/* =====================================================
-                    SECTION 2: FATHER, MOTHER & PRIMARY LEGAL GUARDIAN
-                   ===================================================== */}
+                {/* SECTION 2: FATHER, MOTHER & PRIMARY LEGAL GUARDIAN */}
                 {(dossierSection === 0 || dossierSection === 2) && (
                   <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:p-3.5 space-y-3" data-testid="dossier-section-2">
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
@@ -3704,9 +3686,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   </div>
                 )}
 
-                {/* =====================================================
-                    SECTION 3: SIBLING LINKAGE, HOUSEHOLD INCOME & CONCESSION
-                   ===================================================== */}
+                {/* SECTION 3: SIBLING LINKAGE, HOUSEHOLD INCOME & CONCESSION */}
                 {(dossierSection === 0 || dossierSection === 3) && (
                   <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:p-3.5 space-y-3" data-testid="dossier-section-3">
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
@@ -3886,9 +3866,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   </div>
                 )}
 
-                {/* =====================================================
-                    SECTION 4: OFFICIAL DOCUMENT UPLOADS (5 SLOTS)
-                   ===================================================== */}
+                {/* SECTION 4: OFFICIAL DOCUMENT UPLOADS (5 SLOTS) */}
                 {(dossierSection === 0 || dossierSection === 4) && (
                   <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:p-3.5 space-y-3" data-testid="dossier-section-4">
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
@@ -4035,9 +4013,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
                   </div>
                 )}
 
-                {/* =====================================================
-                    SECTION 5: REVIEW SUMMARY & FINAL SUBMISSION
-                   ===================================================== */}
+                {/* SECTION 5: REVIEW SUMMARY & FINAL SUBMISSION */}
                 {(dossierSection === 0 || dossierSection === 5) && (
                   <div className="rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:p-4 space-y-3" data-testid="dossier-section-5">
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
@@ -4152,9 +4128,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             </section>
           )}
 
-          {/* =========================================================
-              5. MY APPLICATIONS & VERIFIED PAYMENT RECEIPTS
-             ========================================================= */}
+          {/* 5. MY APPLICATIONS & VERIFIED PAYMENT RECEIPTS */}
           {showReceipts && (
             <section className="space-y-3.5">
               {/* Applications History */}
@@ -4317,9 +4291,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
             </section>
           )}
 
-          {/* =========================================================
-              6. CLASS TIMETABLES & FIXED SCHOOL OPERATING HOURS
-             ========================================================= */}
+          {/* 6. CLASS TIMETABLES & FIXED SCHOOL OPERATING HOURS */}
           {showRoutines && (
             <section className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden" data-testid="class-routines-section">
               <div className="p-3 sm:p-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -4560,9 +4532,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
         </main>
       </div>
 
-      {/* =========================================================================
-          INSTITUTIONAL FOOTER (White & Emerald ISD)
-          ========================================================================= */}
+      {/* INSTITUTIONAL FOOTER (Institutional Footer) */}
       <footer className="isd-white-footer mt-auto border-t border-slate-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-6 border-b border-slate-200 text-xs">
@@ -4748,9 +4718,7 @@ export const ParentPortal: React.FC<ParentPortalProps> = ({
         }}
       />
 
-      {/* =========================================================================
-          FIREBASE MANDATORY POST-LOGIN LINKING MODAL
-          ========================================================================= */}
+      {/* FIREBASE MANDATORY POST-LOGIN LINKING MODAL */}
       {showFirebaseModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-xs animate-fadeIn">
           <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all">

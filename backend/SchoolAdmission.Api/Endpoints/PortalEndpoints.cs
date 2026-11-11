@@ -8,9 +8,7 @@ public static class PortalEndpoints
 {
     public static void MapPortalEndpoints(this IEndpointRouteBuilder app)
     {
-        // =====================================================================
-        // Admin Authentication (/auth/admin/*)
-        // =====================================================================
+        // Admin authentication (/auth/admin/*)
 
         app.MapPost("/auth/admin/login", async (AdminLoginRequest req, PortalService svc, CancellationToken ct) =>
             Results.Ok(await svc.LoginAdminAsync(req, ct)));
@@ -24,9 +22,7 @@ public static class PortalEndpoints
             return Results.NoContent();
         });
 
-        // =====================================================================
-        // Parent Portal (/parent/*) — uses X-Student-Id header
-        // =====================================================================
+        // Parent portal (/parent/*) — uses X-Student-Id header
 
         app.MapGet("/parent/profile", async (HttpRequest request, PortalService svc, CancellationToken ct) =>
         {
@@ -99,9 +95,7 @@ public static class PortalEndpoints
             return Results.NoContent();
         });
 
-        // =====================================================================
-        // Admin Console (/admin/*) — requires Admin Bearer / X-Admin-Token
-        // =====================================================================
+        // Admin console (/admin/*) — requires Admin token
 
         app.MapGet("/admin/dashboard", async (HttpRequest request, PortalService svc, CancellationToken ct) =>
         {

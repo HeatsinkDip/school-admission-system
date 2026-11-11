@@ -1,6 +1,4 @@
-/* =========================================================================
-   Kubernetes Live Infrastructure Status Ribbon & Telemetry
-   ========================================================================= */
+/* Kubernetes Live Infrastructure Status Ribbon & Telemetry */
 
 .k8s-live-bar {
   background-color: #090d16;
@@ -72,9 +70,7 @@
   border-color: #f59e0b;
 }
 
-/* =========================================================================
-   Kubernetes Burst Simulator Modal & Terminal Log Stream
-   ========================================================================= */
+/* Kubernetes Burst Simulator Modal & Terminal Log Stream */
 
 .k8s-sim-modal-card {
   background: #0f172a;

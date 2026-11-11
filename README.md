@@ -1,166 +1,179 @@
 # Onnorokom School, Bangladesh — Online Admission System
 
-A resilient, high-concurrency First-Come, First-Served (FCFS) online school admission platform for **Onnorokom School, Bangladesh** (Tejgaon Campus, Dhaka-1208). Features a modern institutional **Landing Page**, an interactive **Parent Admission Portal** with **Firebase Google Authentication**, an integrated **Admissions AI/Rule Desk**, and a role-based, password-secured **Staff & Admin Console** (`/admin`).
+## Project Description
 
-Built with **ASP.NET Core 8 (.NET 8 Minimal APIs)**, **PostgreSQL 16**, **React 18 (Vite + TypeScript)**, **Docker Compose**, and deployed to **Firebase Hosting**.
+A high-concurrency, First-Come, First-Served (FCFS) online school admission platform built for **Onnorokom School, Bangladesh** (Tejgaon, Dhaka). During peak admission openings, hundreds of parents compete simultaneously for limited seats across class shifts (such as `Class 6 - Morning Shift` and `Class 6 - Day Shift`). Without lottery draws or race conditions, this system allocates temporary 10-minute seat holds, validates student identities via government 17-digit Birth Registration Numbers (BRN), processes fee confirmation idempotently, and automatically returns unpaid seats to the public pool when the hold window expires.
+
+The platform is built with **ASP.NET Core 8 (.NET 8 Minimal APIs)**, **PostgreSQL 16**, **React 18 (Vite + TypeScript)**, and **Docker Compose**, with frontend static hosting support on **Firebase Hosting**.
 
 ---
 
-## 🌐 Live Deployment & Access Points
+## Service URLs & Access Points
 
-| Service | Environment | Access URL | Credentials / Notes |
+| Service | Environment | URL | Notes |
 |---|---|---|---|
-| **Live Production Web App** | Firebase Hosting | [https://onnorokom-school-admissions.web.app](https://onnorokom-school-admissions.web.app) | Public / Parent Login / Firebase Google Auth |
-| **Local Frontend Portal** | Docker Compose | [http://localhost:3000](http://localhost:3000) | Full SPA (Landing, Parent Portal, Admin) |
-| **Local Admin Console** | Docker Compose | [http://localhost:3000/admin](http://localhost:3000/admin) | Username: `admin` • Password: `admin123` |
-| **Local Backend REST API** | Docker Compose | [http://localhost:8080](http://localhost:8080) | Swagger / OpenAPI at `/swagger` |
-| **Local PostgreSQL Database** | Docker Compose | `localhost:5432` | User: `postgres` • Pass: `postgres` • DB: `school_admission` |
+| **Web Portal (Public & Parent)** | Docker Compose | [http://localhost:3000](http://localhost:3000) | Landing page, parent login, and parent portal |
+| **Admin Console** | Docker Compose | [http://localhost:3000/admin](http://localhost:3000/admin) | Password-protected staff console |
+| **Backend REST API** | Docker Compose | [http://localhost:8080](http://localhost:8080) | .NET 8 Minimal API JSON service |
+| **Secondary API Instance** | Docker `--profile multi` | [http://localhost:8081](http://localhost:8081) | Shared-DB concurrency replica |
+| **PostgreSQL 16** | Docker Compose | `localhost:5432` | DB: `school_admission` (`school_admin` / `school_pass`) |
+| **Firebase Hosting** | Production | [https://onnorokom-school-admissions.web.app](https://onnorokom-school-admissions.web.app) | Hosted frontend bundle |
 
 ---
 
-## 🏫 Key Features & System Principles
+## Engineering Approach & Architecture
 
-### 1. Zero Lottery • First-Come, First-Served (FCFS) Seat Allocation
-- **10-Minute Atomic Hold Lock:** When a parent applies for an available class shift, the system issues an exclusive 10-minute hold (`201 Created`).
-- **Mathematical Zero-Overselling Guarantee:** When 100+ parents compete for 50 remaining seats, PostgreSQL pessimistic row-level locking (`SELECT ... FOR UPDATE`) serializes reservation transactions. Exactly 50 requests succeed; subsequent requests immediately receive a structured `409 Conflict: SEATS_FULL` alert with zero database race conditions.
-- **Dynamic Clock-Based Expiry:** Expired holds release their seats automatically upon query time using database server `clock_timestamp()`. No brittle background cron jobs or external polling schedulers required.
+1. **Database-First Concurrency Control (Zero Overselling):**
+   All seat allocation invariants are enforced inside PostgreSQL transactions rather than in-memory locks (`lock`, `SemaphoreSlim`), allowing multiple backend processes (for example ports `8080` and `8081`) to share a single database safely. When applying for a hold (`POST /classes/{classId}/holds`), the API acquires a per-student transaction advisory lock (`pg_advisory_xact_lock`) followed by a pessimistic row lock (`SELECT ... FOR UPDATE`) on the target class row. A partial unique index (`ux_holds_active_student_class`) provides an additional database-level safeguard against duplicate active holds or confirmations.
 
-### 2. Mandatory 17-Digit Birth Registration Number & Single Admission Rule
-- **Primary Identifier:** The government 17-digit Birth Registration Number (BRN) uniquely identifies every applicant child (`^[0-9]{17}$`).
-- **Single Admission Per Student Rule:** Under school regulations, a student cannot hold seats or be admitted to Morning Shift and Day Shift at the same time, nor attend two different classes simultaneously. The backend enforces this atomically via per-student transaction advisory locks (`pg_advisory_xact_lock`), returning `409 Conflict: ALREADY_ADMITTED_ELSEWHERE`.
-- **Shift Switching:** If a parent wishes to change shifts or classes, cancelling their active hold immediately releases the seat back to the school pool.
+2. **Query-Time Expiration Using Database Clock:**
+   Hold expiration is evaluated against PostgreSQL's server clock (`now()` / `clock_timestamp()`). Both `GET /classes` and `POST /classes/{classId}/holds` filter active holds with `expires_at > now()`, so expired seats become immediately available without waiting for an external scheduler. A lightweight hosted background service (`HoldExpirySweeper`) periodically transitions expired rows to `EXPIRED` for storage hygiene.
 
-### 3. Parent Portal & Firebase Google Authentication
-- **Dual Login Methods:** Parents can log in directly using their 17-digit Student BRN + Mobile Phone, or authenticate securely via **Firebase Google Sign-In**.
-- **Mandatory Profile Linking Gate:** Upon Firebase Google sign-in, the system prompts the parent to link their child's 17-digit BRN and mobile phone before granting access to the parent dashboard.
-- **Multi-Child Family Management & Sibling Concession:** Parents with multiple children can manage all siblings under one unified family account and receive an automatic **10% Sibling Fee Concession**.
-- **Step-by-Step Admission Dossier:** Form guides parents through Student Dossier -> Document Verification -> Real-time Class & Shift Seat Hold -> Tuition Fee Payment -> Official Admission Receipt.
+3. **Idempotent Fee Confirmation & Atomic Audit Trail:**
+   Confirming a hold (`POST /holds/{holdId}/confirm`) locks the hold row (`FOR UPDATE`), verifies ownership via `X-Student-Id`, checks expiration, updates status to `CONFIRMED`, and records an entry in `payments` (`ON CONFLICT (hold_id) DO NOTHING`). Repeated confirmation calls return `200 OK` without double-counting `confirmedSeats` or creating duplicate receipts.
 
-### 4. Talk to Admissions Desk (Interactive Counselor Bot)
-- Interactive counselor modal accessible from the portal and landing page.
-- Provides immediate answers regarding required documents, the 10-minute hold lock mechanism, sibling concessions, morning vs. day shift operating hours, and tuition fee schedules.
+4. **Strict Separation of Public vs. Authenticated Data:**
+   Unauthenticated visitors can view only the institutional Landing Page and Login view (`/`). Student dossiers, seat booking actions, routines, fee schedules, and the portal navigation sidebar remain hidden until parent login completes. Staff administration at `/admin` is hidden from public navigation and always requires password login.
 
-### 5. Role-Based Password-Secured Admin Console (`/admin`)
-- Accessible only via explicit password authentication (hidden from public navigation for security).
-- **Super Admin (Principal / IT):** Username `admin` / Password `admin123`
-- **Admission Officer:** Username `officer` / Password `officer123`
-- **Accountant (Finance):** Username `accountant` / Password `accountant123`
-- **Class Rosters & Student Inspections:** Dedicated "View Students" button on every class shift to view enrolled students, verify application dossiers, inspect uploaded certificates, grant concessions, or delete invalid applications.
+Detailed architectural diagrams, ER schemas, state transitions, and design rationales are documented in [ASSUMPTIONS.md](./ASSUMPTIONS.md).
 
 ---
 
-## 🏗️ Tech Stack
+## Core Features
 
-- **Backend:** C# (.NET 8 Minimal APIs), Npgsql Raw SQL, ASP.NET Core Dependency Injection, Health Checks, Swagger/OpenAPI.
-- **Frontend:** React 18, Vite, TypeScript, Lucide Icons, plain responsive institutional CSS design system.
-- **Authentication:** Firebase Auth (Google Sign-In) + Custom Admin Password Token Authentication.
-- **Database:** PostgreSQL 16 (Pessimistic row-locking, partial unique indexes, check constraints, transaction advisory locks).
-- **Deployment:** Docker & Docker Compose (local multi-container setup) and Firebase Hosting (live production CDN).
+### Parent & Applicant Portal
+- **Dual Authentication Flow:** Sign in using 17-digit Birth Registration Number (`^[0-9]{17}$`) + parent mobile phone, or via Firebase Google Sign-In followed by mandatory 17-digit BRN and phone linking.
+- **Unified Multi-Child Family Account:** Register multiple children under the same guardian account and qualify for an automatic 10% sibling concession on admission charges.
+- **Step-by-Step Admission Dossier:** Capture student personal details, guardian NIDs/contacts, and required document uploads before placing a seat hold.
+- **Live Hold Countdown & Instant Recovery:** Real-time countdown synchronized with server time transitions cleanly to `EXPIRED` in the UI without a page reload when time runs out, and active holds survive browser refreshes.
+- **Single Admission Rule Enforcement:** Prevents a student from holding or confirming multiple seats simultaneously across different classes or shifts (returning `409 Conflict` with clear user feedback); parents can cancel an unpaid hold at any time to switch shifts.
+- **PDF Receipt Generation & Admissions Desk Bot:** Generates downloadable printable receipts upon confirmation and provides an interactive FAQ/guidance modal for admissions queries.
+
+### Staff & Admin Console (`/admin`)
+- **Password-Protected Role Access:** Supports three roles backed by salted SHA-256 credentials (`admin` / `admin123`, `officer` / `officer123`, `accountant` / `accountant123`, or custom `ADMIN_PASSWORD` env override).
+- **Class & Shift Management:** Create, edit, open/close, and configure fee components (`admissionFee`, `sessionCharge`, `developmentFee`, `securityDeposit`, `firstMonthTuition`) per class shift, and delete empty classes safely.
+- **Per-Class Student Roster ("View Students"):** View applicants, active holds, and enrolled students for each specific class shift directly from the class table.
+- **Application Review & Finance Controls:** Search/filter applicant dossiers, verify uploaded documents, approve/reject sibling concessions, process fee refunds, manage waitlists, configure weekly class routines, and inspect immutable audit logs.
 
 ---
 
-## 🚀 Quick Start (Docker Compose)
+## Step-by-Step Admission & Operations Workflow
 
-Clone the repository and run the entire stack with a single command:
+1. **Start the Stack:** Run `docker compose up --build` and wait for `db`, `backend`, and `frontend` health checks to turn green.
+2. **Admin Class Setup (Optional / Staff Flow):**
+   - Navigate to `http://localhost:3000/admin` and sign in (`admin` / `admin123`).
+   - Create or manage class shifts (e.g., `Class 6 - Morning Shift` with `120` seats) and review fee schedules or weekly routines.
+3. **Parent Login & Profile Linking:**
+   - Open `http://localhost:3000` and click **Apply for Admission** (or navigate to Parent Login).
+   - Sign in with a 17-digit BRN (e.g., `20152691234567890`) and parent mobile phone (`01712345678`), or authenticate via Google and link the child's 17-digit BRN and guardian phone.
+4. **Complete Child Dossier:** Fill out child details, guardian information, and document uploads in the Student Dossier tab and save/submit.
+5. **Reserve Seat Hold (FCFS):** Select an available class shift and click **Apply / Hold Seat** (`POST /classes/{classId}/holds`). A 10-minute (`HOLD_DURATION_SECONDS`) seat lock is created immediately.
+6. **Pay Fee & Confirm Seat:** Click **Pay Admission Fee** (`POST /holds/{holdId}/confirm`) before the timer expires to lock the seat permanently and generate the admission receipt. Cancelling (`DELETE /holds/{holdId}`) frees the seat immediately for other applicants.
+
+---
+
+## Quick Start (Docker Compose)
+
+Prerequisites: **Docker** and **Docker Compose** (no local .NET SDK, Node.js, or PostgreSQL installation is needed).
+
+Start PostgreSQL, the .NET 8 backend (`http://localhost:8080`), and the React frontend (`http://localhost:3000`):
 
 ```bash
 docker compose up --build
 ```
 
-Wait until all services report healthy:
-- Open **[http://localhost:3000](http://localhost:3000)** in your browser for the **School Landing Page & Parent Portal**.
-- Open **[http://localhost:3000/admin](http://localhost:3000/admin)** for the **Admin Console**.
-- Open **[http://localhost:8080/swagger](http://localhost:8080/swagger)** for the **Backend API Swagger Documentation**.
+Run a second backend replica (`http://localhost:8081`) sharing the same PostgreSQL database:
 
-### Demo Credentials for Quick Testing
-- **Student BRN:** `20152691234567890` (or click *"⚡ Quick Fill Demo Credentials"* in the portal)
-- **Parent Mobile Phone:** `01712345678`
-- **Parent Name:** `Mr. Rafiqul Rahman`
-- **Admin Login:** Username `admin` / Password `admin123`
+```bash
+docker compose --profile multi up --build
+```
 
-To stop the containers:
+Stop containers while preserving database data in the named `pgdata` volume:
+
 ```bash
 docker compose down
 ```
 
-To stop containers and wipe the database volume:
+Stop containers and reset all database data:
+
 ```bash
 docker compose down -v
 ```
 
+### Environment Variables
+
+| Variable | Service | Default | Purpose |
+|---|---|---|---|
+| `DB_CONNECTION_STRING` | `backend` | `Host=db;Port=5432;Database=school_admission;Username=school_admin;Password=school_pass` | PostgreSQL connection string |
+| `HOLD_DURATION_SECONDS` | `backend` | `600` | Seat hold window in seconds (default 10 minutes) |
+| `SWEEP_INTERVAL_SECONDS` | `backend` | `3` | Background hold-expiry cleanup interval in seconds |
+| `SINGLE_ADMISSION_PER_STUDENT` | `backend` | `true` | Enforce one active/confirmed seat per student globally |
+| `ADMIN_PASSWORD` | `backend` | `""` | Optional environment override for admin login |
+| `CORS_ALLOWED_ORIGINS` | `backend` | `*` | Allowed browser origins for CORS |
+| `API_BASE_URL` | `frontend` | `http://localhost:8080` | Runtime backend API base URL injected by Nginx entrypoint |
+
 ---
 
-## 🧪 Automated Test Suites
+## Running Automated Tests
 
-All tests are self-contained and run both inside Docker and natively via standard CLI tools:
+### 1. Backend Integration & Concurrency Tests (56 Tests)
+Covers 200-way parallel concurrency against 50 seats, 2-instance multi-process concurrency, idempotent payment confirmation, automatic expiry seat recovery, validation errors (4xx), routines, notifications, and admin workflows.
 
-### 1. Backend Automated Tests (56 Tests)
-Validates concurrency, 2-instance distributed scaling, row-locking serialization, hold expiration, single admission rule, shift routines, payment idempotency, and admin CRUD workflows.
-
+Via Docker Compose:
 ```bash
-# Inside Docker Compose:
 docker compose --profile test run --rm backend-tests
+```
 
-# Or locally with .NET 8 SDK:
+Locally (requires .NET 8 SDK and PostgreSQL running on port `5432`):
+```bash
 dotnet test backend/SchoolAdmission.Tests/SchoolAdmission.Tests.csproj
 ```
 
-### 2. Frontend Automated Tests (15 Tests)
-Validates 17-digit BRN validation, single admission rule UI enforcement, mandatory profile field gates, shift routines, countdown timers, API error mapping, Firebase linking, and admin authentication.
+### 2. Frontend UI Tests (15 Tests)
+Covers 17-digit BRN validation, live expiry countdown transitions without page reload, polling seat updates, single admission conflict blocking, admin login gate, mandatory profile gates, and Firebase post-login linking.
 
+Via Docker Compose:
 ```bash
-# Inside Docker Compose:
 docker compose --profile test run --rm frontend-tests
+```
 
-# Or locally with Node.js:
+Locally (requires Node.js 20+):
+```bash
 cd frontend && npm test -- --run
 ```
 
-### 3. End-to-End API Smoke Test
+### 3. API Contract Smoke Script
+With the stack running at `http://localhost:8080`:
 ```bash
 ./scripts/smoke-test.sh http://localhost:8080
 ```
 
 ---
 
-## 📡 Core API Contract Summary
+## Core API Contract Reference
 
-All requests accept and return JSON. Timestamps follow ISO-8601 UTC format with trailing `Z`.
+All endpoints accept and return JSON with UTC ISO-8601 timestamps ending in `Z`. Invalid inputs return structured 4xx responses (`VALIDATION_ERROR`, `NOT_FOUND`, `CONFLICT`, `NOT_OWNER`, `INVALID_CREDENTIALS`), never 500.
 
-| Endpoint | Method | Header | Description |
+| Method | Path | Header / Auth | Description |
 |---|---|---|---|
-| `/classes` | GET | None | List classes with seat counts (`totalSeats`, `heldSeats`, `confirmedSeats`, `availableSeats`) |
-| `/classes` | POST | Admin Auth | Create new class shift (`name`, `totalSeats`, `ageRange`, `tuitionFee`) |
-| `/classes/{classId}` | GET | None | Get specific class seat availability |
-| `/classes/{classId}/holds` | POST | `X-Student-Id` | Reserve temporary 10-minute hold (`201 Created` or `409 Conflict`) |
-| `/holds/{holdId}` | GET | None | Check hold status (`HELD`, `CONFIRMED`, `EXPIRED`, `CANCELLED`) |
-| `/holds/{holdId}/confirm` | POST | `X-Student-Id` | Confirm admission & process payment (idempotent `200 OK`) |
-| `/holds/{holdId}` | DELETE | `X-Student-Id` | Cancel hold and immediately release seat (`204 No Content`) |
-| `/me/holds` | GET | `X-Student-Id` | Retrieve current student's holds with class and shift details |
-| `/me/profile` | GET / PUT | `X-Student-Id` | Get or update student dossier details and document verification state |
-| `/admin/classes/{classId}` | DELETE | Admin Auth | Delete empty class shift (safely blocked if confirmed seats exist) |
-| `/admin/applications` | GET | Admin Auth | Search, filter, and inspect applicant dossiers with pagination |
-| `/admin/applications/{studentId}` | PUT / DELETE | Admin Auth | Update dossier status (`ELIGIBLE`, `APPROVED`, `REJECTED`) or delete record |
-| `/auth/admin/login` | POST | None | Authenticate admin username/password session |
+| `POST` | `/classes` | None | Create a class shift (`{ "name": "...", "totalSeats": 120 }`) -> `201 Created` |
+| `GET` | `/classes` | None | List all class shifts with live `heldSeats`, `confirmedSeats`, `availableSeats` |
+| `GET` | `/classes/{classId}` | None | Get live seat counts for a single class shift |
+| `POST` | `/classes/{classId}/holds` | `X-Student-Id` | Place a temporary seat hold -> `201 Created` or `409 Conflict` |
+| `GET` | `/holds/{holdId}` | None | Get current hold status (`HELD`, `CONFIRMED`, `EXPIRED`, `CANCELLED`) |
+| `POST` | `/holds/{holdId}/confirm` | `X-Student-Id` | Confirm hold and settle fee (idempotent `200 OK`) |
+| `DELETE` | `/holds/{holdId}` | `X-Student-Id` | Cancel hold and release seat (`204 No Content`) |
+| `GET` | `/me/holds` | `X-Student-Id` | List all holds belonging to the student |
+| `GET` / `PUT` | `/parent/profile` | `X-Student-Id` | Fetch or update the student & guardian admission dossier |
+| `POST` | `/parent/documents` | `X-Student-Id` | Upload admission document metadata |
+| `GET` | `/routines` | None | Fetch fixed shift hours and weekly schedules |
+| `POST` | `/auth/admin/login` | None | Authenticate staff user and issue admin session token |
+| `GET` | `/admin/dashboard` | Admin Token | Fetch admissions overview KPIs and class rosters |
+| `GET` / `PUT` / `DELETE` | `/admin/applications*` | Admin Token | Filter, inspect, review, or delete applicant dossiers |
+| `PUT` / `DELETE` | `/admin/classes/{classId}` | Admin Token | Update class configuration/fees or delete an unused class |
 
 ---
 
-## 🔒 Security & Privacy Guarantees
+## Documentation
 
-- **No Public Leak of Applicant Data:** Unauthenticated public visitors on the landing page cannot see internal class routines, student rosters, or payment records.
-- **Hidden & Password-Gated Admin Access:** Admin portal links are intentionally hidden from public view and strictly require authentication with bcrypt-verified passwords.
-- **Parameterized SQL:** All database queries utilize parameterized SQL via Npgsql to eliminate SQL injection vulnerabilities.
-- **Environment Isolation:** Sensitive credentials and Firebase configuration keys are isolated via environment variables and excluded from version control.
-
----
-
-## 📖 Deep Architecture & Design Decisions
-
-For an exhaustive technical breakdown of:
-- High-level architecture diagrams and data flow maps
-- Entity Relationship (ER) diagrams & database schema definitions
-- Complete admission lifecycle & state machine transitions
-- 5 comprehensive concurrency sequence diagrams (`FOR UPDATE` locking, expiry race conditions, single-admission rules)
-- Rationale behind PostgreSQL raw SQL vs. ORM selection
-
-Please consult the companion specification document: **[`ASSUMPTIONS.md`](file:///Users/dipayon/IUB%20Official/Projects/school%20admission%20system/ASSUMPTIONS.md)**.
+- Architecture diagrams, schema SQL, admission lifecycle state machine, concurrency sequence diagrams, and design decisions: [ASSUMPTIONS.md](./ASSUMPTIONS.md)

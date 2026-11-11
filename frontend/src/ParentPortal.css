@@ -1,6 +1,4 @@
-/* =========================================================================
-   Parent & Student Portal Stylesheet (White & Emerald Green SaaS Theme)
-   ========================================================================= */
+/* Parent & Student Portal Stylesheet (White & Emerald Green SaaS Theme) */
 
 .portal-page-wrapper {
   background-color: #f8fafc;
@@ -49,7 +47,7 @@
   font-weight: 800;
 }
 
-/* Navigation items in White & Institutional Green Theme (Anti-AI-Slop Clean Dashboard Pattern) */
+/* Navigation items in White & Institutional Green Theme */
 .nav-item {
   color: #475569 !important;
   font-weight: 500;

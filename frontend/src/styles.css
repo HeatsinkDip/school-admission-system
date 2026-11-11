@@ -1,6 +1,4 @@
-/* =========================================================================
-   Modern SaaS Design System: School Admission Portal & Admin Console
-   ========================================================================= */
+/* Modern SaaS Design System: School Admission Portal & Admin Console */
 
 :root {
   --font-serif: 'Crimson Pro', Georgia, serif;
@@ -64,7 +62,7 @@
   --sidebar-collapsed-width: 72px;
   --topbar-height: 64px;
 
-  /* Structured Radius Scale (Anti-AI-Slop) */
+  /* Structured Radius Scale */
   --radius-xs: 3px;
   --radius-sm: 4px;
   --radius-md: 6px;
@@ -72,7 +70,7 @@
   --radius-xl: 12px;
   --radius-2xl: 16px;
 
-  /* Flat elevation hierarchy (Anti-AI-Slop: minimal shadow, structural borders) */
+  /* Flat elevation hierarchy */
   --shadow-2xs: 0 1px 2px rgba(0, 0, 0, 0.03);
   --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.05);
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -92,7 +90,7 @@
   outline-offset: 2px;
 }
 
-/* Reduced Motion Support (Anti-AI-Slop rule MO10) */
+/* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -118,9 +116,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* =========================================================================
-   App Shell & Layout Structure (Sidebar + Main View)
-   ========================================================================= */
+/* App Shell & Layout Structure (Sidebar + Main View) */
 
 .app-shell {
   display: flex;
@@ -469,9 +465,7 @@ body {
   color: var(--slate-900);
 }
 
-/* =========================================================================
-   Main View & Topbar
-   ========================================================================= */
+/* Main View & Topbar */
 
 .app-main {
   flex: 1;
@@ -591,9 +585,7 @@ body {
   font-weight: 700;
 }
 
-/* =========================================================================
-   Content Layout & Panels
-   ========================================================================= */
+/* Content Layout & Panels */
 
 .content-container {
   padding: 1.5rem;
@@ -650,9 +642,7 @@ body {
   border-radius: 4px;
 }
 
-/* =========================================================================
-   Modern KPI Metric Cards
-   ========================================================================= */
+/* Modern KPI Metric Cards */
 
 .kpi-grid-modern {
   display: grid;
@@ -717,9 +707,7 @@ body {
   margin-top: 0.15rem;
 }
 
-/* =========================================================================
-   Modern Data Tables
-   ========================================================================= */
+/* Modern Data Tables */
 
 .table-responsive {
   overflow-x: auto;
@@ -824,9 +812,7 @@ body {
   text-transform: uppercase;
 }
 
-/* =========================================================================
-   Interactive Forms, Search, & Inputs
-   ========================================================================= */
+/* Interactive Forms, Search, & Inputs */
 
 .search-filter-grid {
   display: grid;
@@ -990,9 +976,7 @@ body {
   flex-wrap: wrap;
 }
 
-/* =========================================================================
-   Active Seat Hold & Countdown View
-   ========================================================================= */
+/* Active Seat Hold & Countdown View */
 
 .hold-status-grid {
   display: grid;
@@ -1072,9 +1056,7 @@ body {
   font-size: 1.05rem;
 }
 
-/* =========================================================================
-   Child Information Stepper Tabs
-   ========================================================================= */
+/* Child Information Stepper Tabs */
 
 .dossier-stepper-tabs {
   display: flex;
@@ -1128,9 +1110,7 @@ body {
   transition: width 0.3s ease;
 }
 
-/* =========================================================================
-   Officer Dossier Inspector
-   ========================================================================= */
+/* Officer Dossier Inspector */
 
 .dossier-inspector {
   margin-top: 1.5rem;
@@ -1290,9 +1270,7 @@ body {
   justify-content: flex-end;
 }
 
-/* =========================================================================
-   Document Viewer Modal (Split Visual Inspector)
-   ========================================================================= */
+/* Document Viewer Modal (Split Visual Inspector) */
 
 .modal-backdrop {
   position: fixed;
@@ -1647,9 +1625,7 @@ body {
   margin-top: auto;
 }
 
-/* =========================================================================
-   Login Gateway Screen
-   ========================================================================= */
+/* Login Gateway Screen */
 
 .login-gateway-page {
   min-height: 100vh;
@@ -1766,9 +1742,7 @@ body {
   text-align: center;
 }
 
-/* =========================================================================
-   Alerts, Banners, & Utility Elements
-   ========================================================================= */
+/* Alerts, Banners, & Utility Elements */
 
 .alert {
   display: flex;
@@ -1948,9 +1922,7 @@ body {
   }
 }
 
-/* ========================================================================= */
-/* Notifications, Alert System, Toast Banners & Live Activity Stream         */
-/* ========================================================================= */
+/* Notifications, Alert System, Toast Banners & Live Activity Stream */
 
 .notification-center-root {
   position: relative;
@@ -2463,9 +2435,7 @@ body {
   padding-top: 0.4rem;
 }
 
-/* ========================================================================= */
-/* ACTION ALERT MODAL                                                        */
-/* ========================================================================= */
+/* ACTION ALERT MODAL */
 
 .action-modal-backdrop {
   position: fixed;
@@ -2584,9 +2554,7 @@ body {
 
 /* Page-specific stylesheets are individually imported: LandingPage.css, ParentPortal.css, AdminPortal.css, K8sModals.css */
 
-/* =========================================================================
-   Pagination Styles (All-White Theme)
-   ========================================================================= */
+/* Pagination Styles (All-White Theme) */
 
 .pagination-container {
   display: flex;
@@ -2645,9 +2613,7 @@ body {
   color: var(--slate-400);
 }
 
-/* =========================================================================
-   Class Routine & Inspection Modal Styles (All-White Theme)
-   ========================================================================= */
+/* Class Routine & Inspection Modal Styles (All-White Theme) */
 
 .routine-view-card {
   background: #ffffff;

@@ -741,9 +741,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
     URL.revokeObjectURL(url);
   };
 
-  // =========================================================================
   // 1. Password-Secured Staff Login Gateway
-  // =========================================================================
 
   if (!session) {
     return (
@@ -872,17 +870,13 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
     );
   }
 
-  // =========================================================================
   // 2. Authenticated Admin Dashboard & Officer Workspaces
-  // =========================================================================
 
   return (
     <div className="min-h-screen bg-slate-100 text-slate-900 font-sans flex flex-col" data-testid="admin-console-view">
       <ToastContainer />
 
-      {/* =========================================================================
-          TOP UTILITY & INSTITUTIONAL HEADER (White & Deep Emerald `#014d33`)
-          ========================================================================= */}
+      {/* TOP UTILITY & INSTITUTIONAL HEADER (White & Deep Emerald `#014d33`) */}
       <div className="isd-top-utility-bar">
         <div className="px-3 sm:px-6 flex items-center justify-between text-xs py-1 text-emerald-100">
           <div className="flex items-center gap-3">
@@ -1379,9 +1373,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             </div>
           )}
 
-          {/* ================================================================= */}
-          {/* VIEW: OVERVIEW & LIVE SEAT DASHBOARD                              */}
-          {/* ================================================================= */}
+          {/* VIEW: OVERVIEW & LIVE SEAT DASHBOARD */}
           {activeView === 'overview' && dashboard && (
             <div className="space-y-3.5">
               {/* Metric Stat Cards */}
@@ -1551,9 +1543,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             </div>
           )}
 
-          {/* ================================================================= */}
-          {/* VIEW: APPLICATION REVIEW QUEUE & DOSSIER INSPECTOR               */}
-          {/* ================================================================= */}
+          {/* VIEW: APPLICATION REVIEW QUEUE & DOSSIER INSPECTOR */}
           {(activeView === 'applications' || activeView === 'doc_verification') && (
             <div className="space-y-3.5">
               <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
@@ -2006,9 +1996,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             </div>
           )}
 
-          {/* ================================================================= */}
-          {/* VIEW: FINANCE & COLLECTIONS                                       */}
-          {/* ================================================================= */}
+          {/* VIEW: FINANCE & COLLECTIONS */}
           {(activeView === 'finance' || activeView === 'refunds') && (
             <div className="space-y-3.5">
               <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
@@ -2096,9 +2084,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             </div>
           )}
 
-          {/* ================================================================= */}
-          {/* VIEW: CLASSES & FEE BUILDER                                       */}
-          {/* ================================================================= */}
+          {/* VIEW: CLASSES & FEE BUILDER */}
           {activeView === 'classes' && (
             <div className="space-y-3.5">
               <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-3.5 space-y-3" data-testid="create-class-section">
@@ -2268,9 +2254,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             </div>
           )}
 
-          {/* ================================================================= */}
-          {/* VIEW: WAITLIST QUEUE                                              */}
-          {/* ================================================================= */}
+          {/* VIEW: WAITLIST QUEUE */}
           {activeView === 'waitlist' && (
             <div className="space-y-3.5">
               <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
@@ -2333,9 +2317,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             </div>
           )}
 
-          {/* ================================================================= */}
-          {/* VIEW: CLASS ROUTINES & FIXED OPERATING HOURS                      */}
-          {/* ================================================================= */}
+          {/* VIEW: CLASS ROUTINES & FIXED OPERATING HOURS */}
           {activeView === 'routines' && (
             <div className="space-y-3.5" data-testid="admin-routines-view">
               <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-3 sm:p-3.5 space-y-2">
@@ -2394,9 +2376,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             </div>
           )}
 
-          {/* ================================================================= */}
-          {/* VIEW: ACADEMIC WINDOW & SETTINGS                                  */}
-          {/* ================================================================= */}
+          {/* VIEW: ACADEMIC WINDOW & SETTINGS */}
           {activeView === 'settings' && isSuperAdmin && (
             <div className="space-y-3.5">
               <div className="bg-white rounded-xl border border-slate-200 shadow-xs p-3.5 space-y-3">
@@ -2466,9 +2446,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             </div>
           )}
 
-          {/* ================================================================= */}
-          {/* VIEW: ALERTS & LIVE ACTIVITY FEED                                 */}
-          {/* ================================================================= */}
+          {/* VIEW: ALERTS & LIVE ACTIVITY FEED */}
           {activeView === 'alerts' && (
             <div className="space-y-3.5" data-testid="admin-alerts-feed-view">
               {/* Broadcast Urgent Notice Tool */}
@@ -2691,9 +2669,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
             </div>
           )}
 
-          {/* ================================================================= */}
-          {/* VIEW: IMMUTABLE AUDIT TRAIL                                       */}
-          {/* ================================================================= */}
+          {/* VIEW: IMMUTABLE AUDIT TRAIL */}
           {activeView === 'audit' && isSuperAdmin && (
             <div className="space-y-3.5">
               <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
@@ -2754,9 +2730,7 @@ export function AdminPortal({ onNavigateToParent }: AdminPortalProps) {
         </main>
       </div>
 
-      {/* =========================================================================
-          INSTITUTIONAL FOOTER (White & Emerald ISD)
-          ========================================================================= */}
+      {/* INSTITUTIONAL FOOTER (Institutional Footer) */}
       <footer className="isd-white-footer mt-auto border-t border-slate-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">

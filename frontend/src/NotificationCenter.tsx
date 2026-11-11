@@ -146,7 +146,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
         )}
       </button>
 
-      {/* Notification Dropdown Panel (Anti-AI-Slop Clean Style) */}
+      {/* Notification Dropdown Panel */}
       {isOpen && (
         <div
           className="absolute right-0 mt-2 w-[340px] sm:w-[400px] bg-white rounded-xl border border-slate-200 shadow-xl z-50 overflow-hidden flex flex-col max-h-[85vh]"

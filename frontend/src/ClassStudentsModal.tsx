@@ -191,9 +191,7 @@ export const ClassStudentsModal: React.FC<ClassStudentsModalProps> = ({
         onClick={(e) => e.stopPropagation()}
         data-testid="class-students-modal"
       >
-        {/* =========================================================================
-            HEADER (Institutional Emerald `#014d33`)
-            ========================================================================= */}
+        {/* HEADER (Institutional Emerald `#014d33`) */}
         <div className="bg-[#014d33] text-white p-4 sm:p-5 flex items-center justify-between border-b border-emerald-900">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center justify-center shrink-0">
@@ -224,9 +222,7 @@ export const ClassStudentsModal: React.FC<ClassStudentsModalProps> = ({
           </button>
         </div>
 
-        {/* =========================================================================
-            METRICS BAR (Capacity, Confirmed, Held, Available)
-            ========================================================================= */}
+        {/* METRICS BAR (Capacity, Confirmed, Held, Available) */}
         <div className="p-3 sm:p-4 bg-slate-50 border-b border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
           <div className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-2xs">
             <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 block">
@@ -267,9 +263,7 @@ export const ClassStudentsModal: React.FC<ClassStudentsModalProps> = ({
           </div>
         </div>
 
-        {/* =========================================================================
-            FILTER & SEARCH BAR
-            ========================================================================= */}
+        {/* FILTER & SEARCH BAR */}
         <div className="p-3 sm:p-4 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 bg-white">
           <div className="relative w-full sm:w-80">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -342,9 +336,7 @@ export const ClassStudentsModal: React.FC<ClassStudentsModalProps> = ({
           </div>
         </div>
 
-        {/* =========================================================================
-            STUDENT ROSTER TABLE
-            ========================================================================= */}
+        {/* STUDENT ROSTER TABLE */}
         <div className="flex-1 overflow-y-auto max-h-[50vh]">
           {filteredRoster.length === 0 ? (
             <div className="p-10 text-center space-y-2">
@@ -494,9 +486,7 @@ export const ClassStudentsModal: React.FC<ClassStudentsModalProps> = ({
           )}
         </div>
 
-        {/* =========================================================================
-            FOOTER
-            ========================================================================= */}
+        {/* FOOTER */}
         <div className="p-3 sm:p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs">
           <div className="text-slate-500 font-medium">
             Showing <strong className="text-slate-800">{filteredRoster.length}</strong> of{' '}

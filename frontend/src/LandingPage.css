@@ -1,7 +1,4 @@
-/* =========================================================================
-   Onnorokom School, Bangladesh: White & Deep Emerald Green
-   Pixel-Perfect Styling Aligned with ISD Visual Architecture
-   ========================================================================= */
+/* Onnorokom School, Bangladesh: White & Deep Emerald Green — Pixel-Perfect Styling Aligned with ISD Visual Architecture */
 
 :root {
   --isd-green-dark: #014d33;
@@ -35,9 +32,7 @@
   width: 100%;
 }
 
-/* =========================================================================
-   TOP UTILITY BAR (Deep Green Strip: Reference Image 1 & 4)
-   ========================================================================= */
+/* TOP UTILITY BAR */
 
 .isd-top-utility-bar {
   background: var(--isd-green-dark);
@@ -46,9 +41,7 @@
   z-index: 51;
 }
 
-/* =========================================================================
-   MAIN HEADER (White Background with Emerald & Orange Highlights)
-   ========================================================================= */
+/* MAIN HEADER (White Background with Emerald & Orange Highlights) */
 
 .isd-main-header {
   background: #ffffff;
@@ -113,7 +106,7 @@
   box-shadow: 0 4px 8px rgba(234, 88, 12, 0.35);
 }
 
-/* Iconic Orange Hamburger Trigger matching ISD reference (Image 1 & 4) */
+/* Iconic Orange Hamburger Trigger*/
 .isd-hamburger-trigger {
   width: 44px;
   height: 44px;
@@ -134,10 +127,7 @@
   transform: translateY(-1px);
 }
 
-/* =========================================================================
-   MEGA MENU OVERLAY & SPLIT DRAWER (Reference Image 2)
-   Deep Forest Green `#014d33` with Left Categories & Right Sub-items
-   ========================================================================= */
+/* MEGA MENU OVERLAY & SPLIT DRAWER — Deep Forest Green `#014d33` with Left Categories & Right Sub-items */
 
 .isd-megamenu-overlay {
   position: fixed;
@@ -228,7 +218,7 @@
   transform: rotate(90deg);
 }
 
-/* Two-column Split Layout matching Image 2 */
+/* Two-column Split Layout*/
 .isd-megamenu-split-body {
   display: grid;
   grid-template-columns: 1fr;
@@ -322,9 +312,7 @@
   border: 1px solid rgba(234, 88, 12, 0.3);
 }
 
-/* =========================================================================
-   HERO SHOWCASE (Reference Image 1 & 4 with Outlined Typography)
-   ========================================================================= */
+/* HERO SHOWCASE */
 
 .isd-hero-showcase {
   position: relative;
@@ -449,7 +437,7 @@
   box-shadow: 0 6px 16px rgba(234, 88, 12, 0.4);
 }
 
-/* Yellow Pill Button: "WATCH THE FULL VIDEO >" matching Reference Image 1 & 4 */
+/* Yellow Pill Button: "WATCH THE FULL VIDEO >"*/
 .isd-video-pill-btn {
   background: var(--isd-yellow);
   color: #1e1b4b;
@@ -473,7 +461,7 @@
   box-shadow: 0 6px 18px rgba(250, 204, 21, 0.5);
 }
 
-/* Floating "Talk to Hawk / Counselor" Badge (Image 1 & 3 reference) */
+/* Floating "Talk to Hawk / Counselor" Badge */
 .isd-hawk-counselor-pill {
   position: absolute;
   bottom: 2rem;
@@ -497,9 +485,7 @@
   background: #064e3b;
 }
 
-/* =========================================================================
-   CAMPUS FACILITIES: FEATURED FRAME (Reference Image 4, Section 2)
-   ========================================================================= */
+/* CAMPUS FACILITIES: FEATURED FRAME */
 
 .isd-facility-featured-frame {
   position: relative;
@@ -518,10 +504,7 @@
   z-index: 5;
 }
 
-/* =========================================================================
-   "FIND OUT MORE ABOUT OUR SCHOOLS" (Reference Image 3 & 4)
-   Deep Forest Green with Concentric Stadium Tracks and Poster Cards
-   ========================================================================= */
+/* "FIND OUT MORE ABOUT OUR SCHOOLS" — Deep Forest Green with Concentric Stadium Tracks and Poster Cards */
 
 .isd-our-schools-section {
   background-color: var(--isd-green-dark);
@@ -587,9 +570,7 @@
   flex-direction: column;
 }
 
-/* =========================================================================
-   "ISD IN NUMBERS" STATS BAR (Reference Image 4, Section 4)
-   ========================================================================= */
+/* "School at a Glance" STATS BAR */
 
 .isd-numbers-bar-section {
   background-color: #023825;
@@ -602,9 +583,7 @@
   padding: 1.25rem 0.5rem;
 }
 
-/* =========================================================================
-   "EXCEPTIONAL LEARNING EXPERIENCES AT ISD" (Reference Image 4, Section 6)
-   ========================================================================= */
+/* "Exceptional Learning Experiences" */
 
 .isd-experiences-section {
   background-color: var(--isd-green-dark);
@@ -657,9 +636,7 @@
   flex-direction: column;
 }
 
-/* =========================================================================
-   CLUBS & STUDENT LIFE: 3-COLUMN GRID
-   ========================================================================= */
+/* CLUBS & STUDENT LIFE: 3-COLUMN GRID */
 
 .isd-club-box {
   background: #ffffff;
@@ -687,9 +664,7 @@
   justify-content: center;
 }
 
-/* =========================================================================
-   WORKFLOW BOXES
-   ========================================================================= */
+/* WORKFLOW BOXES */
 
 .isd-workflow-box {
   background: #ffffff;
@@ -713,9 +688,7 @@
   margin-bottom: 1rem;
 }
 
-/* =========================================================================
-   WHITE INSTITUTIONAL FOOTER (Reference Image 4, Section 7)
-   ========================================================================= */
+/* WHITE INSTITUTIONAL FOOTER */
 
 .isd-white-footer {
   background-color: #ffffff;
@@ -755,7 +728,7 @@
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
 }
 
-/* Reduced Motion (Anti-AI-Slop MO10) */
+/* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
   .isd-sunburst-logo:hover,
   .isd-school-poster-card:hover .isd-school-poster-img,

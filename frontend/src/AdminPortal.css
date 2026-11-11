@@ -1,6 +1,4 @@
-/* =========================================================================
-   Admin Portal Stylesheet (White & Emerald Green Executive Theme)
-   ========================================================================= */
+/* Admin Portal Stylesheet (White & Emerald Green Executive Theme) */
 
 .admin-portal-wrapper {
   background-color: #f8fafc;
@@ -42,7 +40,7 @@
   font-weight: 800;
 }
 
-/* Admin Sidebar Nav Items (Anti-AI-Slop Clean Dashboard Pattern) */
+/* Admin Sidebar Nav Items */
 .admin-sidebar .nav-item {
   color: #475569 !important;
   font-weight: 500;

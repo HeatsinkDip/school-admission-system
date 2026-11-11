@@ -25,9 +25,7 @@ public sealed class PortalService(
         ("INCOME_PROOF",   "Household Income Certificate (Required for Concession)")
     ];
 
-    // =========================================================================
-    // 1. Admin Authentication & Session Management
-    // =========================================================================
+    // Admin authentication & session management
 
     public async Task<AdminSessionResponse> LoginAdminAsync(AdminLoginRequest req, CancellationToken ct)
     {
@@ -132,9 +130,7 @@ public sealed class PortalService(
         return null;
     }
 
-    // =========================================================================
-    // 2. Parent Portal: Child Profile, Documents, Fee Breakdown & Waitlist
-    // =========================================================================
+    // Parent portal operations: child profile, documents, fee breakdown & waitlist
 
     public async Task<StudentProfileDto> GetStudentProfileAsync(string studentId, CancellationToken ct)
     {
@@ -474,9 +470,7 @@ public sealed class PortalService(
         return list;
     }
 
-    // =========================================================================
-    // 3. Admin Console Operations
-    // =========================================================================
+    // Admin console operations
 
     public async Task<AdminDashboardDto> GetDashboardAsync(CancellationToken ct)
     {
@@ -1224,9 +1218,7 @@ public sealed class PortalService(
         return list;
     }
 
-    // =========================================================================
-    // Internal Helpers
-    // =========================================================================
+    // Internal helpers
 
     private static string NormalizeClassStatus(string? status)
     {
@@ -1483,9 +1475,7 @@ public sealed class PortalService(
         return list;
     }
 
-    // =========================================================================
-    // Notifications & Alert System
-    // =========================================================================
+    // Notifications & alert queries
 
     public async Task<NotificationSummaryDto> ListNotificationsAsync(string? studentId, CancellationToken ct)
     {

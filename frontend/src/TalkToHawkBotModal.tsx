@@ -178,7 +178,7 @@ export const TalkToHawkBotModal: React.FC<TalkToHawkBotModalProps> = ({
             </ul>
           </div>
 
-          {/* Quick FAQ Question Chips (Anti-AI-Slop: clean typography, no emojis) */}
+          {/* Quick FAQ Question Chips */}
           <div>
             <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1.5 flex items-center gap-1">
               <Sparkles size={12} className="text-amber-600" />
@@ -249,7 +249,7 @@ export const TalkToHawkBotModal: React.FC<TalkToHawkBotModalProps> = ({
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Area (Matching Image 1) */}
+          {/* Input Area */}
           <div className="space-y-2 pt-2 border-t border-slate-100">
             <label className="text-xs sm:text-sm font-extrabold text-slate-800 block">
               How can our admissions counselor help you today?
@@ -276,7 +276,7 @@ export const TalkToHawkBotModal: React.FC<TalkToHawkBotModalProps> = ({
           </div>
         </div>
 
-        {/* Footer Actions (Matching Image 1) */}
+        {/* Footer Actions */}
         <div className="p-3 sm:p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2.5">
           <button
             type="button"

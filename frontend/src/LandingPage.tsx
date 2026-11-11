@@ -35,11 +35,9 @@ interface LandingPageProps {
   onOpenSystemSpecModal?: () => void;
 }
 
-// =========================================================================
 // MOCK DATA & CONTENT (Aligned with Onnorokom School, Bangladesh)
-// =========================================================================
 
-// Mega Menu Data structured into Category -> Sub-links (matching Image 2)
+// Mega Menu Data structured into Category -> Sub-links
 const MEGA_MENU_SECTIONS: Record<
   string,
   Array<{ name: string; desc: string; highlight?: boolean; linkTarget?: string }>
@@ -98,7 +96,7 @@ const MEGA_MENU_SECTIONS: Record<
   ],
 };
 
-// Facilities Carousel Data (matching Image 4, Section 2)
+// Facilities Carousel Data
 const FACILITIES_DATA = [
   {
     id: 'pavilion',
@@ -162,7 +160,7 @@ const FACILITIES_DATA = [
   },
 ];
 
-// Story Cards Data (matching Image 4, Section 5)
+// Story Cards Data
 const STORIES_DATA = [
   {
     type: 'quote',
@@ -200,15 +198,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onOpenK8sSpikeModal,
   onOpenSystemSpecModal,
 }) => {
-  // Mega Menu State (Image 2)
+  // Mega Menu State
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   const [activeMenuCategory, setActiveMenuCategory] = useState<string>('ABOUT US');
   const [menuSearchQuery, setMenuSearchQuery] = useState('');
 
-  // Facilities Carousel State (Image 4, Section 2)
+  // Facilities Carousel State
   const [facilityIndex, setFacilityIndex] = useState(0);
 
-  // Stories Carousel State (Image 4, Section 5)
+  // Stories Carousel State
   const [storyIndex, setStoryIndex] = useState(0);
 
   // Modals
@@ -242,9 +240,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
   return (
     <div className="landing-page-root">
-      {/* =========================================================================
-          TOP UTILITY BAR (Deep Emerald Green `#014d33` matching ISD Image 1 & 4)
-          ========================================================================= */}
+      {/* TOP UTILITY BAR */}
       <div className="isd-top-utility-bar">
         <div className="landing-container flex items-center justify-between text-xs py-1.5">
           <div className="flex items-center gap-4 text-emerald-100 font-medium">
@@ -292,9 +288,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </div>
 
-      {/* =========================================================================
-          MAIN INSTITUTIONAL HEADER (White with Emerald & Saffron Orange Accent)
-          ========================================================================= */}
+      {/* MAIN INSTITUTIONAL HEADER (White with Emerald & Saffron Orange Accent) */}
       <header className="isd-main-header">
         <div className="landing-container flex items-center justify-between h-20">
           {/* School Brand Emblem & Typography */}
@@ -303,7 +297,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             onClick={() => onOpenParentPortal()}
             title="Go to School Admission Portal"
           >
-            {/* Colorful Geometric Sunburst Emblem matching ISD Reference Image 1 & 4 */}
+            {/* School Sunburst Emblem */}
             <div className="isd-sunburst-logo">
               <svg viewBox="0 0 44 44" className="w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22 4C23.1 4 24 4.9 24 6V10C24 11.1 23.1 12 22 12C20.9 12 20 10V6C20 4.9 20.9 4 22 4Z" fill="#10B981" />
@@ -391,7 +385,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <ArrowRight size={16} />
             </button>
 
-            {/* Square Saffron Orange Hamburger Button matching Reference Image 1 & 4 */}
+            {/* Hamburger Menu Button */}
             <button
               type="button"
               className="isd-hamburger-trigger"
@@ -404,13 +398,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </header>
 
-      {/* =========================================================================
-          ISD MEGA MENU DRAWER OVERLAY (Matching Reference Image 2)
-          ========================================================================= */}
+      {/* Main Navigation Mega Menu DRAWER OVERLAY */}
       {isMegaMenuOpen && (
         <div className="isd-megamenu-overlay" onClick={() => setIsMegaMenuOpen(false)}>
           <div className="isd-megamenu-drawer" onClick={(e) => e.stopPropagation()}>
-            {/* Top Bar: Search Input on Left, Orange Square Close Button on Right (Image 2) */}
+            {/* Top Bar: Search Input on Left, Orange Square Close Button on Right */}
             <div className="isd-megamenu-topbar">
               <div className="isd-megamenu-search-box">
                 <Search size={18} className="text-emerald-300 shrink-0" />
@@ -433,7 +425,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </button>
             </div>
 
-            {/* Split Content: Left Main Categories | Right Sub-Items (Image 2 Layout) */}
+            {/* Split Content: Left Main Categories | Right Sub-Items */}
             <div className="isd-megamenu-split-body">
               {/* Left Column: Bold White Uppercase Categories */}
               <div className="isd-megamenu-categories-col">
@@ -532,9 +524,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       )}
 
-      {/* =========================================================================
-          HERO SECTION (Matching ISD Image 1 & 4 with Bold Stylized Outlined Typography)
-          ========================================================================= */}
+      {/* HERO SECTION */}
       <section className="isd-hero-showcase">
         <div className="isd-hero-bg-media">
           <img
@@ -553,7 +543,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <span>ACADEMIC YEAR 2027 • ADMISSIONS OPEN NOW</span>
             </div>
 
-            {/* Distinctive Editorial Hero Titles (As in ISD Reference Image 1 & 4) */}
+            {/* Distinctive Editorial Hero Titles */}
             <div className="isd-hero-title-group">
               <h1 className="isd-hero-title-filled">The</h1>
               <h2 className="isd-hero-title-outlined">Communicator.</h2>
@@ -578,7 +568,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <ArrowRight size={18} />
               </button>
 
-              {/* Yellow Pill "WATCH THE FULL VIDEO >" matching Reference Image 1 & 4 */}
+              {/* Yellow Pill "WATCH THE FULL VIDEO >"*/}
               <button
                 type="button"
                 className="isd-video-pill-btn"
@@ -608,7 +598,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </div>
         </div>
 
-        {/* Floating "Talk to Hawk / OPS Counselor" Widget at Bottom Right (Image 1 reference) */}
+        {/* Floating "Talk to Hawk / OPS Counselor" Widget at Bottom Right */}
         <button
           type="button"
           className="isd-hawk-counselor-pill"
@@ -625,10 +615,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </button>
       </section>
 
-      {/* =========================================================================
-          SECTION 2: CAMPUS FACILITIES (Matching ISD Image 4, Section 2)
-          Left: Text & Controls | Right: Large Photo with Green Frame Accent & Yellow Tour Button
-          ========================================================================= */}
+      {/* SECTION 2: CAMPUS FACILITIES — Left: Text & Controls | Right: Large Photo with Green Frame Accent & Yellow Tour Button */}
       <section id="facilities-section" className="py-20 bg-white border-b border-slate-100">
         <div className="landing-container">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
@@ -659,7 +646,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 ))}
               </div>
 
-              {/* Action and Interactive Slider Controls (Image 4) */}
+              {/* Action and Interactive Slider Controls */}
               <div className="pt-4 flex items-center gap-6">
                 <button
                   type="button"
@@ -694,10 +681,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
             </div>
 
-            {/* Right Column: Featured Large Photo with Emerald Frame & Yellow Tour Pill (Image 4) */}
+            {/* Right Column: Featured Large Photo with Emerald Frame & Yellow Tour Pill */}
             <div className="lg:col-span-7">
               <div className="isd-facility-featured-frame">
-                {/* Decorative Green Accent Frame on Top Right matching Image 4 */}
+                {/* Decorative Green Accent Frame on Top Right*/}
                 <div className="isd-frame-accent-corner" />
 
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-slate-900">
@@ -721,7 +708,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   </div>
                 </div>
 
-                {/* Yellow "TAKE A TOUR" Pill Button placed directly below matching Image 4 */}
+                {/* Yellow "TAKE A TOUR" Pill Button placed directly below*/}
                 <div className="mt-4 flex justify-center sm:justify-start">
                   <button
                     type="button"
@@ -738,13 +725,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* =========================================================================
-          SECTION 3: "FIND OUT MORE ABOUT OUR SCHOOLS" (Matching ISD Image 3 & 4)
-          Deep Forest Green `#014d33` Background with Concentric Orange Stadium Curves
-          3-Column Grid Cards: EARLY YEARS, PRIMARY, SECONDARY
-          ========================================================================= */}
+      {/* SECTION 3: "FIND OUT MORE ABOUT OUR SCHOOLS" — Deep Forest Green `#014d33` Background with Concentric Orange Stadium Curves — 3-Column Grid Cards: EARLY YEARS, PRIMARY, SECONDARY */}
       <section id="our-schools-section" className="isd-our-schools-section">
-        {/* Distinctive Concentric Orange Stadium Tracks on Right Margin (Image 3 & 4) */}
+        {/* Distinctive Concentric Orange Stadium Tracks on Right Margin */}
         <div className="isd-concentric-tracks" aria-hidden="true">
           <svg viewBox="0 0 320 320" className="w-[300px] h-[300px] sm:w-[380px] sm:h-[380px]" fill="none">
             <path
@@ -782,9 +765,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </h2>
           </div>
 
-          {/* 3 Prominent School Cards (Early Years, Primary, Secondary) in 3-column grid matching Image 3 */}
+          {/* 3 Prominent School Cards (Early Years, Primary, Secondary) in 3-column grid*/}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Early Years (Child in play tunnel matching Image 3) */}
+            {/* Early Years */}
             <div
               className="isd-school-poster-card group cursor-pointer"
               onClick={() => onOpenParentPortal()}
@@ -808,7 +791,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
             </div>
 
-            {/* Primary (Young boy in Harry Potter glasses & gown matching Image 3) */}
+            {/* Primary */}
             <div
               className="isd-school-poster-card group cursor-pointer"
               onClick={() => onOpenParentPortal()}
@@ -832,7 +815,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
             </div>
 
-            {/* Secondary (Older student in striped polo with robotics kit matching Image 3) */}
+            {/* Secondary */}
             <div
               className="isd-school-poster-card group cursor-pointer"
               onClick={() => onOpenParentPortal()}
@@ -859,10 +842,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* =========================================================================
-          SECTION 4: "ISD IN NUMBERS" STATS BAR (Matching ISD Image 4, Section 4)
-          4 Stats across with icons: 100%, 1:8, 32, 18
-          ========================================================================= */}
+      {/* SECTION 4: "School at a Glance" STATS BAR — 4 Stats across with icons: 100%, 1:8, 32, 18 */}
       <section className="isd-numbers-bar-section">
         <div className="landing-container">
           <div className="text-center max-w-xl mx-auto mb-10">
@@ -925,11 +905,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* =========================================================================
-          SECTION 5: STORIES & SCHOOL LIFE (Matching ISD Image 4, Section 5)
-          Carousel Cards: "Dare to Lead the Way", Science Photo, "Always asking 'why?'", Arts Photo
-          Yellow Buttons: "STORIES" & "NEWS"
-          ========================================================================= */}
+      {/* SECTION 5: STORIES & SCHOOL LIFE — Carousel Cards: "Dare to Lead the Way", Science Photo, "Always asking 'why?'", Arts Photo — Yellow Buttons: "STORIES" & "NEWS" */}
       <section className="py-20 bg-slate-50 border-b border-slate-200">
         <div className="landing-container">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
@@ -942,7 +918,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </h2>
             </div>
 
-            {/* Yellow Action Pills & Slider Navigation (Image 4) */}
+            {/* Yellow Action Pills & Slider Navigation */}
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -1033,16 +1009,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* =========================================================================
-          SECTION 6: "EXCEPTIONAL LEARNING EXPERIENCES AT ISD" (Matching Image 4, Section 6)
-          Deep Forest Green `#014d33` Background with Concentric Orange Stadium Curves
-          3 Tall Column Image Cards:
-          - Carnegie Mellon University (AI Robotics)
-          - Service Learning (Community Outreach)
-          - Barça Academy (Athletics & Soccer)
-          ========================================================================= */}
+      {/* SECTION 6: "Exceptional Learning Experiences" — Deep Forest Green `#014d33` Background with Concentric Orange Stadium Curves — 3 Tall Column Image Cards: — - Carnegie Mellon University (AI Robotics) — - Service Learning (Community Outreach) — - Barça Academy (Athletics & Soccer) */}
       <section id="experiences-section" className="isd-experiences-section">
-        {/* Concentric Orange Curves on Top Right Margin (Image 4) */}
+        {/* Concentric Orange Curves on Top Right Margin */}
         <div className="isd-concentric-tracks top-tracks" aria-hidden="true">
           <svg viewBox="0 0 320 320" className="w-[300px] h-[300px] sm:w-[380px] sm:h-[380px]" fill="none">
             <path
@@ -1079,7 +1048,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </h2>
           </div>
 
-          {/* 3 Column Image Cards matching Image 4 */}
+          {/* 3 Column Image Cards*/}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Card 1: Carnegie Mellon University Robotics */}
             <div
@@ -1156,9 +1125,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* =========================================================================
-          SECTION 7: CO-CURRICULAR CLUBS & LIFE (Grid 3-Column Layout from Request 3)
-          ========================================================================= */}
+      {/* SECTION 7: CO-CURRICULAR CLUBS & LIFE (Grid 3-Column Layout from Request 3) */}
       <section id="clubs-section" className="py-20 bg-white border-b border-slate-200">
         <div className="landing-container">
           <div className="text-center max-w-3xl mx-auto mb-14">
@@ -1299,9 +1266,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* =========================================================================
-          SECTION 8: 5-STEP GUIDED ADMISSION PROCESS (Transparent & Merit-Driven)
-          ========================================================================= */}
+      {/* SECTION 8: 5-STEP GUIDED ADMISSION PROCESS (Transparent & Merit-Driven) */}
       <section id="workflow-section" className="py-20 bg-slate-50 border-b border-slate-200">
         <div className="landing-container">
           <div className="text-center max-w-3xl mx-auto mb-14">
@@ -1360,10 +1325,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* =========================================================================
-          SECTION 9: INSTITUTIONAL FOOTER (White Background matching ISD Image 4, Section 7)
-          Logo, Contact Us, Links, Connect (25 Years), Campus Photo, Accreditation Badges
-          ========================================================================= */}
+      {/* SECTION 9: INSTITUTIONAL FOOTER — Logo, Contact Us, Links, Connect (25 Years), Campus Photo, Accreditation Badges */}
       <footer className="isd-white-footer">
         <div className="landing-container">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-16 border-b border-slate-200">
@@ -1394,7 +1356,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 and national curricula mastery.
               </p>
 
-              {/* Celebrating 25 Years Badge (matching Image 4, Section 7) */}
+              {/* Celebrating 25 Years Badge */}
               <div className="inline-flex items-center gap-3 bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-xl text-xs text-emerald-950">
                 <div className="w-9 h-9 rounded-full bg-amber-400 text-slate-950 font-black flex items-center justify-center text-sm shadow-sm">
                   25
@@ -1406,7 +1368,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
             </div>
 
-            {/* Column 2: Contact Us (matching Image 4, Section 7) */}
+            {/* Column 2: Contact Us */}
             <div className="md:col-span-3 space-y-3">
               <h4 className="font-serif font-black text-xs text-slate-900 uppercase tracking-widest border-b border-emerald-700/30 pb-1.5 inline-block">
                 CONTACT US
@@ -1430,7 +1392,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
             </div>
 
-            {/* Column 3: Links (matching Image 4, Section 7) */}
+            {/* Column 3: Links */}
             <div className="md:col-span-2 space-y-3">
               <h4 className="font-serif font-black text-xs text-slate-900 uppercase tracking-widest border-b border-emerald-700/30 pb-1.5 inline-block">
                 LINKS
@@ -1485,7 +1447,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </ul>
             </div>
 
-            {/* Column 4: Campus Photo (matching Image 4, Section 7) */}
+            {/* Column 4: Campus Photo */}
             <div className="md:col-span-3 space-y-3">
               <h4 className="font-serif font-black text-xs text-slate-900 uppercase tracking-widest border-b border-emerald-700/30 pb-1.5 inline-block">
                 CAMPUS VIEW
@@ -1503,7 +1465,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
           </div>
 
-          {/* Accreditation Logos Row matching Image 4, Section 7 */}
+          {/* Accreditation & Affiliations Row */}
           <div className="py-6 border-b border-slate-200 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-600">
             <span className="font-extrabold text-slate-800 uppercase text-[11px] tracking-wider">
               ACCREDITED BY, AUTHORISED BY AND AFFILIATED:
@@ -1546,9 +1508,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </footer>
 
-      {/* =========================================================================
-          CAMPUS VIDEO PREVIEW MODAL ("WATCH THE FULL VIDEO >")
-          ========================================================================= */}
+      {/* CAMPUS VIDEO PREVIEW MODAL ("WATCH THE FULL VIDEO >") */}
       {isVideoModalOpen && (
         <div className="isd-video-modal-backdrop" onClick={() => setIsVideoModalOpen(false)}>
           <div className="isd-video-modal-box" onClick={(e) => e.stopPropagation()}>
@@ -1593,9 +1553,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       )}
 
-      {/* =========================================================================
-          ONLINE BOT: "TALK TO HAWK ADMISSIONS DESK" (Interactive AI/Rule Counselor)
-          ========================================================================= */}
+      {/* ONLINE BOT: "TALK TO HAWK ADMISSIONS DESK" (Interactive AI/Rule Counselor) */}
       <TalkToHawkBotModal
         isOpen={isCounselorModalOpen}
         onClose={() => setIsCounselorModalOpen(false)}
